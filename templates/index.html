@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="hero">
+    <h1>🏠 Renovation Credit System</h1>
+    <p class="hero-subtitle">Based on TU Model · Providing fair credit scoring for renovation companies.</p>
+    <div class="hero-actions">
+        <a href="{{ url_for('companies.add_company') }}" class="btn btn-primary btn-lg">Register Company</a>
+        <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary btn-lg">View Dashboard</a>
+    </div>
+</div>
+
+<!-- Sections -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon">🏢</div>
+        <div class="stat-value">{{ total_companies }}</div>
+        <div class="stat-label">Registered Companies</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">✅</div>
+        <div class="stat-value">{{ active_companies }}</div>
+        <div class="stat-label">Active Companies</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">💰</div>
+        <div class="stat-value">{{ total_loans }}</div>
+        <div class="stat-label">Loan Applications</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">✔️</div>
+        <div class="stat-value">{{ approved_loans }}</div>
+        <div class="stat-label">Approved</div>
+    </div>
+</div>
+
+<!-- Sections -->
+<div class="dashboard-grid">
+    <!-- Recent Credit Scores -->
+    <div class="card">
+        <div class="card-header">
+            <h2>📊 Recent Credit Scores</h2>
+            <a href="{{ url_for('main.dashboard') }}" class="btn btn-sm">View All</a>
+        </div>
+        <div class="card-body">
+            {% if recent_scores %}
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Action</th>
+                            <th>Score</th>
+                            <th>Grade</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for score in recent_scores %}
+                        <tr>
+                            <td>{{ score.company.company_name }}</td>
+                            <td><strong>{{ score.credit_score }}</strong></td>
+                            <td>
+                                <span class="badge badge-{{ score.credit_grade|lower }}">
+                                    {{ score.credit_grade }}
+                                </span>
+                            </td>
+                            <td>{{ score.scored_at.strftime('%Y-%m-%d') }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="text-muted">No Credit Score Records Found</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Recent Loan Applications -->
+    <div class="card">
+        <div class="card-header">
+            <h2>💰 Recent Loan Applications</h2>
+            <a href="{{ url_for('loans.list_loans') }}" class="btn btn-sm">View All</a>
+        </div>
+        <div class="card-body">
+            {% if recent_applications %}
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Action</th>
+                            <th>Action</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for app in recent_applications %}
+                        <tr>
+                            <td>{{ app.company.company_name }}</td>
+                            <td>HK$ {{ "%.2f"|format(app.loan_amount) }}</td>
+                            <td>
+                                <span class="badge badge-{{ app.application_status }}">
+                                    {{ app.application_status }}
+                                </span>
+                            </td>
+                            <td>{{ app.applied_at.strftime('%Y-%m-%d') }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="text-muted">No Loan Applications</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- System Features -->
+<div class="features-section">
+    <h2>🌟 System Features</h2>
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="feature-icon">📈</div>
+            <h3>Comprehensive Credit Score</h3>
+            <p>5 dimensions comprehensive credit evaluation</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">🏦</div>
+            <h3>Fast & Secure</h3>
+            <p>Help banks identify high-quality renovation companies and provide lower interest loans.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">🛡️</div>
+            <h3>Fast & Secure</h3>
+            <p>Real-time monitoring of loan status to prevent funding risks.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">📱</div>
+            <h3>Fast & Secure</h3>
+            <p>Intuitive interface, fast registration, real-time access to credit scores.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - RenoCredit RenoCredit{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1><i class="fas fa-chart-line"></i> Data Dashboard</h1>
+    
+    <div class="row mt-4">
+        <!-- Credit Grade Distribution -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5><i class="fas fa-star"></i> Credit Grade Distribution</h5>
+                </div>
+                <div class="card-body">
+                    {% if grade_distribution %}
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Grade</th>
+                                    <th>Quantity</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for grade, count in grade_distribution %}
+                                <tr>
+                                    <td><span class="badge badge-grade-{{ grade }}">{{ grade }}</span></td>
+                                    <td>{{ count }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <p class="text-muted">No data available.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Loan Status Statistics -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5><i class="fas fa-money-bill-wave"></i> Loan Status Statistics</h5>
+                </div>
+                <div class="card-body">
+                    {% if loan_status_stats %}
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Status</th>
+                                    <th>Quantity</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for status, count in loan_status_stats %}
+                                <tr>
+                                    <td><span class="badge badge-status-{{ status }}">{{ status }}</span></td>
+                                    <td>{{ count }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <p class="text-muted">No data available.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Risk Level Distribution -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <h5><i class="fas fa-exclamation-triangle"></i> Risk Level Distribution</h5>
+                </div>
+                <div class="card-body">
+                    {% if risk_distribution %}
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Risk Level</th>
+                                    <th>Quantity</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for risk, count in risk_distribution %}
+                                <tr>
+                                    <td>
+                                        {% if risk == 'low' %}
+                                            <span class="badge badge-success">Low Risk</span>
+                                        {% elif risk == 'medium' %}
+                                            <span class="badge badge-warning">Medium Risk</span>
+                                        {% elif risk == 'high' %}
+                                            <span class="badge badge-danger">High Risk</span>
+                                        {% else %}
+                                            <span class="badge badge-secondary">Unknown</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ count }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <p class="text-muted">No data available.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-dark text-white">
+                    <h5><i class="fas fa-bolt"></i> Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <a href="{{ url_for('companies.add_company') }}" class="btn btn-primary mr-2">
+                        <i class="fas fa-plus"></i> Add Company 
+                    </a>
+                    <a href="{{ url_for('loans.add_application') }}" class="btn btn-success mr-2">
+                        <i class="fas fa-hand-holding-usd"></i> New Loan Application
+                    </a>
+                    <a href="{{ url_for('main.index') }}" class="btn btn-secondary">
+                        <i class="fas fa-home"></i> Back to Home
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

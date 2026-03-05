@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}About - RenoCredit RenoCredit{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <h1 class="text-center mb-4"><i class="fas fa-info-circle"></i> About RenoCredit</h1>
+            
+            <div class="card">
+                <div class="card-body">
+                    <h3>🏠 System Introduction</h3>
+                    <p>
+                        RenoCredit is a Renovation Credit System based on comprehensive credit scoring, helping renovation companies manage risk and loan applications.
+                    </p>
+                    
+                    <hr>
+                    
+                    <h3>🎯 Core Features</h3>
+                    <ul>
+                        <li><strong>Company Info Management:</strong>Manage renovation company details.</li>
+                        <li><strong>Credit Scoring System:</strong>Evaluate based on 5 dimensions.</li>
+                        <li><strong>Loan Application Processing:</strong> Streamline the entire loan application lifecycle.</li>
+                        <li><strong>Risk Assessment:</strong> Identify and mitigate high-risk elements.</li>
+                        <li><strong>Data Analytics:</strong> Comprehensive dashboard for data visualization.</li>
+                    </ul>
+                    
+                    <hr>
+                    
+                    <h3>📊 Scoring Model</h3>
+                    <p>The credit score is based on 5 dimensions:</p>
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Dimension</th>
+                                <th>Weight</th>
+                                <th>Max Points</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Financial Strength</td>
+                                <td>30%</td>
+                                <td>300 Points</td>
+                            </tr>
+                            <tr>
+                                <td>Operational Stability</td>
+                                <td>25%</td>
+                                <td>250 Points</td>
+                            </tr>
+                            <tr>
+                                <td>Credit History</td>
+                                <td>25%</td>
+                                <td>250 Points</td>
+                            </tr>
+                            <tr>
+                                <td>Team Assessment</td>
+                                <td>10%</td>
+                                <td>100 Points</td>
+                            </tr>
+                            <tr>
+                                <td>Industry Risk</td>
+                                <td>10%</td>
+                                <td>100 Points</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <hr>
+                    
+                    <h3>🔒 Security & Privacy</h3>
+                    <p>
+                        We ensure high security and strict privacy policies to protect user data.
+                    </p>
+                    
+                    <hr>
+                    
+                    <h3>📞 Contact Us</h3>
+                    <p>
+                         If you have any questions, please contact our support team.
+                    </p>
+                    
+                    <div class="text-center mt-4">
+                        <a href="{{ url_for('main.index') }}" class="btn btn-primary">
+                            <i class="fas fa-home"></i> Back to Home
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+
+{% block title %}Loan Application Details - RenoCredit RenoCredit{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12 d-flex justify-content-between align-items-center">
+            <h2><i class="fas fa-file-invoice-dollar"></i> Loan Application Details 
+            <div>
+                <a href="{{ url_for('loans.list_loans') }}" class="btn btn-secondary">Back to List</a>
+                {% if application.application_status == 'pending' %}
+                <a href="{{ url_for('loans.review_application', id=application.id) }}" class="btn btn-warning"><i class="fas fa-gavel"></i> Approve/Reject</a>
+                {% endif %}
+            </div>
+        </div>
+        <hr class="mt-2">
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <!-- Application Status -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-info-circle"></i> Application Status</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Status：</strong>
+                        {% if application.application_status == 'pending' %}
+                            <span class="badge bg-warning">Pending</span>
+                        {% elif application.application_status == 'approved' %}
+                            <span class="badge bg-success">Approved</span>
+                        {% elif application.application_status == 'rejected' %}
+                            <span class="badge bg-danger">Rejected</span>
+                        {% endif %}
+                    </p>
+                    <p><strong>Application Date：</strong>{{ application.applied_at.strftime('%Y-%m-%d %H:%M') if application.applied_at else '-' }}</p>
+                    <p><strong>Company Name：</strong><a href="{{ url_for('companies.view_company', id=company.id) }}">{{ company.company_name }}</a></p>
+                </div>
+            </div>
+
+            <!-- Application Content -->
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-money-bill-wave"></i> Application Content</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Requested Amount：</strong>HK$ {{ "{:,.2f}".format(application.loan_amount) }}</p>
+                    <p><strong> Instalments：</strong>{{ application.loan_term_months }} Months</p>
+                    <p><strong>Loan Purpose：</strong>{{ application.loan_purpose or '-' }}</p>
+                </div>
+            </div>
+            
+            {% if application.application_status != 'pending' %}
+            <!-- Approval Result -->
+            <div class="card mb-4">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0"><i class="fas fa-check-circle"></i> Approval Result</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Approval Date: </strong>{{ application.approval_date.strftime('%Y-%m-%d %H:%M') if application.approval_date else '-' }}</p>
+                    {% if application.application_status == 'approved' %}
+                        <p><strong>Approved Amount: </strong>HK$ {{ "{:,.2f}".format(application.approved_amount or 0) }}</p>
+                        <p><strong>Approved Interest Rate: </strong>{{ application.approved_interest_rate }}%</p>
+                        <p><strong>Additional Conditions：</strong>{{ application.approval_conditions or 'None' }}</p>
+                    {% elif application.application_status == 'rejected' %}
+                        <p><strong>Rejection Reason: </strong>{{ application.rejection_reason or 'None' }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="col-md-6">
+            <!-- Applicant Credit Score -->
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-star"></i> Credit Scoring Result</h5>
+                </div>
+                <div class="card-body">
+                    {% if application.credit_score_at_application %}
+                        <!-- Assuming application model stores score and grade for display -->
+                        <div class="text-center mb-3">
+                            <h1 class="display-4 text-primary">{{ application.credit_score_at_application }}</h1>
+                            <h4>Grade：<span class="badge bg-info">{{ application.credit_grade_at_application }}</span></h4>
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center">No Credit Score Records</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if application.application_status == 'approved' %}
+            <!-- Status Details -->
+            <div class="card mb-4">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0"><i class="fas fa-hand-holding-usd"></i> Financial Status</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Disbursement Date:</strong> {{ application.disbursement_date.strftime('%Y-%m-%d') if application.disbursement_date else 'Not disbursed' }}</p>
+                    {% if application.disbursement_date %}
+                        <p><strong>Disbursement Amount:</strong>HK$ {{ "{:,.2f}".format(application.disbursement_amount or 0) }}</p>
+                        <p><strong>Total Repaid:</strong>HK$ {{ "{:,.2f}".format(application.total_repaid or 0) }}</p>
+                        <p><strong>Outstanding Balance:</strong>HK$ {{ "{:,.2f}".format(application.outstanding_balance or 0) }}</p>
+                        <p><strong>First Repayment Date:</strong>{{ application.first_repayment_date.strftime('%Y-%m-%d') if application.first_repayment_date else '-' }}</p>
+                        <p><strong>Repayment Status：</strong>
+                            {% if application.repayment_status == 'current' %}
+                                <span class="badge bg-success">On Time</span>
+                            {% elif application.repayment_status == 'late' %}
+                                <span class="badge bg-warning">Late</span>
+                            {% elif application.repayment_status == 'default' %}
+                                <span class="badge bg-danger">Defaulted</span>
+                            {% elif application.repayment_status == 'completed' %}
+                                <span class="badge bg-primary">Settled</span>
+                            {% else %}
+                                - 
+                            {% endif %}
+                        </p>
+                    {% else %}
+                        <form action="{{ url_for('loans.disburse_loan', id=application.id) }}" method="POST">
+                            <button type="submit" class="btn btn-success" onclick="return confirm('Are you sure?')">
+                                <i class="fas fa-money-check-alt"></i> Disburse Funds 
+                            </button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if application.disbursement_date and application.repayment_status != 'completed' %}
+            <!-- Repayment Actions -->
+            <div class="card mb-4">
+                <div class="card-header border-success">
+                    <h5 class="mb-0"><i class="fas fa-coins"></i> Make Repayment</h5>
+                </div>
+                <div class="card-body">
+                    <form action="{{ url_for('loans.repay_loan', id=application.id) }}" method="POST">
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">HK$</span>
+                            <input type="number" step="0.01" min="0.01" max="{{ application.outstanding_balance }}" class="form-control" name="repayment_amount" required placeholder="Enter Amount">
+                            <button class="btn btn-primary" type="submit">Submit</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

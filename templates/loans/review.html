@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}Approve Loan Application - RenoCredit RenoCredit{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2><i class="fas fa-gavel"></i> Approve Loan Application #{{ application.id }}</h2>
+    <hr>
+    
+    <div class="row">
+        <!-- Information -->
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-info-circle"></i> Application Summary</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Requested Amount：</strong>HK$ {{ "{:,.2f}".format(application.loan_amount) }}</p>
+                    <p><strong>Instalments：</strong>{{ application.loan_term_months }} Months</p>
+                    <p><strong>Loan Purpose：</strong>{{ application.loan_purpose or '-' }}</p>
+                    <p><strong>Credit Score：</strong>{{ application.credit_score_at_application }} ({{ application.credit_grade_at_application }})</p>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0"><i class="fas fa-chart-line"></i> Credit Information</h5>
+                </div>
+                <div class="card-body">
+                    <p>Based on the company's score ({{ application.credit_score_at_application }})：</p>
+                    <ul>
+                        <li>Suggested annual interest rate level is around {{ application.recommended_interest_rate | default('4.5') }}% </li>
+                        <li>Risk Grade：{{ application.risk_level | default('Moderate') }}</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Form Action -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-edit"></i> Evaluate Application</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('loans.review_application', id=application.id) }}">
+                        
+                        <!-- Form Status -->
+                        <input type="hidden" name="action" id="action_field" value="">
+
+                        <ul class="nav nav-tabs" id="reviewTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="approve-tab" data-bs-toggle="tab" data-bs-target="#approve" type="button" role="tab" aria-controls="approve" aria-selected="true" onclick="document.getElementById('action_field').value='approve'">
+                                    <i class="fas fa-check text-success"></i> Approve
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="reject-tab" data-bs-toggle="tab" data-bs-target="#reject" type="button" role="tab" aria-controls="reject" aria-selected="false" onclick="document.getElementById('action_field').value='reject'">
+                                    <i class="fas fa-times text-danger"></i> Reject
+                                </button>
+                            </li>
+                        </ul>
+                        
+                        <div class="tab-content mt-3" id="reviewTabsContent">
+                            <!-- Approve Details -->
+                            <div class="tab-pane fade show active" id="approve" role="tabpanel" aria-labelledby="approve-tab">
+                                <div class="mb-3">
+                                    <label for="approved_amount" class="form-label">Approved Amount (HK$)</label>
+                                    <input type="number" step="0.01" class="form-control" id="approved_amount" name="approved_amount" value="{{ application.loan_amount }}" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="approved_interest_rate" class="form-label">Approved Interest Rate (%)</label>
+                                    <input type="number" step="0.01" class="form-control" id="approved_interest_rate" name="approved_interest_rate" value="{{ application.recommended_interest_rate | default(4.5) }}" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="approval_conditions" class="form-label">Additional Conditions (Optional)</label>
+                                    <textarea class="form-control" id="approval_conditions" name="approval_conditions" rows="3" placeholder="e.g., Submit additional docs..."></textarea>
+                                </div>
+                            </div>
+                            
+                            <!-- Reject Details -->
+                            <div class="tab-pane fade" id="reject" role="tabpanel" aria-labelledby="reject-tab">
+                                <div class="mb-3">
+                                    <label for="rejection_reason" class="form-label text-danger">Reason for Rejection *</label>
+                                    <textarea class="form-control" id="rejection_reason" name="rejection_reason" rows="4" placeholder="Please fillReason for Rejection..."></textarea>
+                                    <small class="text-muted">If rejected, this field should be filled (recommended).</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-primary" onclick="if(document.getElementById('action_field').value === '') document.getElementById('action_field').value='approve'; return confirm('Confirm determination?');">Confirm Submission</button>
+                            <a href="{{ url_for('loans.view_application', id=application.id) }}" class="btn btn-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

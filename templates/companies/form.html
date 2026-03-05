@@ -1,0 +1,292 @@
+{% extends "base.html" %}
+
+{% block title %}Add Company - RenoCredit RenoCredit{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <h2><i class="fas fa-building"></i> Renovation Company Form</h2>
+            <hr>
+        </div>
+    </div>
+
+    <form method="POST" action="{{ url_for('companies.add_company') }}">
+        <div class="row">
+            <!-- Basic Information -->
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-info-circle"></i> Basic Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="company_name">Company Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="company_name" name="company_name" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="company_name_en">English Name</label>
+                            <input type="text" class="form-control" id="company_name_en" name="company_name_en">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="business_registration">Business Reg. No. <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="business_registration" name="business_registration" 
+                                   pattern="[0-9]{8}" placeholder="8 digits" required>
+                            <small class="form-text text-muted">Format: 8 digits (e.g., 12345678)</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="established_date">Established Year <span class="text-danger">*</span></label>
+                            <input type="date" class="form-control" id="established_date" name="established_date" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="registered_capital">Registered Capital (HKD) <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control" id="registered_capital" name="registered_capital" 
+                                   step="0.01" min="0" required>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Information -->
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="fas fa-address-book"></i> Contact Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="contact_person">Contact Person <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="contact_person" name="contact_person" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="contact_position">Position</label>
+                            <input type="text" class="form-control" id="contact_position" name="contact_position">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="phone">Company Phone <span class="text-danger">*</span></label>
+                            <input type="tel" class="form-control" id="phone" name="phone" 
+                                   pattern="[0-9]{8}" placeholder="8 digits" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email">Company Email <span class="text-danger">*</span></label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="address">Company Address <span class="text-danger">*</span></label>
+                            <textarea class="form-control" id="address" name="address" rows="2" required></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="district">District</label>
+                            <select class="form-control" id="district" name="district">
+                                <option value="">Please SelectDistrict</option>
+                                <option value="Medium Business">Medium Business</option>
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Business Information -->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0"><i class="fas fa-chart-line"></i> Business Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="employee_count">Number of Employees</label>
+                                    <input type="number" class="form-control" id="employee_count" name="employee_count" min="0">
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="annual_revenue">Annual Revenue (HKD)</label>
+                                    <input type="number" class="form-control" id="annual_revenue" name="annual_revenue" 
+                                           step="0.01" min="0">
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="project_count_completed">Completed Projects</label>
+                                    <input type="number" class="form-control" id="project_count_completed" 
+                                           name="project_count_completed" min="0">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="average_project_value">Average Project Value (HKD)</label>
+                                    <input type="number" class="form-control" id="average_project_value" 
+                                           name="average_project_value" step="0.01" min="0">
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="main_service_type">Main Service Type</label>
+                                    <select class="form-control" id="main_service_type" name="main_service_type">
+                                        <option value="">Please Select</option>
+                                        <option value="Residential Renovation">Residential Renovation</option>
+                                        <option value="Commercial Renovation">Commercial Renovation</option>
+                                        <option value="Shop/Retail Renovation">Shop/Retail Renovation</option>
+                                        <option value="Office Renovation">Office Renovation</option>
+                                        <option value="Large Scale Projects">Large Scale Projects</option>
+                                        
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional Info -->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card mb-4">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="mb-0"><i class="fas fa-certificate"></i> Certifications</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" id="has_license" name="has_license">
+                                        <label class="custom-control-label" for="has_license">Has License</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="license_type">License Type</label>
+                                    <select class="form-control" id="license_type" name="license_type">
+                                        <option value="">Please Select</option>
+                                        
+                                        
+                                        <option value="Class B Contractor">Class B Contractor</option>
+                                        
+                                        
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" id="iso_certified" name="iso_certified">
+                                        <label class="custom-control-label" for="iso_certified">ISO Certified</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="professional_memberships">Professional Memberships</label>
+                            <input type="text" class="form-control" id="professional_memberships" name="professional_memberships" 
+                                   placeholder="e.g., Member of HKIA">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional Info -->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card mb-4">
+                    <div class="card-header bg-danger text-white">
+                        <h5 class="mb-0"><i class="fas fa-credit-card"></i> Financial Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="bank_account_years">Bank Account Years</label>
+                                    <input type="number" class="form-control" id="bank_account_years" 
+                                           name="bank_account_years" min="0">
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="existing_loans">Existing Loans Total (HKD)</label>
+                                    <input type="number" class="form-control" id="existing_loans" 
+                                           name="existing_loans" step="0.01" min="0">
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="loan_repayment_history">Loan Repayment History</label>
+                                    <select class="form-control" id="loan_repayment_history" name="loan_repayment_history">
+                                        <option value="">Please Select</option>
+                                        <option value="excellent">Excellent</option>
+                                        <option value="good">Good</option>
+                                        <option value="fair">Fair</option>
+                                        <option value="poor">Poor</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional Info -->
+        <div class="row">
+            <div class="col-md-12">
+                <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="fas fa-save"></i> Save Company Info
+                </button>
+                <a href="{{ url_for('companies.list_companies') }}" class="btn btn-secondary btn-lg">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+// Validation 
+document.querySelector('form').addEventListener('submit', function(e) {
+    const br = document.getElementById('business_registration').value;
+    if (!/^\d{8}$/.test(br)) {
+        e.preventDefault();
+        alert('Business Reg. No. must be 8 digits');
+        document.getElementById('business_registration').focus();
+        return false;
+    }
+});
+</script>
+{% endblock %}

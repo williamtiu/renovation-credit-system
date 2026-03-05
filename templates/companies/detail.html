@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+{% block title %}Company Details - RenoCredit RenoCredit{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <h2><i class="fas fa-building"></i> {{ company.company_name }}</h2>
+            <hr>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Company Info -->
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-info-circle"></i> Company Details</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Company Name：</strong>{{ company.company_name }}</p>
+                            <p><strong>English Name：</strong>{{ company.company_name_en or '-' }}</p>
+                            <p><strong>BR No.：</strong>{{ company.business_registration }}</p>
+                            <p><strong>Established Year：</strong>{{ company.established_date }}</p>
+                            <p><strong>Registered Capital：</strong>HK$ {{ "{:,.0f}".format(company.registered_capital | default(0, true)) }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Contact Person：</strong>{{ company.contact_person }}</p>
+                            <p><strong>Position：</strong>{{ company.contact_position or '-' }}</p>
+                            <p><strong>Phone：</strong>{{ company.phone }}</p>
+                            <p><strong>Email：</strong>{{ company.email }}</p>
+                            <p><strong>Address:</strong> {{ company.address }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Business Information -->
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-chart-line"></i> Business Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <p><strong>Number of Employees：</strong>{{ company.employee_count or 0 }}</p>
+                        </div>
+                        <div class="col-md-4">
+                            <p><strong>Annual Revenue：</strong>HK$ {{ "{:,.0f}".format(company.annual_revenue | default(0, true)) }}</p>
+                        </div>
+                        <div class="col-md-4">
+                            <p><strong>Completed Projects:</strong> {{ company.project_count_completed or 0 }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Credit Score -->
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-chart-bar"></i> Credit Score</h5>
+                </div>
+                <div class="card-body">
+                    {% if company.credit_scores and company.credit_scores|length > 0 %}
+                        {% set latest_score = company.credit_scores[0] %}
+                        <div class="text-center mb-3">
+                            <h1 class="display-4 text-success">{{ latest_score.credit_score }}</h1>
+                            <h3>
+                                <span class="badge badge-success">{{ latest_score.credit_grade }}</span>
+                            </h3>
+                            <p class="text-muted">Scoring Date：{{ latest_score.scored_at.strftime('%Y-%m-%d') }}</p>
+                        </div>
+                        <hr>
+                        <p><strong>Risk Level：</strong>
+                            {% if latest_score.risk_level == 'low' %}
+                                <span class="text-success">Low</span>
+                            {% elif latest_score.risk_level == 'medium' %}
+                                <span class="text-warning">Medium</span>
+                            {% else %}
+                                <span class="text-danger">High</span>
+                            {% endif %}
+                        </p>
+                        <p><strong>Suggested Loan Amount：</strong>HK$ {{ "{:,.0f}".format(latest_score.recommended_loan_limit | default(0, true)) }}</p>
+                        <p><strong>Suggested Interest Rate：</strong>{{ latest_score.recommended_interest_rate | default(0, true) }}%</p>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-chart-bar fa-3x text-muted mb-3"></i>
+                            <p>Current Score</p>
+                            <a href="{{ url_for('companies.calculate_score', id=company.id) }}" 
+                               class="btn btn-success btn-sm">
+                                <i class="fas fa-calculator"></i> Calculate Score Now
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Admin Actions -->
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('loans.add_application', company_id=company.id) }}" 
+                           class="btn btn-primary">
+                            <i class="fas fa-file-invoice-dollar"></i> Apply for Loan
+                        </a>
+                        <a href="{{ url_for('companies.edit_company', id=company.id) }}" 
+                           class="btn btn-warning">
+                            <i class="fas fa-edit"></i> Edit Information
+                        </a>
+                        <button class="btn btn-outline-danger" data-toggle="modal" data-target="#deleteModal">
+                            <i class="fas fa-trash"></i> Delete Company
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Delete</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete <strong>{{ company.company_name }}</strong> ?</p>
+                <p class="text-danger">This action cannot be undone!</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <form method="POST" action="{{ url_for('companies.delete_company', id=company.id) }}" style="display:inline;">
+                    <button type="submit" class="btn btn-danger">Confirm Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
