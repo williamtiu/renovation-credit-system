@@ -1,5 +1,5 @@
 with open('README.md', 'w', encoding='utf-8') as f:
-    f.write('''# 🏠 Renovation Credit System (RenoCredit)
+   f.write('''# 🏠 DecoFinance
 
 ![Python Version](https://img.shields.io/badge/python-3.10%2B-blue)
 ![Flask](https://img.shields.io/badge/flask-3.0.0-green)

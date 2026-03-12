@@ -1,149 +1,123 @@
-# 🏗️ System Design Document
+# DecoFinance System Architecture
 
-## 1. System Architecture
+## 1. Architecture Summary
 
-### 1.1 Overall Architecture Diagram
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                        User Layer                               │
-│    ┌──────────┐      ┌──────────┐      ┌──────────┐             │
-│    │ Renovation│     │ Bank     │      │ System   │             │
-│    │ Company   │     │ Officer  │      │ Admin    │             │
-│    │ Web/Mobile│     │ Web      │      │ Web      │             │
-│    └────┬─────┘      └────┬─────┘      └────┬─────┘             │
-└─────────┼─────────────────┼─────────────────┼───────────────────┘
-          │                 │                 │
-          ▼                 ▼                 ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                      Presentation Layer                         │
-│  ┌──────────────────────────────────────────────────────────┐   │
-│  │              React.js + TypeScript (Frontend)            │   │
-│  │  - Responsive Design (Desktop/Tablet/Mobile)             │   │
-│  │  - Component Library: Material-UI / Ant Design           │   │
-│  │  - State Management: Redux / Zustand                     │   │
-│  └──────────────────────────────────────────────────────────┘   │
-└─────────────────────────────────────────────────────────────────┘
-          │
-          ▼ HTTPS/TLS 1.3
-┌─────────────────────────────────────────────────────────────────┐
-│                      Application Layer                          │
-│  ┌──────────────────────────────────────────────────────────┐   │
-│  │              Flask + Python 3.14 (Backend API)           │   │
-│  │  ┌────────────┐  ┌────────────┐  ┌────────────┐          │   │
-│  │  │ Auth       │  │ Scoring    │  │ Loans      │          │   │
-│  │  └────────────┘  └────────────┘  └────────────┘          │   │
-│  │  ┌────────────┐  ┌────────────┐  ┌────────────┐          │   │
-│  │  │ Users      │  │ Reports    │  │ Audits     │          │   │
-│  │  └────────────┘  └────────────┘  └────────────┘          │   │
-│  └──────────────────────────────────────────────────────────┘   │
-└─────────────────────────────────────────────────────────────────┘
-          │
-          ▼ SQLAlchemy ORM
-┌─────────────────────────────────────────────────────────────────┐
-│                          Data Layer                             │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐           │
-│  │  PostgreSQL  │  │    Redis     │  │  MinIO/S3    │           │
-│  │  (Main DB)   │  │   (Cache)    │  │  (Storage)   │           │
-│  └──────────────┘  └──────────────┘  └──────────────┘           │
-└─────────────────────────────────────────────────────────────────┘
-```
-
-### 1.2 Technology Stack
-
-| Layer | Technology | Version | Reason |
-|------|------|------|---------|
-| **Frontend** | React | 18.x | Component-based, rich ecosystem |
-| | TypeScript | 5.x | Type safety, less errors |
-| | Material-UI | 5.x | Professional UI components |
-| **Backend** | Python | 3.14 | Rapid development, ML ecosystem |
-| | Flask | 3.0 | Lightweight, flexible, extensible |
-| | SQLAlchemy | 2.0 | Powerful ORM, generic DB support |
-| **Database** | PostgreSQL | 15+ | High performance, ACID compliant |
-| | Redis | 7.x | Caching, session storage |
-| **Storage** | MinIO | latest | S3 compatibility, self-hosted |
-| **Deployment**| Docker | latest | Containerization |
-| | Nginx | latest | Reverse Proxy, load balancing |
-
----
-
-## 2. System Module Design
-
-### 2.1 Backend Modules Overview 
+DecoFinance is implemented as a Flask monolith with server-rendered Jinja templates, SQLAlchemy models, SQLite-friendly persistence, and role-aware route protection. The architecture favors incremental extension over framework replacement.
 
 ```text
-backend/                     
-├── app/
-│   ├── config.py            # App Configuration
-│   ├── models/              # DB Models
-│   │   ├── user.py, company.py, credit_score.py, loan_application.py, bank.py, audit_log.py
-│   ├── routes/              # API Routes
-│   │   ├── auth.py, companies.py, scores.py, loans.py, reports.py, admin.py
-│   ├── services/            # Business Logic
-│   │   ├── auth_service.py, scoring_service.py, loan_service.py
-│   ├── utils/               # Utility functions (Validators, PDF Generator)
-│   └── middleware/          # Auth & Audit Hooks
+Users
+  |
+  v
+Flask Blueprints + Jinja Templates
+  |
+  +-- auth
+  +-- main/dashboard
+  +-- companies/report/pdf
+  +-- loans/review/disbursement
+  +-- projects/bids/milestones
+  +-- disputes
+  +-- admin/audit
+  +-- api/json endpoints
+  |
+  v
+Service Layer
+  |
+  +-- credit_scorer
+  +-- report_service
+  +-- project_service
+  +-- escrow_service
+  +-- dispute_service
+  +-- smart_contract_service
+  +-- audit_service
+  |
+  v
+SQLAlchemy Models
+  |
+  v
+SQLite or other SQLAlchemy-supported database
 ```
 
----
+## 2. Technology Choices
 
-## 3. API Design
+| Layer | Technology | Current Use |
+|------|------|------|
+| Web Framework | Flask 3 | App factory, blueprints, request lifecycle |
+| Templating | Jinja2 | Dashboard, reports, project and loan UI |
+| ORM | Flask-SQLAlchemy / SQLAlchemy | Models and query layer |
+| Local Database | SQLite | Default development and test database |
+| Testing | pytest | Backend and route regression coverage |
+| Browser Testing | Selenium | End-to-end UI verification |
+| PDF Generation | ReportLab | Credit report export |
 
-### 3.1 Authentication Module
+## 3. Main Modules
 
-| Method | Endpoint | Description | Auth Required |
-|------|------|------|------|
-| POST | `/api/auth/register` | User Registration | ❌ |
-| POST | `/api/auth/login` | User Login | ❌ |
-| POST | `/api/auth/logout` | User Logout | ✅ |
-| POST | `/api/auth/refresh` | Refresh Token | ✅ |
+### 3.1 Identity and Access
+- Session-based authentication.
+- Role-aware decorators for `customer`, `company_user`, `reviewer`, and `admin`.
 
-### 3.2 Companies Module
+### 3.2 Company Trust Domain
+- Company profile management.
+- Compliance-aware trust scoring.
+- Credit report rendering, comparison, and PDF download.
 
-| Method | Endpoint | Description | Auth Required |
-|------|------|------|------|
-| GET | `/api/companies` | Get Companies List | ✅ |
-| GET | `/api/companies/me` | Get Own Profile | ✅ |
-| PUT | `/api/companies/me` | Update Own Profile | ✅ |
-| POST | `/api/companies/documents` | Upload Document | ✅ |
-| GET | `/api/companies/:id/score` | Get Credit Score | ✅ |
-| POST | `/api/companies/:id/score/calculate` | Calculate Score | ✅ |
+### 3.3 Loan Domain
+- Loan application submission.
+- Reviewer approval or rejection.
+- Disbursement and repayment tracking.
 
-### 3.3 Loans Module
+### 3.4 Project Finance Domain
+- Customer project creation.
+- Contractor bid submission and acceptance.
+- Milestone planning, submission, and approval.
+- Escrow-state ledger entries.
+- Disputes and smart-contract state transitions.
 
-| Method | Endpoint | Description | Auth Required |
-|------|------|------|------|
-| GET | `/api/loans` | Get Loan Applications List | ✅ |
-| POST | `/api/loans` | Submit Loan Application | ✅ |
-| GET | `/api/loans/:id` | Get Application Details | ✅ |
-| POST | `/api/loans/:id/withdraw` | Withdraw Application | ✅ |
-| POST | `/api/loans/:id/approve` | Approve (Bank Only) | ✅ |
-| POST | `/api/loans/:id/reject` | Reject (Bank Only) | ✅ |
+### 3.5 Monitoring and Audit
+- Dashboard trend summaries and watchlists.
+- Audit logs for sensitive actions.
+- JSON API endpoints for system statistics and entity inspection.
 
----
+## 4. Smart Contract Design
 
-## 4. Security Design
+The smart contract feature is implemented as an application-layer state machine rather than a blockchain deployment.
 
-### 4.1 Authentication & Authorization
-**JWT Token Structure:** Utilizing Bearer tokens with Role-Based Access Control (RBAC). Passwords are professionally hashed using bcrypt.
+### 4.1 Core States
+- `draft`
+- `active`
+- `milestone_submitted`
+- `frozen`
+- `completed`
 
-**Role Rules:**
-- **Renovation Companies:** Can submit applications and monitor score profiles.
-- **Banks:** Can fetch pending apps, calculate ratings, update approvals, and view company backgrounds.
-- **Sys Admins:** Manage user bases and view sensitive logs.
+### 4.2 Trigger Events
+- project created
+- bid accepted
+- milestone created
+- milestone submitted
+- milestone approved
+- dispute opened
+- dispute resolved
 
-### 4.2 Application Monitoring
-Using logging structures. Logging all app faults, DB latency, traffic metrics natively.
+## 5. Data and Schema Strategy
 
----
+- Schema creation relies on `db.create_all()`.
+- Lightweight schema patching is used where needed for older local databases.
+- No migration framework is currently required for local demo use.
 
-## 5. Deployment Architecture
+## 6. Deployment Shape
 
-### 5.1 Docker Compose Execution File
-Deploying standard Docker components over Nginx bridging, Redis instances, PostgreSQL datastore running over volumes for strict data preservation across system shutdowns.
+- Local Flask process via `python app.py`.
+- Windows startup via `start.bat`.
+- Fixed demo data via `seed_db.py`.
+- Bulk random data via `generate_random_data.py` and `generate_random_data.bat`.
 
----
+## 7. Testing Architecture
 
-**Version:** v1.0  
-**Updated:** 2026-03-03  
-**Authors:** Architecture Team
+- Route and service behavior are covered by pytest.
+- Frontend flows are covered by Selenium.
+- Full regression runs validate both backend and UI flows together.
+
+## 8. Version History
+| Version | Date | Summary |
+|------|------|------|
+| v1.0 | 2026-03-03 | Initial target-state architecture draft |
+| v1.1 | 2026-03-09 | Rewritten to match the implemented Flask/Jinja architecture |

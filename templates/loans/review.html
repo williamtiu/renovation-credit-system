@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Approve Loan Application - RenoCredit RenoCredit{% endblock %}
+{% block title %}Approve Loan Application - DecoFinance{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
@@ -24,13 +24,13 @@
             
             <div class="card mb-4">
                 <div class="card-header bg-warning text-dark">
-                    <h5 class="mb-0"><i class="fas fa-chart-line"></i> Credit Information</h5>
+                    <h5 class="mb-0"><i class="fas fa-chart-line"></i> Trust Information</h5>
                 </div>
                 <div class="card-body">
                     <p>Based on the company's score ({{ application.credit_score_at_application }})：</p>
                     <ul>
-                        <li>Suggested annual interest rate level is around {{ application.recommended_interest_rate | default('4.5') }}% </li>
-                        <li>Risk Grade：{{ application.risk_level | default('Moderate') }}</li>
+                        <li>Suggested annual interest rate level is around 4.5%</li>
+                        <li>Use score, compliance, and project context together in the decision.</li>
                     </ul>
                 </div>
             </div>

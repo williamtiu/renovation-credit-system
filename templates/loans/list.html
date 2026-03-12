@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}List of Loan Applications - RenoCredit RenoCredit{% endblock %}
+{% block title %}List of Loan Applications - DecoFinance{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
@@ -13,9 +13,11 @@
 
     <div class="row mb-3">
         <div class="col-md-6">
+            {% if g.user and g.user.role == 'company_user' %}
             <a href="{{ url_for('loans.add_application') }}" class="btn btn-primary">
                 <i class="fas fa-plus"></i> New Application 
             </a>
+            {% endif %}
         </div>
         <div class="col-md-6">
             <form method="GET" class="form-inline float-right">

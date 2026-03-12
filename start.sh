@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "======================================================="
-echo "   Starting Renovation Credit System (TU Mode)"
+echo "   Starting DecoFinance"
 echo "======================================================="
 
 # Go to script directory

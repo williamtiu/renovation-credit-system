@@ -1,10 +1,10 @@
-# 🏠 Renovation Credit System (RenoCredit)
+# 🏠 DecoFinance
 
 ![Python Version](https://img.shields.io/badge/python-3.10%2B-blue)
 ![Flask](https://img.shields.io/badge/flask-3.0.0-green)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
-A comprehensive system based on the TransUnion (TU) credit scoring model, specifically designed to evaluate and provide credit score services for renovation companies. It helps banks and financial institutions process loan applications, assess risk profiles systematically, and track credit histories.
+DecoFinance is a renovation trust and financing platform built around decorator verification, sector-specific credit scoring, OSH-aware compliance review, ESG readiness, project-backed lending, and live risk monitoring. It helps lenders and platform operators review contractor quality, manage loan workflows, track milestones, and monitor disputes, safety posture, and exposure in one system.
 
 ## 📑 Table of Contents
 1. [Architecture & Design](#-architecture--design)
@@ -30,10 +30,13 @@ The system follows a standard **MVC (Model-View-Controller)** pattern built with
 
 ## ✨ Core Features
 *   🏢 **Company Management**: Register, classify, and maintain profiles across different tier brackets of local renovation companies.
-*   📊 **Credit Scoring Engine**: Automatically calculate numerical scores, mapping them directly to standardized credit grades (A, B, C, D) and Risk Levels (Low, Medium, High).
-*   💰 **Loan Processing Hub**: End-to-end lifecycle management of business loan applications (Pending, Review, Approved, Rejected, Repaying, Completed).
-*   📈 **Risk Data Dashboard**: Visual breakdown and distribution insights of system-wide risk levels and active loan statuses.
-*   🔒 **Administration System**: Restricted, authenticated access routing tailored explicitly for platform administrators.
+*   📊 **Credit Scoring Engine**: Automatically calculate sector-specific scores and map them to standardized credit grades and risk levels.
+*   🦺 **OSH And ESG Signals**: Capture workplace-safety controls, 16kg handling readiness, training coverage, and ESG maturity as part of DecoFinance trust review.
+*   💰 **Loan Processing Hub**: End-to-end lifecycle management of business loan applications, underwriting review, and repayment monitoring.
+*   🧱 **Project And Escrow Workflows**: Manage customer projects, bids, milestones, escrow releases, and dispute handling.
+*   🤝 **Smart Contract Engine**: Automatically translate bid acceptance, milestone approval, escrow release, and dispute freezes into a governed contract lifecycle.
+*   📈 **Risk Data Dashboard**: Portfolio views for score trends, pending decisions, exposure, watchlists, dispute activity, and real-time safety backlogs.
+*   🔒 **Administration System**: Restricted, authenticated access routing tailored for platform reviewers and administrators.
 
 ## 🚀 Installation
 
@@ -76,6 +79,10 @@ To instantly interact with the platform as a new user without manually filling o
    python seed_db.py
    ```
 
+   To generate larger randomized demo data sets, run:
+   *   **Windows Prompted Generator**: `./generate_random_data.bat`
+   *   **Manual Python**: `python generate_random_data.py --count 25 --init`
+
 2. **Launch the Server**:
    Pick any of the three commands below to fire up the system on `http://localhost:5001`.
    *   **Using Windows Script**: `.\start.bat`
@@ -109,6 +116,7 @@ For a precise deep dive outlining the scope of operations and API architectures,
 *   🏗 [02_Architecture_en.md](docs/02_Architecture_en.md) - Cloud hosting layout & internal application blueprint
 *   🗄 [03_Database_en.md](docs/03_Database_en.md) - Entity-Relationship diagram concepts and fields mapping
 *   🔌 [04_API_en.md](docs/04_API_en.md) - Exposed Application Programming Interfaces
+*   🤝 [11_Smart_Contract_System.md](docs/11_Smart_Contract_System.md) - Application-layer contract lifecycle for escrow and disputes
 
 ## 📁 Project Structure
 ```text

@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Loan Applications - RenoCredit RenoCredit{% endblock %}
+{% block title %}Loan Applications - DecoFinance{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
@@ -25,6 +25,15 @@
                                 <option value="">Please Select Company</option>
                                 {% for c in companies %}
                                 <option value="{{ c.id }}">{{ c.company_name }} ({{ c.business_registration }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="project_id">Related Project</label>
+                            <select class="form-control" id="project_id" name="project_id">
+                                <option value="">No linked project</option>
+                                {% for project in projects %}
+                                <option value="{{ project.id }}">{{ project.title }} ({{ project.status }})</option>
                                 {% endfor %}
                             </select>
                         </div>

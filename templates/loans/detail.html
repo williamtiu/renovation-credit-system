@@ -1,15 +1,15 @@
 {% extends "base.html" %}
 
-{% block title %}Loan Application Details - RenoCredit RenoCredit{% endblock %}
+{% block title %}Loan Application Details - DecoFinance{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
     <div class="row">
         <div class="col-md-12 d-flex justify-content-between align-items-center">
-            <h2><i class="fas fa-file-invoice-dollar"></i> Loan Application Details 
+            <h2><i class="fas fa-file-invoice-dollar"></i> Loan Application Details</h2>
             <div>
                 <a href="{{ url_for('loans.list_loans') }}" class="btn btn-secondary">Back to List</a>
-                {% if application.application_status == 'pending' %}
+                {% if g.user and g.user.role in ['admin', 'reviewer'] and application.application_status == 'pending' %}
                 <a href="{{ url_for('loans.review_application', id=application.id) }}" class="btn btn-warning"><i class="fas fa-gavel"></i> Approve/Reject</a>
                 {% endif %}
             </div>
@@ -36,6 +36,13 @@
                     </p>
                     <p><strong>Application Date：</strong>{{ application.applied_at.strftime('%Y-%m-%d %H:%M') if application.applied_at else '-' }}</p>
                     <p><strong>Company Name：</strong><a href="{{ url_for('companies.view_company', id=company.id) }}">{{ company.company_name }}</a></p>
+                    <p><strong>Related Project:</strong>
+                        {% if application.project %}
+                        <a href="{{ url_for('projects.view_project', id=application.project.id) }}">{{ application.project.title }}</a>
+                        {% else %}
+                        -
+                        {% endif %}
+                    </p>
                 </div>
             </div>
 
@@ -63,6 +70,7 @@
                         <p><strong>Approved Amount: </strong>HK$ {{ "{:,.2f}".format(application.approved_amount or 0) }}</p>
                         <p><strong>Approved Interest Rate: </strong>{{ application.approved_interest_rate }}%</p>
                         <p><strong>Additional Conditions：</strong>{{ application.approval_conditions or 'None' }}</p>
+                        <p><strong>Reviewed By User ID:</strong> {{ application.reviewed_by_user_id or '-' }}</p>
                     {% elif application.application_status == 'rejected' %}
                         <p><strong>Rejection Reason: </strong>{{ application.rejection_reason or 'None' }}</p>
                     {% endif %}
@@ -75,7 +83,7 @@
             <!-- Applicant Credit Score -->
             <div class="card mb-4">
                 <div class="card-header bg-success text-white">
-                    <h5 class="mb-0"><i class="fas fa-star"></i> Credit Scoring Result</h5>
+                    <h5 class="mb-0"><i class="fas fa-star"></i> Trust Scoring Result</h5>
                 </div>
                 <div class="card-body">
                     {% if application.credit_score_at_application %}
@@ -116,17 +124,19 @@
                                 - 
                             {% endif %}
                         </p>
-                    {% else %}
+                    {% elif g.user and g.user.role in ['admin', 'reviewer'] %}
                         <form action="{{ url_for('loans.disburse_loan', id=application.id) }}" method="POST">
                             <button type="submit" class="btn btn-success" onclick="return confirm('Are you sure?')">
                                 <i class="fas fa-money-check-alt"></i> Disburse Funds 
                             </button>
                         </form>
+                    {% else %}
+                        <p class="text-muted">Awaiting administrative disbursement.</p>
                     {% endif %}
                 </div>
             </div>
 
-            {% if application.disbursement_date and application.repayment_status != 'completed' %}
+            {% if application.disbursement_date and application.repayment_status != 'completed' and g.user and g.user.role in ['company_user', 'admin', 'reviewer'] %}
             <!-- Repayment Actions -->
             <div class="card mb-4">
                 <div class="card-header border-success">

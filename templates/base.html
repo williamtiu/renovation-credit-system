@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Renovation Credit System{% endblock %}</title>
+    <title>{% block title %}DecoFinance{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     {% block extra_css %}{% endblock %}
 </head>
@@ -12,25 +12,38 @@
     <nav class="navbar">
         <div class="nav-brand">
             <a href="{{ url_for('main.index') }}">
-                🏠 Renovation Credit System
+                🏠 DecoFinance
             </a>
         </div>
         <ul class="nav-menu">
             <li><a href="{{ url_for('main.index') }}">🏠 Home</a></li>
             <li><a href="{{ url_for('main.dashboard') }}">📊 Dashboard</a></li>
-            <li><a href="{{ url_for('companies.list_companies') }}">🏢 Renovation Company</a></li>
+            <li><a href="{{ url_for('companies.list_companies') }}">🏢 Companies</a></li>
+            {% if g.user and g.user.role in ['company_user', 'admin', 'reviewer'] %}
             <li><a href="{{ url_for('loans.list_loans') }}">💰 Loan Applications</a></li>
+            {% endif %}
+            <li><a href="{{ url_for('projects.list_projects') }}">🧱 Projects</a></li>
+            <li><a href="{{ url_for('disputes.list_disputes') }}">⚠️ Disputes</a></li>
+            {% if g.user and g.user.role in ['admin', 'reviewer'] %}
+            <li><a href="{{ url_for('companies.compare_reports') }}">🆚 Compare Reports</a></li>
+            <li><a href="{{ url_for('admin.audit_logs') }}">🧾 Audit Logs</a></li>
+            {% endif %}
             <li><a href="{{ url_for('main.about') }}">ℹ️ About</a></li>
         </ul>
         <div class="nav-actions">
             {% if g.user %}
-                <span style="color: white; margin-right: 15px;">Welcome, {{ g.user.username }}</span>
+                <span style="color: white; margin-right: 15px;">{{ g.user.username }} · {{ g.user.role }}</span>
                 <a href="{{ url_for('auth.logout') }}" class="btn btn-secondary" style="margin-right: 10px;">Logout</a>
             {% else %}
                 <a href="{{ url_for('auth.login') }}" class="btn btn-secondary" style="margin-right: 10px;">Login</a>
                 <a href="{{ url_for('auth.register') }}" class="btn btn-secondary" style="margin-right: 10px;">Register</a>
             {% endif %}
+            {% if g.user and g.user.role in ['admin', 'reviewer', 'company_user'] %}
             <a href="{{ url_for('companies.add_company') }}" class="btn btn-primary">+ Add Company</a>
+            {% endif %}
+            {% if g.user and g.user.role in ['customer', 'admin'] %}
+            <a href="{{ url_for('projects.add_project') }}" class="btn btn-primary">+ Add Project</a>
+            {% endif %}
         </div>
     </nav>
 
@@ -56,8 +69,8 @@
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
-            <p>© 2026 Renovation Credit System | Based on TransUnion (TU) Model</p>
-            <p>Helping banks identify High-quality Renovation Companies · Providing better loan services</p>
+            <p>© 2026 DecoFinance | Decorator trust, financing, and risk intelligence</p>
+            <p>Helping lenders, suppliers, and customers verify renovation firms and monitor project-backed lending.</p>
         </div>
     </footer>
 

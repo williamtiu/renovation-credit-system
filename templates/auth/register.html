@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Register - Renovation Credit System{% endblock %}
+{% block title %}Register - DecoFinance{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center mt-5">
@@ -15,6 +15,17 @@
                     <div class="mb-3">
                         <label for="username" class="form-label">Username</label>
                         <input type="text" class="form-control" id="username" name="username" required autofocus>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="role" class="form-label">Role</label>
+                        <select class="form-control" id="role" name="role" required>
+                            <option value="customer">Customer</option>
+                            <option value="company_user">Company User</option>
+                        </select>
                     </div>
                     <div class="mb-4">
                         <label for="password" class="form-label">Password</label>

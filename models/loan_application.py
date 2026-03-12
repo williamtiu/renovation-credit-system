@@ -16,6 +16,7 @@ class LoanApplication(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     company_id = db.Column(db.Integer, db.ForeignKey('companies.id'), nullable=False)
+    project_id = db.Column(db.Integer, db.ForeignKey('projects.id'))
     
     loan_amount = db.Column(db.Float, nullable=False)
     loan_purpose = db.Column(db.String(200))
@@ -53,6 +54,8 @@ class LoanApplication(db.Model):
     
     notes = db.Column(db.Text)
     rejection_reason = db.Column(db.Text)
+    reviewed_by_user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    decision_at = db.Column(db.DateTime)
     
     def __repr__(self):
         return f'<LoanApplication {self.id}: {self.company_id}>'
@@ -61,6 +64,7 @@ class LoanApplication(db.Model):
         return {
             'id': self.id,
             'company_id': self.company_id,
+            'project_id': self.project_id,
             'loan_amount': self.loan_amount,
             'loan_purpose': self.loan_purpose,
             'loan_term_months': self.loan_term_months,
@@ -69,5 +73,6 @@ class LoanApplication(db.Model):
             'approved_interest_rate': self.approved_interest_rate,
             'credit_score_at_application': self.credit_score_at_application,
             'applied_at': self.applied_at.isoformat() if self.applied_at else None,
-            'approval_date': self.approval_date.isoformat() if self.approval_date else None
+            'approval_date': self.approval_date.isoformat() if self.approval_date else None,
+            'decision_at': self.decision_at.isoformat() if self.decision_at else None
         }

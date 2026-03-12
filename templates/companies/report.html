@@ -1,0 +1,294 @@
+{% extends "base.html" %}
+
+{% block title %}Credit Report - DecoFinance{% endblock %}
+
+{% block content %}
+<section class="report-page">
+    <div class="report-header-card">
+        <div>
+            <p class="eyebrow">信貸報告 / Credit Report</p>
+            <h1>{{ company.company_name }}</h1>
+            <p class="text-muted">DecoFinance underwriting summary inspired by common TransUnion report sections and extended with renovation-sector OSH, ESG, and project-risk monitoring.</p>
+        </div>
+        <div class="report-header-actions">
+            <div class="report-header-meta">
+                <div><span>Report ID</span><strong>{{ report.report_id }}</strong></div>
+                <div><span>Generated</span><strong>{{ report.generated_at.strftime('%Y-%m-%d %H:%M') }}</strong></div>
+                <div><span>Model</span><strong>{{ report.summary.model_version }}</strong></div>
+            </div>
+            <div class="page-actions">
+                <a href="{{ url_for('companies.download_credit_report', id=company.id) }}" class="btn btn-primary">Download PDF</a>
+                {% if g.user and g.user.role in ['admin', 'reviewer'] %}
+                <a href="{{ url_for('companies.compare_reports', company_ids=company.id) }}" class="btn btn-secondary">Compare This Report</a>
+                {% endif %}
+                <a href="{{ url_for('companies.view_company', id=company.id) }}" class="btn btn-secondary">Back To Company</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="report-top-grid">
+        <article class="card report-summary-card">
+            <div class="card-header"><h2>Score Summary</h2></div>
+            <div class="card-body">
+                <div class="report-score-card large">
+                    <div>
+                        <div class="report-score-number">{{ report.summary.score or 'N/A' }}</div>
+                        <div class="report-grade-pill">{{ report.summary.grade or 'Unrated' }}</div>
+                    </div>
+                    <div class="report-score-meta">
+                        <p><strong>Risk level:</strong> {{ report.summary.risk_level|replace('_', ' ')|title }}</p>
+                        <p><strong>Recommended limit:</strong> HK$ {{ "{:,.0f}".format(report.summary.recommended_loan_limit or 0) }}</p>
+                        <p><strong>Expected pricing:</strong> {{ report.summary.recommended_interest_rate or '-' }}{% if report.summary.recommended_interest_rate %}%{% endif %}</p>
+                        <p><strong>Last scored:</strong> {{ report.summary.score_date.strftime('%Y-%m-%d') if report.summary.score_date else 'Not yet calculated' }}</p>
+                    </div>
+                </div>
+                <div class="metric-strip compact">
+                    <div class="metric-pill">
+                        <span>Loan approvals</span>
+                        <strong>{{ report.exposure.approved_application_count }}</strong>
+                    </div>
+                    <div class="metric-pill">
+                        <span>Accepted bids</span>
+                        <strong>{{ report.project_behaviour.accepted_bid_count }}</strong>
+                    </div>
+                    <div class="metric-pill">
+                        <span>Open disputes</span>
+                        <strong>{{ report.project_behaviour.open_dispute_count }}</strong>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <article class="card">
+            <div class="card-header"><h2>Subject Identification</h2></div>
+            <div class="card-body data-grid-two">
+                <div>
+                    <p><strong>Chinese / Trading name:</strong> {{ report.subject.company_name }}</p>
+                    <p><strong>English name:</strong> {{ report.subject.company_name_en or '-' }}</p>
+                    <p><strong>Business registration:</strong> {{ report.subject.business_registration }}</p>
+                    <p><strong>Main service:</strong> {{ report.subject.main_service_type or '-' }}</p>
+                </div>
+                <div>
+                    <p><strong>Contact:</strong> {{ report.subject.contact_person or '-' }}</p>
+                    <p><strong>Role:</strong> {{ report.subject.contact_position or '-' }}</p>
+                    <p><strong>District:</strong> {{ report.subject.district or '-' }}</p>
+                    <p><strong>Years in business:</strong> {{ report.subject.years_in_business if report.subject.years_in_business is not none else '-' }}</p>
+                </div>
+            </div>
+        </article>
+    </div>
+
+    <div class="report-grid">
+        <article class="card report-section-card">
+            <div class="card-header"><h2>Score Factor Breakdown</h2></div>
+            <div class="card-body">
+                {% if report.score_components %}
+                <div class="score-factor-list">
+                    {% for item in report.score_components %}
+                    <div class="score-factor-row">
+                        <div>
+                            <strong>{{ item.label }}</strong>
+                            <span class="text-muted">{{ item.score }} / {{ item.max_score }}</span>
+                        </div>
+                        <div class="score-bar">
+                            <span style="width: {{ ((item.score / item.max_score) * 100) if item.max_score else 0 }}%"></span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted">No score breakdown available until a trust score is calculated.</p>
+                {% endif %}
+            </div>
+        </article>
+
+        <article class="card report-section-card">
+            <div class="card-header"><h2>Verification And Compliance</h2></div>
+            <div class="card-body">
+                <div class="verification-list">
+                    {% for item in report.verification_checks %}
+                    <div class="verification-row">
+                        <span>{{ item.label }}</span>
+                        <div class="verification-value">
+                            <strong>{{ item.value|replace('_', ' ')|title }}</strong>
+                            <span class="status-chip status-{{ item.status|lower|replace(' ', '-') }}">{{ item.status|replace('_', ' ')|title }}</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="mini-note">
+                    Licence: {{ company.licence_number or '-' }}{% if company.licence_expiry_date %} · expires {{ company.licence_expiry_date }}{% endif %}<br>
+                    Insurance: {{ company.insurance_provider or '-' }}{% if company.insurance_expiry_date %} · expires {{ company.insurance_expiry_date }}{% endif %}
+                </div>
+            </div>
+        </article>
+
+        <article class="card report-section-card">
+            <div class="card-header"><h2>Credit Exposure</h2></div>
+            <div class="card-body metric-grid">
+                <div class="metric-box"><span>Applications</span><strong>{{ report.exposure.loan_application_count }}</strong></div>
+                <div class="metric-box"><span>Approval rate</span><strong>{% if report.exposure.approval_rate is not none %}{{ report.exposure.approval_rate }}%{% else %}-{% endif %}</strong></div>
+                <div class="metric-box"><span>Requested</span><strong>HK$ {{ "{:,.0f}".format(report.exposure.total_requested_amount or 0) }}</strong></div>
+                <div class="metric-box"><span>Approved</span><strong>HK$ {{ "{:,.0f}".format(report.exposure.total_approved_amount or 0) }}</strong></div>
+                <div class="metric-box"><span>Outstanding</span><strong>HK$ {{ "{:,.0f}".format(report.exposure.outstanding_balance or 0) }}</strong></div>
+                <div class="metric-box"><span>Overdue accounts</span><strong>{{ report.exposure.overdue_accounts }}</strong></div>
+            </div>
+        </article>
+
+        <article class="card report-section-card">
+            <div class="card-header"><h2>Project Behaviour</h2></div>
+            <div class="card-body metric-grid">
+                <div class="metric-box"><span>Total bids</span><strong>{{ report.project_behaviour.bid_count }}</strong></div>
+                <div class="metric-box"><span>Accepted bids</span><strong>{{ report.project_behaviour.accepted_bid_count }}</strong></div>
+                <div class="metric-box"><span>Bid success</span><strong>{% if report.project_behaviour.bid_success_rate is not none %}{{ report.project_behaviour.bid_success_rate }}%{% else %}-{% endif %}</strong></div>
+                <div class="metric-box"><span>Open disputes</span><strong>{{ report.project_behaviour.open_dispute_count }}</strong></div>
+                <div class="metric-box"><span>Resolved disputes</span><strong>{{ report.project_behaviour.resolved_dispute_count }}</strong></div>
+                <div class="metric-box"><span>Total cases</span><strong>{{ report.project_behaviour.reported_dispute_count }}</strong></div>
+            </div>
+        </article>
+    </div>
+
+    <div class="report-grid">
+        <article class="card report-section-card">
+            <div class="card-header"><h2>OSH And ESG Signals</h2></div>
+            <div class="card-body metric-grid">
+                <div class="metric-box"><span>OSH policy</span><strong>{{ 'Yes' if report.osh_profile.policy_in_place else 'No' }}</strong></div>
+                <div class="metric-box"><span>Training coverage</span><strong>{{ report.osh_profile.training_coverage if report.osh_profile.training_coverage is not none else '-' }}{% if report.osh_profile.training_coverage is not none %}%{% endif %}</strong></div>
+                <div class="metric-box"><span>16kg control</span><strong>{{ 'Aligned' if report.osh_profile.heavy_lifting_compliance else 'Review' }}</strong></div>
+                <div class="metric-box"><span>Lifting equipment</span><strong>{{ 'Available' if report.osh_profile.lifting_equipment_available else 'Unknown' }}</strong></div>
+                <div class="metric-box"><span>Safety incidents</span><strong>{{ report.osh_profile.incident_count }}</strong></div>
+                <div class="metric-box"><span>ESG level</span><strong>{{ report.esg_profile.policy_level|replace('_', ' ')|title }}</strong></div>
+                <div class="metric-box"><span>Green material use</span><strong>{{ report.esg_profile.green_material_ratio if report.esg_profile.green_material_ratio is not none else '-' }}{% if report.esg_profile.green_material_ratio is not none %}%{% endif %}</strong></div>
+                <div class="metric-box"><span>ISO certified</span><strong>{{ 'Yes' if report.esg_profile.iso_certified else 'No' }}</strong></div>
+            </div>
+        </article>
+
+        <article class="card report-section-card">
+            <div class="card-header"><h2>Real-Time Risk Alerts</h2></div>
+            <div class="card-body">
+                {% if report.risk_factors %}
+                <ul class="alert-list">
+                    {% for factor in report.risk_factors %}
+                    <li>{{ factor }}</li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="text-muted">No active risk alerts.</p>
+                {% endif %}
+            </div>
+        </article>
+
+        <article class="card report-section-card">
+            <div class="card-header"><h2>Recent Monitoring Activity</h2></div>
+            <div class="card-body">
+                {% if report.recent_monitoring_activity %}
+                <div class="timeline-list">
+                    {% for item in report.recent_monitoring_activity %}
+                    <div class="timeline-row">
+                        <div>
+                            <strong>{{ item.type }}</strong>
+                            <p class="text-muted">{{ item.detail }}</p>
+                        </div>
+                        <span>{{ item.date.strftime('%Y-%m-%d') if item.date else '-' }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted">No recent monitoring activity.</p>
+                {% endif %}
+            </div>
+        </article>
+    </div>
+
+    <div class="report-grid">
+        <article class="card report-section-card">
+            <div class="card-header"><h2>Score History</h2></div>
+            <div class="card-body">
+                {% if report.score_history %}
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Score</th>
+                            <th>Grade</th>
+                            <th>Risk</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in report.score_history %}
+                        <tr>
+                            <td>{{ row.scored_at.strftime('%Y-%m-%d') if row.scored_at else '-' }}</td>
+                            <td>{{ row.score }}</td>
+                            <td>{{ row.grade }}</td>
+                            <td>{{ row.risk_level|replace('_', ' ')|title }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p class="text-muted">No historical scores available.</p>
+                {% endif %}
+            </div>
+        </article>
+
+        <article class="card report-section-card">
+            <div class="card-header"><h2>Underwriting Note</h2></div>
+            <div class="card-body">
+                <p>{{ report.disclaimer }}</p>
+                <p class="mini-note">Suggested use: screening, internal loan review, company onboarding, and dispute-risk monitoring. Human review remains required before any credit decision, especially when OSH or ESG alerts are present.</p>
+            </div>
+        </article>
+    </div>
+
+    <div class="report-grid">
+        <article class="card report-section-card">
+            <div class="card-header"><h2>Audit Snapshot</h2></div>
+            <div class="card-body">
+                <div class="audit-summary-grid">
+                    <div class="metric-box">
+                        <span>Last score refresh</span>
+                        <strong>{{ report.audit_snapshot.last_score_refresh.created_at.strftime('%Y-%m-%d') if report.audit_snapshot.last_score_refresh and report.audit_snapshot.last_score_refresh.created_at else '-' }}</strong>
+                        <small>{{ report.audit_snapshot.last_score_refresh.actor if report.audit_snapshot.last_score_refresh else 'No score audit entry' }}</small>
+                    </div>
+                    <div class="metric-box">
+                        <span>Last verification update</span>
+                        <strong>{{ report.audit_snapshot.last_verification_update.created_at.strftime('%Y-%m-%d') if report.audit_snapshot.last_verification_update and report.audit_snapshot.last_verification_update.created_at else '-' }}</strong>
+                        <small>{{ report.audit_snapshot.last_verification_update.actor if report.audit_snapshot.last_verification_update else 'No verification audit entry' }}</small>
+                    </div>
+                    <div class="metric-box">
+                        <span>Last loan decision</span>
+                        <strong>{{ report.audit_snapshot.last_loan_decision.created_at.strftime('%Y-%m-%d') if report.audit_snapshot.last_loan_decision and report.audit_snapshot.last_loan_decision.created_at else '-' }}</strong>
+                        <small>{{ report.audit_snapshot.last_loan_decision.actor if report.audit_snapshot.last_loan_decision else 'No loan review entry' }}</small>
+                    </div>
+                    <div class="metric-box">
+                        <span>Last dispute action</span>
+                        <strong>{{ report.audit_snapshot.last_dispute_action.created_at.strftime('%Y-%m-%d') if report.audit_snapshot.last_dispute_action and report.audit_snapshot.last_dispute_action.created_at else '-' }}</strong>
+                        <small>{{ report.audit_snapshot.last_dispute_action.actor if report.audit_snapshot.last_dispute_action else 'No dispute entry' }}</small>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <article class="card report-section-card">
+            <div class="card-header"><h2>Recent Audit Timeline</h2></div>
+            <div class="card-body">
+                {% if report.audit_snapshot.timeline %}
+                <div class="timeline-list">
+                    {% for item in report.audit_snapshot.timeline %}
+                    <div class="timeline-row">
+                        <div>
+                            <strong>{{ item.label }}</strong>
+                            <p class="text-muted">{{ item.target_type }} · {{ item.actor }}</p>
+                        </div>
+                        <span>{{ item.created_at.strftime('%Y-%m-%d %H:%M') if item.created_at else '-' }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted">No audit events available for this report.</p>
+                {% endif %}
+            </div>
+        </article>
+    </div>
+</section>
+{% endblock %}

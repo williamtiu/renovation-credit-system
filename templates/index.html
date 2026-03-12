@@ -2,10 +2,10 @@
 
 {% block content %}
 <div class="hero">
-    <h1>🏠 Renovation Credit System</h1>
-    <p class="hero-subtitle">Based on TU Model · Providing fair credit scoring for renovation companies.</p>
+    <h1>🏠 DecoFinance Trust Platform</h1>
+    <p class="hero-subtitle">Industry-specific trust scoring, project-based financing, milestone escrow, and active risk monitoring for renovation work.</p>
     <div class="hero-actions">
-        <a href="{{ url_for('companies.add_company') }}" class="btn btn-primary btn-lg">Register Company</a>
+        <a href="{{ url_for('projects.add_project') }}" class="btn btn-primary btn-lg">Create Project</a>
         <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary btn-lg">View Dashboard</a>
     </div>
 </div>
@@ -31,6 +31,21 @@
         <div class="stat-icon">✔️</div>
         <div class="stat-value">{{ approved_loans }}</div>
         <div class="stat-label">Approved</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">🧱</div>
+        <div class="stat-value">{{ total_projects }}</div>
+        <div class="stat-label">Projects</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">📬</div>
+        <div class="stat-value">{{ open_projects }}</div>
+        <div class="stat-label">Open For Bids</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">⚠️</div>
+        <div class="stat-value">{{ total_disputes }}</div>
+        <div class="stat-label">Disputes</div>
     </div>
 </div>
 
@@ -111,31 +126,64 @@
             {% endif %}
         </div>
     </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h2>🧱 Recent Projects</h2>
+            <a href="{{ url_for('projects.list_projects') }}" class="btn btn-sm">View All</a>
+        </div>
+        <div class="card-body">
+            {% if recent_projects %}
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Project</th>
+                            <th>Budget</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for project in recent_projects %}
+                        <tr>
+                            <td>{{ project.title }}</td>
+                            <td>HK$ {{ "%.2f"|format(project.budget_amount) }}</td>
+                            <td>{{ project.status }}</td>
+                            <td>{{ project.created_at.strftime('%Y-%m-%d') }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="text-muted">No projects yet.</p>
+            {% endif %}
+        </div>
+    </div>
 </div>
 
 <!-- System Features -->
 <div class="features-section">
-    <h2>🌟 System Features</h2>
+    <h2>🌟 DecoFinance Core Modules</h2>
     <div class="features-grid">
         <div class="feature-card">
             <div class="feature-icon">📈</div>
-            <h3>Comprehensive Credit Score</h3>
-            <p>5 dimensions comprehensive credit evaluation</p>
+            <h3>Renovation Credit Scoring</h3>
+            <p>Five-dimension scoring tailored to licensing, project delivery, payment behaviour, disputes, and compliance.</p>
         </div>
         <div class="feature-card">
             <div class="feature-icon">🏦</div>
-            <h3>Fast & Secure</h3>
-            <p>Help banks identify high-quality renovation companies and provide lower interest loans.</p>
+            <h3>Loan Matching Workspace</h3>
+            <p>Help lenders review verified firms, recommended limits, and live exposure before approving working-capital or project loans.</p>
         </div>
         <div class="feature-card">
             <div class="feature-icon">🛡️</div>
-            <h3>Fast & Secure</h3>
-            <p>Real-time monitoring of loan status to prevent funding risks.</p>
+            <h3>Risk Monitoring</h3>
+            <p>Track milestone releases, watchlist movements, score changes, and disputes to surface early warning signals.</p>
         </div>
         <div class="feature-card">
             <div class="feature-icon">📱</div>
-            <h3>Fast & Secure</h3>
-            <p>Intuitive interface, fast registration, real-time access to credit scores.</p>
+            <h3>Trust And Compliance</h3>
+            <p>Bring together verification, consent, OSH-aligned governance, and audit trails in one operating view.</p>
         </div>
     </div>
 </div>

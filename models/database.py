@@ -1,8 +1,5 @@
-"""
-"""
-
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
+from flask import abort
 import os
 
 db = SQLAlchemy()
@@ -14,3 +11,10 @@ def init_db():
     """Documnetation translated"""
     db.create_all()
     print(f"✅ Database initialized：{DATABASE_PATH}")
+
+
+def get_or_404(model, object_id):
+    instance = db.session.get(model, object_id)
+    if instance is None:
+        abort(404)
+    return instance

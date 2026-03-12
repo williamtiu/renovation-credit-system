@@ -1,146 +1,140 @@
 {% extends "base.html" %}
 
-{% block title %}Company Details - RenoCredit RenoCredit{% endblock %}
+{% block title %}Company Details - DecoFinance{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
-    <div class="row">
-        <div class="col-md-12">
-            <h2><i class="fas fa-building"></i> {{ company.company_name }}</h2>
-            <hr>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>{{ company.company_name }}</h2>
+        <div class="page-actions">
+            <a href="{{ url_for('companies.view_credit_report', id=company.id) }}" class="btn btn-secondary">View 信貸報告</a>
+            <a href="{{ url_for('companies.download_credit_report', id=company.id) }}" class="btn btn-primary">Download PDF</a>
+            <a href="{{ url_for('companies.edit_company', id=company.id) }}" class="btn btn-warning">Edit</a>
+            <a href="{{ url_for('loans.add_application') }}" class="btn btn-primary">New Loan</a>
         </div>
     </div>
 
     <div class="row">
-        <!-- Company Info -->
         <div class="col-md-8">
+            {% if compliance_alerts %}
+            <div class="alert alert-warning">
+                <strong>Compliance alerts:</strong>
+                <ul class="mb-0 mt-2">
+                    {% for alert in compliance_alerts %}
+                    <li>{{ alert }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
             <div class="card mb-4">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="fas fa-info-circle"></i> Company Details</h5>
-                </div>
+                <div class="card-header"><h5>Company Profile</h5></div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
-                            <p><strong>Company Name：</strong>{{ company.company_name }}</p>
-                            <p><strong>English Name：</strong>{{ company.company_name_en or '-' }}</p>
-                            <p><strong>BR No.：</strong>{{ company.business_registration }}</p>
-                            <p><strong>Established Year：</strong>{{ company.established_date }}</p>
-                            <p><strong>Registered Capital：</strong>HK$ {{ "{:,.0f}".format(company.registered_capital | default(0, true)) }}</p>
+                            <p><strong>Business Registration:</strong> {{ company.business_registration }}</p>
+                            <p><strong>Contact Person:</strong> {{ company.contact_person or '-' }}</p>
+                            <p><strong>Position:</strong> {{ company.contact_position or '-' }}</p>
+                            <p><strong>Phone:</strong> {{ company.phone or '-' }}</p>
+                            <p><strong>Email:</strong> {{ company.email or '-' }}</p>
                         </div>
                         <div class="col-md-6">
-                            <p><strong>Contact Person：</strong>{{ company.contact_person }}</p>
-                            <p><strong>Position：</strong>{{ company.contact_position or '-' }}</p>
-                            <p><strong>Phone：</strong>{{ company.phone }}</p>
-                            <p><strong>Email：</strong>{{ company.email }}</p>
-                            <p><strong>Address:</strong> {{ company.address }}</p>
+                            <p><strong>Address:</strong> {{ company.address or '-' }}</p>
+                            <p><strong>District:</strong> {{ company.district or '-' }}</p>
+                            <p><strong>Annual Revenue:</strong> HK$ {{ "{:,.0f}".format(company.annual_revenue or 0) }}</p>
+                            <p><strong>Completed Projects:</strong> {{ company.project_count_completed or 0 }}</p>
+                            <p><strong>Status:</strong> {{ company.status }}</p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Business Information -->
             <div class="card mb-4">
-                <div class="card-header bg-info text-white">
-                    <h5 class="mb-0"><i class="fas fa-chart-line"></i> Business Information</h5>
-                </div>
+                <div class="card-header"><h5>Compliance</h5></div>
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-md-4">
-                            <p><strong>Number of Employees：</strong>{{ company.employee_count or 0 }}</p>
+                        <div class="col-md-6">
+                            <p><strong>Licence Number:</strong> {{ company.licence_number or '-' }}</p>
+                            <p><strong>Licence Class:</strong> {{ company.licence_class or '-' }}</p>
+                            <p><strong>Licence Categories:</strong> {{ company.licence_categories or '-' }}</p>
+                            <p><strong>Licence Verification:</strong> {{ company.licence_verification_status or 'pending' }}</p>
+                            <p><strong>Licence Expiry:</strong> {{ company.licence_expiry_date or '-' }}</p>
                         </div>
-                        <div class="col-md-4">
-                            <p><strong>Annual Revenue：</strong>HK$ {{ "{:,.0f}".format(company.annual_revenue | default(0, true)) }}</p>
+                        <div class="col-md-6">
+                            <p><strong>Insurance Provider:</strong> {{ company.insurance_provider or '-' }}</p>
+                            <p><strong>Policy Number:</strong> {{ company.insurance_policy_number or '-' }}</p>
+                            <p><strong>Insurance Verification:</strong> {{ company.insurance_verification_status or 'pending' }}</p>
+                            <p><strong>Insurance Expiry:</strong> {{ company.insurance_expiry_date or '-' }}</p>
+                            <p><strong>Eligible For Bidding:</strong> {{ 'Yes' if company.is_verified_for_bidding else 'No' }}</p>
                         </div>
-                        <div class="col-md-4">
-                            <p><strong>Completed Projects:</strong> {{ company.project_count_completed or 0 }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header"><h5>OSH and ESG Profile</h5></div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>OSH Policy:</strong> {{ 'Yes' if company.osh_policy_in_place else 'No' }}</p>
+                            <p><strong>Safety Training Coverage:</strong> {{ company.safety_training_coverage if company.safety_training_coverage is not none else '-' }}{% if company.safety_training_coverage is not none %}%{% endif %}</p>
+                            <p><strong>16kg Handling Control:</strong> {{ 'Confirmed' if company.heavy_lifting_compliance else 'Pending review' }}</p>
+                            <p><strong>Lifting Equipment:</strong> {{ 'Available' if company.lifting_equipment_available else 'Not confirmed' }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Safety Incidents (12 months):</strong> {{ company.safety_incident_count or 0 }}</p>
+                            <p><strong>ESG Policy Level:</strong> {{ (company.esg_policy_level or 'none')|replace('_', ' ')|title }}</p>
+                            <p><strong>Green Material Adoption:</strong> {{ company.green_material_ratio if company.green_material_ratio is not none else '-' }}{% if company.green_material_ratio is not none %}%{% endif %}</p>
+                            <p><strong>ISO Certified:</strong> {{ 'Yes' if company.iso_certified else 'No' }}</p>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Credit Score -->
         <div class="col-md-4">
             <div class="card mb-4">
-                <div class="card-header bg-success text-white">
-                    <h5 class="mb-0"><i class="fas fa-chart-bar"></i> Credit Score</h5>
-                </div>
+                <div class="card-header"><h5>Trust Score</h5></div>
                 <div class="card-body">
-                    {% if company.credit_scores and company.credit_scores|length > 0 %}
-                        {% set latest_score = company.credit_scores[0] %}
-                        <div class="text-center mb-3">
-                            <h1 class="display-4 text-success">{{ latest_score.credit_score }}</h1>
-                            <h3>
-                                <span class="badge badge-success">{{ latest_score.credit_grade }}</span>
-                            </h3>
-                            <p class="text-muted">Scoring Date：{{ latest_score.scored_at.strftime('%Y-%m-%d') }}</p>
+                    {% if latest_score %}
+                    <div class="report-score-card">
+                        <div>
+                            <div class="report-score-number">{{ latest_score.credit_score }}</div>
+                            <div class="report-grade-pill">{{ latest_score.credit_grade }}</div>
                         </div>
-                        <hr>
-                        <p><strong>Risk Level：</strong>
-                            {% if latest_score.risk_level == 'low' %}
-                                <span class="text-success">Low</span>
-                            {% elif latest_score.risk_level == 'medium' %}
-                                <span class="text-warning">Medium</span>
-                            {% else %}
-                                <span class="text-danger">High</span>
-                            {% endif %}
-                        </p>
-                        <p><strong>Suggested Loan Amount：</strong>HK$ {{ "{:,.0f}".format(latest_score.recommended_loan_limit | default(0, true)) }}</p>
-                        <p><strong>Suggested Interest Rate：</strong>{{ latest_score.recommended_interest_rate | default(0, true) }}%</p>
+                        <div class="report-score-meta">
+                            <p><strong>Risk:</strong> {{ latest_score.risk_level }}</p>
+                            <p><strong>Recommended Limit:</strong> HK$ {{ "{:,.0f}".format(latest_score.recommended_loan_limit or 0) }}</p>
+                            <p><strong>Interest Rate:</strong> {{ latest_score.recommended_interest_rate or 0 }}%</p>
+                        </div>
+                    </div>
                     {% else %}
-                        <div class="text-center py-4">
-                            <i class="fas fa-chart-bar fa-3x text-muted mb-3"></i>
-                            <p>Current Score</p>
-                            <a href="{{ url_for('companies.calculate_score', id=company.id) }}" 
-                               class="btn btn-success btn-sm">
-                                <i class="fas fa-calculator"></i> Calculate Score Now
-                            </a>
-                        </div>
+                    <p>No score has been calculated yet.</p>
+                    {% endif %}
+                    <form method="POST" action="{{ url_for('companies.calculate_score', id=company.id) }}">
+                        <button type="submit" class="btn btn-success w-100">Calculate Trust Score</button>
+                    </form>
+                    <a href="{{ url_for('companies.view_credit_report', id=company.id) }}" class="btn btn-secondary w-100 mt-3">Open Full Credit Report</a>
+                    <a href="{{ url_for('companies.download_credit_report', id=company.id) }}" class="btn btn-primary w-100 mt-3">Download PDF Version</a>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><h5>Recent Loan Applications</h5></div>
+                <div class="card-body">
+                    {% if loan_applications %}
+                    <ul class="list-group list-group-flush">
+                        {% for application in loan_applications[:5] %}
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>HK$ {{ "{:,.0f}".format(application.loan_amount) }}</span>
+                            <span>{{ application.application_status }}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p class="text-muted">No loan applications yet.</p>
                     {% endif %}
                 </div>
-            </div>
-
-            <!-- Admin Actions -->
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-grid gap-2">
-                        <a href="{{ url_for('loans.add_application', company_id=company.id) }}" 
-                           class="btn btn-primary">
-                            <i class="fas fa-file-invoice-dollar"></i> Apply for Loan
-                        </a>
-                        <a href="{{ url_for('companies.edit_company', id=company.id) }}" 
-                           class="btn btn-warning">
-                            <i class="fas fa-edit"></i> Edit Information
-                        </a>
-                        <button class="btn btn-outline-danger" data-toggle="modal" data-target="#deleteModal">
-                            <i class="fas fa-trash"></i> Delete Company
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Delete Confirmation Modal -->
-<div class="modal fade" id="deleteModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Confirm Delete</h5>
-                <button type="button" class="close" data-dismiss="modal">
-                    <span>&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <p>Are you sure you want to delete <strong>{{ company.company_name }}</strong> ?</p>
-                <p class="text-danger">This action cannot be undone!</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                <form method="POST" action="{{ url_for('companies.delete_company', id=company.id) }}" style="display:inline;">
-                    <button type="submit" class="btn btn-danger">Confirm Delete</button>
-                </form>
             </div>
         </div>
     </div>

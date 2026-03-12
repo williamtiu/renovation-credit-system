@@ -49,7 +49,75 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+
+    renderDashboardCharts();
 });
+
+function renderDashboardCharts() {
+    const chartContainers = document.querySelectorAll('.chart-shell[data-chart-points]');
+    chartContainers.forEach(container => {
+        let points = [];
+        try {
+            points = JSON.parse(container.dataset.chartPoints || '[]');
+        } catch (error) {
+            console.error('Failed to parse chart data', error);
+            return;
+        }
+
+        if (!points.length) {
+            container.innerHTML = '<p class="text-muted">No chart data available.</p>';
+            return;
+        }
+
+        if (container.dataset.chartKind === 'bar') {
+            container.innerHTML = renderBarChart(points);
+        } else {
+            container.innerHTML = renderLineChart(points);
+        }
+    });
+}
+
+function renderBarChart(points) {
+    const maxValue = Math.max(...points.map(point => point.value || 0), 1);
+    const bars = points.map(point => {
+        const height = Math.max(8, Math.round(((point.value || 0) / maxValue) * 120));
+        return `
+            <div class="chart-bar-group">
+                <span class="chart-bar-value">${point.value}</span>
+                <div class="chart-bar" style="height:${height}px"></div>
+                <span class="chart-label">${point.label}</span>
+            </div>
+        `;
+    }).join('');
+
+    return `<div class="bar-chart">${bars}</div>`;
+}
+
+function renderLineChart(points) {
+    const width = 520;
+    const height = 180;
+    const maxValue = Math.max(...points.map(point => point.value || 0), 1);
+    const stepX = points.length > 1 ? width / (points.length - 1) : width;
+    const coordinates = points.map((point, index) => {
+        const x = index * stepX;
+        const y = height - ((point.value || 0) / maxValue) * (height - 24) - 12;
+        return { x, y, label: point.label, value: point.value || 0 };
+    });
+
+    const polyline = coordinates.map(point => `${point.x},${point.y}`).join(' ');
+    const dots = coordinates.map(point => `<circle cx="${point.x}" cy="${point.y}" r="4"></circle>`).join('');
+    const labels = coordinates.map(point => `<text x="${point.x}" y="${height}" text-anchor="middle">${point.label}</text>`).join('');
+    const values = coordinates.map(point => `<text x="${point.x}" y="${Math.max(point.y - 10, 12)}" text-anchor="middle">${point.value}</text>`).join('');
+
+    return `
+        <svg class="line-chart" viewBox="0 0 ${width} ${height + 20}" preserveAspectRatio="none" role="img" aria-label="Trend chart">
+            <polyline fill="none" points="${polyline}"></polyline>
+            ${dots}
+            ${values}
+            ${labels}
+        </svg>
+    `;
+}
 
 // AJAX 請求輔助函數
 async function apiRequest(url, method = 'GET', data = null) {
@@ -147,3 +215,4 @@ window.showNotification = showNotification;
 window.formatMoney = formatMoney;
 window.formatDate = formatDate;
 window.apiRequest = apiRequest;
+window.renderDashboardCharts = renderDashboardCharts;
