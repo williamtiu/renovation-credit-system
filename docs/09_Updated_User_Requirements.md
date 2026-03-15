@@ -91,7 +91,7 @@ The current application still does not support:
 
 - real fund transfer with a bank;
 - real third-party compliance or credit integrations;
-- React or microservice rewrite;
+- full replacement of existing Flask business workflows with a separate runtime;
 - mobile application;
 - production-grade workflow orchestration platform.
 

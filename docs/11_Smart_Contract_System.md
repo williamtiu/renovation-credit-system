@@ -1,65 +1,95 @@
 # DecoFinance Smart Contract System
 
-## Objective
+## 1. Scope
 
-DecoFinance now includes an application-level smart contract layer for project-backed financing. This is not an on-chain blockchain deployment; it is a deterministic contract state engine inside the platform that governs escrow, milestone release, and dispute freezes.
+DecoFinance implements smart contracts as an application-layer deterministic state engine. It is not blockchain deployment. The engine synchronizes:
 
-## Why This Fits The App
+- project status
+- bid acceptance
+- milestone workflow
+- escrow ledger movements
+- dispute freeze and resolution
 
-The application already had:
+## 2. Contract States
 
-- project creation and bidding;
-- accepted contractor selection;
-- milestone planning and approval;
-- escrow ledger entries;
-- dispute opening and resolution.
+- draft: project exists, no accepted bid.
+- active: contractor accepted and contract activated.
+- milestone_submitted: at least one milestone is awaiting customer/admin review.
+- frozen: open dispute exists; release path is blocked.
+- completed: all milestones approved and no open dispute remains.
 
-Those are the exact ingredients needed for a smart-contract workflow. The added contract engine turns those actions into a governed state machine.
+## 3. Trigger Events and Effects
 
-## Contract States
+1. Project creation
+- creates or prepares contract shell (draft).
 
-- `draft`: project exists but no winning bid has been accepted.
-- `active`: contractor selected and contract activated.
-- `milestone_submitted`: at least one milestone is awaiting approval.
-- `frozen`: an open dispute exists and funds must not be released.
-- `completed`: all milestones are approved and no open dispute remains.
+2. Bid acceptance
+- sets accepted bid and contractor company.
+- contract moves to active.
 
-## Triggered Events
+3. Milestone creation
+- appends term context and increments planned milestone counters.
+- creates planned escrow ledger entry.
 
-- project creation initializes a draft contract shell;
-- bid acceptance activates the contract;
-- milestone creation appends contract terms and planned escrow amounts;
-- milestone submission records proof-of-work pending review;
-- milestone approval releases escrow funds and advances the contract state;
-- dispute opening freezes the contract;
-- dispute resolution re-evaluates whether the contract returns to `active` or `completed`.
+4. Milestone submission
+- milestone status -> submitted.
+- contract status can move to milestone_submitted.
 
-## Stored Contract Data
+5. Milestone approval
+- creates released escrow ledger entry.
+- approved milestone counter increments.
+- project moves toward in_progress/completed.
 
-The `smart_contract_agreements` table stores:
+6. Dispute opening
+- project and related milestone states become disputed where applicable.
+- escrow is frozen through ledger/contract updates.
+- contract status -> frozen.
 
-- project and accepted bid linkage;
-- customer and contractor references;
-- contract code;
-- status;
-- budget, escrow balance, released amount, frozen amount;
-- milestone totals and approvals;
-- open dispute count;
-- normalized contract terms JSON;
-- rolling contract event log JSON.
+7. Dispute resolution
+- clears freeze conditions.
+- contract returns to active or completed depending on milestone completion.
 
-## Current Application Integration
+## 4. Stored Contract Fields
 
-- project detail page shows contract summary and recent contract events;
-- API can expose contract data for project-level integrations;
-- random data generator creates contract-ready projects, milestones, releases, and disputes;
-- system tests validate that contracts progress through project lifecycle events.
+smart_contract_agreements stores:
 
-## Future Upgrade Path
+- project_id (one-to-one)
+- accepted_bid_id
+- customer_user_id
+- contractor_company_id
+- contract_code
+- status
+- budget_amount
+- escrow_balance
+- released_amount
+- frozen_amount
+- milestones_total
+- approved_milestones
+- dispute_count
+- terms_json
+- event_log_json
+- created_at, activated_at, last_event_at
 
-If DecoFinance later needs a real blockchain-backed deployment, the current service layer provides a clean migration point:
+## 5. UI and API Integration
 
-1. keep the current state machine as the canonical business logic;
-2. mirror contract events to a chain adapter;
-3. anchor escrow release approvals and dispute outcomes on-chain;
-4. keep UI and reports unchanged while replacing the storage backend.
+- Legacy project detail page displays contract metrics and recent events.
+- API endpoint GET /api/projects/{id}/contract exposes contract snapshot.
+- New UI (served at /new-ui) consumes project and contract data through /api.
+
+## 6. Validation Coverage
+
+- tests/test_projects.py validates lifecycle transitions and guard rules.
+- tests/test_system.py validates integrated workflow behavior.
+- tests/frontend/test_ui_selenium.py validates browser-level milestone and dispute flows.
+
+## 7. Implementation Boundaries
+
+- business rules are enforced in service and route layers;
+- no financial logic is bypassed during workflow transitions;
+- contract state is authoritative for operational release/freeze behavior.
+
+## 8. Version History
+| Version | Date | Summary |
+|------|------|------|
+| v1.0 | 2026-03-09 | Initial smart contract system note |
+| v1.1 | 2026-03-16 | Synced to current event triggers, escrow behavior, and UI/API integration |

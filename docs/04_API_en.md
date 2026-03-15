@@ -1,212 +1,143 @@
 # DecoFinance API Interface Document
 
-## 1. API Overview
+## 1. Overview
 
 ### 1.1 Base Path
-Current local JSON endpoints are exposed under `/api` on the Flask app.
+All JSON endpoints are under /api.
 
-### 1.2 Response Shape
-Most endpoints return:
+### 1.2 Response Envelope
+Success:
 
-```json
 {
   "success": true,
   "data": {}
 }
-```
 
-### 1.3 Authentication Note
-The web app uses Flask session authentication.
+Failure:
 
-The JSON API now enforces the same session-backed access model as the web UI:
-
-- unauthenticated requests return `401`;
-- inactive users are blocked;
-- reviewer and admin roles are required for portfolio-level inspection endpoints;
-- customer users can only inspect their own projects;
-- company users can only inspect open projects or projects where their company participates.
-
-This API is mainly used for inspection, automation, and tests rather than as a public integration surface.
-
-## 2. Company Endpoints
-- `GET /api/companies`
-- `POST /api/companies`
-- `GET /api/companies/<id>`
-- `POST /api/companies/<id>/score`
-
-Access rules:
-
-- `GET /api/companies` requires any authenticated user;
-- `POST /api/companies` requires `admin`, `reviewer`, or `company_user`;
-- `GET /api/companies/<id>` requires any authenticated user;
-- `POST /api/companies/<id>/score` requires a user who can manage that company.
-
-### 2.1 Example: Create Company
-
-Request:
-
-```json
 {
-  "company_name": "Harbour Fitout Limited",
-  "business_registration": "12345678",
-  "established_date": "2020-01-01",
-  "registered_capital": 1500000,
-  "annual_revenue": 4200000,
-  "employee_count": 14,
-  "project_count_completed": 36,
-  "contact_person": "Alex Chan",
-  "phone": "91234567",
-  "email": "alex@harbourfitout.example",
-  "address": "12 Queen's Road Central",
-  "district": "Hong Kong Island",
-  "has_license": true,
-  "iso_certified": false,
-  "bank_account_years": 4,
-  "existing_loans": 250000,
-  "loan_repayment_history": "Good"
+  "success": false,
+  "error": "message"
 }
-```
 
-Response shape:
+### 1.3 Authentication and Authorization
+Session-cookie auth is used.
 
-```json
+- unauthenticated: 401
+- inactive account: 403
+- role mismatch: 403
+
+## 2. Auth Endpoints
+
+- GET /api/auth/me
+- POST /api/auth/login
+- POST /api/auth/logout
+- POST /api/auth/register
+
+Notes:
+
+- register role whitelist is restricted to customer and company_user.
+- login accepts identifier (username or email) plus password.
+
+Example login request:
+
 {
-  "success": true,
-  "message": "Company created successfully",
-  "data": {
-    "id": 1,
-    "company_name": "Harbour Fitout Limited"
-  }
+  "identifier": "customer@test.com",
+  "password": "password123"
 }
-```
 
-### 2.2 Example: Recalculate Score
+## 3. Company and Scoring Endpoints
 
-Request:
+- GET /api/companies
+- POST /api/companies
+- GET /api/companies/{id}
+- POST /api/companies/{id}/score
+- GET /api/credit-scores (admin/reviewer)
 
-`POST /api/companies/1/score`
+Access summary:
 
-Response fields include:
+- GET companies and company detail require login.
+- POST company create requires admin/reviewer/company_user.
+- score recalculation requires company-management permission.
 
-- `score_id`
-- `credit_score`
-- `credit_grade`
-- `trust_score`
-- `risk_level`
-- `recommended_loan_limit`
-- `recommended_interest_rate`
-- `risk_factors`
+## 4. Loan and Portfolio Endpoints
 
-## 3. Score and Loan Endpoints
-- `GET /api/credit-scores`
-- `GET /api/loans`
-- `GET /api/stats`
+- GET /api/loans (admin/reviewer)
+- GET /api/stats (admin/reviewer)
+- GET /api/disputes (admin/reviewer)
 
-Access rules:
+Stats payload includes:
 
-- all three endpoints require `admin` or `reviewer`.
+- total_companies
+- active_companies
+- total_loans
+- approved_loans
+- pending_loans
+- total_credit_scores
+- total_projects
+- open_projects
+- total_disputes
+- grade_distribution
 
-### 3.1 Example: Stats Response Areas
+## 5. Project and Contract Endpoints
 
-The statistics endpoint currently reports aggregate metrics such as:
+- GET /api/projects
+- GET /api/projects/{id}/bids
+- GET /api/projects/{id}/milestones
+- GET /api/projects/{id}/contract
 
-- total companies
-- active companies
-- total loans
-- approved loans
-- pending loans
-- total credit scores
-- total projects
-- open projects
-- total disputes
-- grade distribution
+Access summary:
 
-## 4. Project Finance Endpoints
-- `GET /api/projects`
-- `GET /api/projects/<id>/bids`
-- `GET /api/projects/<id>/milestones`
-- `GET /api/projects/<id>/contract`
+- customer: own projects
+- company_user: open-for-bids projects or projects where company has participated
+- reviewer/admin: all projects
 
-Access rules:
+Contract endpoint behavior:
 
-- all project endpoints require authentication;
-- customers only see their own projects and project details;
-- company users only see open projects or projects where their company has participated;
-- reviewer and admin users can inspect all project records.
+- returns project smart contract snapshot
+- lazily initializes contract for project if missing
 
-The smart contract endpoint exposes contract code, status, balances, milestone counts, dispute counts, terms, and event history.
+## 6. Developer Diagnostics Endpoint
 
-### 4.1 Example: Contract Response
+- GET /api/developer/summary
 
-```json
-{
-  "success": true,
-  "data": {
-    "project_id": 12,
-    "contract_code": "DF-SC-00012",
-    "status": "active",
-    "budget_amount": 240000.0,
-    "escrow_balance": 180000.0,
-    "released_amount": 60000.0,
-    "frozen_amount": 0.0,
-    "milestones_total": 3,
-    "approved_milestones": 1,
-    "dispute_count": 0,
-    "terms": {},
-    "events": []
-  }
-}
-```
+Returns:
 
-## 5. Dispute Endpoint
-- `GET /api/disputes`
+- current timestamp
+- current session user payload
+- aggregate counts (companies/projects/loans/disputes/creditScores)
+- documented API endpoint lists used by the new UI developer page
 
-Access rules:
+## 7. Web Routes Used by UI Flows
 
-- `GET /api/disputes` requires `admin` or `reviewer`.
+Not JSON APIs, but key routes for user journeys:
 
-## 6. Important Web Routes
+- /auth/register
+- /auth/login
+- /dashboard
+- /companies/compare-report
+- /companies/{id}/credit-report
+- /companies/{id}/credit-report/download
+- /projects/
+- /projects/add
+- /projects/{id}/edit
+- /disputes/
+- /admin/audit-logs
+- /new-ui/
 
-These are not JSON APIs but are important documented entry points:
+## 8. Workflow Guard Rules
 
-- `/auth/register`
-- `/auth/login`
-- `/dashboard`
-- `/companies/<id>/credit-report`
-- `/companies/<id>/credit-report/download`
-- `/companies/compare-report`
-- `/projects/`
-- `/projects/add`
-- `/projects/<id>/edit`
-- `/disputes/`
-- `/admin/audit-logs`
+Current enforced guards include:
 
-## 7. Form-Driven Workflow Notes
+- only one accepted bid per project
+- milestones can be created only after project is contracted/in_progress
+- only accepted contractor can submit milestones
+- submitted milestone with open dispute cannot be approved
+- project list/detail APIs enforce ownership or participation filters
 
-Many core user actions in DecoFinance are HTML form workflows rather than JSON APIs. These include:
-
-- registration and login;
-- project creation;
-- project editing;
-- bid submission;
-- milestone creation and approval;
-- dispute opening;
-- loan review actions.
-
-Important workflow guards now enforced by the application include:
-
-- only one bid may be accepted per project;
-- milestones may only be added after a project is contracted;
-- only the accepted contractor may submit milestone evidence;
-- milestones with open disputes cannot be approved;
-- project and contract inspection endpoints follow ownership and participation rules.
-
-For hand-in and demo purposes, these are documented in `15_Workflow_Examples.md` alongside the API routes.
-
-## 8. Version History
+## 9. Version History
 | Version | Date | Summary |
 |------|------|------|
 | v1.0 | 2026-03-03 | Initial target-state API draft |
-| v1.1 | 2026-03-09 | Updated to the current `/api` routes and contract endpoint |
-| v1.2 | 2026-03-09 | Expanded with example payloads and workflow guidance |
-| v1.3 | 2026-03-12 | Documented current authentication, authorization, and project workflow guard rules |
+| v1.1 | 2026-03-09 | Current /api routes and contract endpoint documented |
+| v1.2 | 2026-03-16 | Added auth JSON endpoints, developer summary endpoint, and dual-UI notes |

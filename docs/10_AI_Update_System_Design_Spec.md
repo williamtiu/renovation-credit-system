@@ -73,7 +73,7 @@ The assistant shall add these major workflows:
 - Keep Flask sessions unless a change is absolutely necessary.
 - Keep SQLite compatibility.
 - Preserve current routes and behaviors where possible.
-- Avoid introducing React, Redis, Celery, blockchain dependencies, or external integrations unless explicitly required.
+- Keep the Flask monolith as the execution core; frontend additions (including /new-ui React bundle) must continue using existing backend business rules and session auth.
 - Do not remove or break current loan and score workflows.
 
 ## 4. Data Models and State Changes

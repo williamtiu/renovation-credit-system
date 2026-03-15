@@ -47,6 +47,20 @@ def _clamp_percentage(value):
     return max(0, min(100, value))
 
 
+def _derive_bid_eligibility(company):
+    status = company.status or 'active'
+    training_coverage = company.safety_training_coverage or 0
+    return (
+        status == 'active' and
+        company.has_license and
+        company.licence_verification_status == 'verified' and
+        company.insurance_verification_status == 'verified' and
+        company.osh_policy_in_place and
+        company.heavy_lifting_compliance and
+        training_coverage >= 80
+    )
+
+
 def _days_until(date_value):
     if not date_value:
         return None
@@ -503,6 +517,7 @@ def add_company():
         try:
             company = Company(owner_user_id=g.user.id)
             _apply_company_form(company)
+            company.is_verified_for_bidding = _derive_bid_eligibility(company)
             
             db.session.add(company)
             db.session.flush()
@@ -576,11 +591,7 @@ def edit_company(id):
     if request.method == 'POST':
         try:
             _apply_company_form(company)
-            company.is_verified_for_bidding = (
-                company.status == 'active' and
-                company.licence_verification_status == 'verified' and
-                company.insurance_verification_status == 'verified'
-            )
+            company.is_verified_for_bidding = _derive_bid_eligibility(company)
             
             db.session.commit()
             log_action('company_updated', 'Company', company.id, {'company_name': company.company_name})
@@ -609,11 +620,7 @@ def calculate_score(id):
         db.session.add(credit_score)
         company.risk_level = result['risk_level']
         company.trust_score_cached = result['total_score']
-        company.is_verified_for_bidding = (
-            company.status == 'active' and
-            company.licence_verification_status == 'verified' and
-            company.insurance_verification_status == 'verified'
-        )
+        company.is_verified_for_bidding = _derive_bid_eligibility(company)
         log_action('trust_score_calculated', 'Company', company.id, {'score': result['total_score']})
         db.session.commit()
         

@@ -24,6 +24,7 @@
             {% endif %}
             <li><a href="{{ url_for('projects.list_projects') }}">🧱 Projects</a></li>
             <li><a href="{{ url_for('disputes.list_disputes') }}">⚠️ Disputes</a></li>
+            <li><a href="{{ url_for('main.new_ui_index') }}">✨ New UI</a></li>
             {% if g.user and g.user.role in ['admin', 'reviewer'] %}
             <li><a href="{{ url_for('companies.compare_reports') }}">🆚 Compare Reports</a></li>
             <li><a href="{{ url_for('admin.audit_logs') }}">🧾 Audit Logs</a></li>

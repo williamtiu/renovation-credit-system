@@ -1,135 +1,85 @@
-# 🏠 DecoFinance
+# DecoFinance
 
-![Python Version](https://img.shields.io/badge/python-3.10%2B-blue)
-![Flask](https://img.shields.io/badge/flask-3.0.0-green)
-![License](https://img.shields.io/badge/license-MIT-blue)
+DecoFinance is a renovation trust and project-finance platform implemented as a Flask monolith with SQLAlchemy models, role-aware workflows, smart-contract state tracking, and both legacy and new UI experiences.
 
-DecoFinance is a renovation trust and financing platform built around decorator verification, sector-specific credit scoring, OSH-aware compliance review, ESG readiness, project-backed lending, and live risk monitoring. It helps lenders and platform operators review contractor quality, manage loan workflows, track milestones, and monitor disputes, safety posture, and exposure in one system.
+## Features
 
-## 📑 Table of Contents
-1. [Architecture & Design](#-architecture--design)
-2. [Core Features](#-core-features)
-3. [Installation](#-installation)
-4. [Getting Started (Demo & Test Info)](#-getting-started-demo--test-info)
-5. [Testing & Tools](#-testing--tools)
-6. [Documentation](#-documentation)
-7. [Project Structure](#-project-structure)
+- Role-aware access for customer, company_user, reviewer, and admin.
+- Company compliance profiling with licence, insurance, OSH, and ESG factors.
+- Trust score generation and bureau-style company credit reports (including PDF export and compare workspace).
+- Loan lifecycle handling (application, review, disbursement, repayment).
+- Project finance workflows (project posting, bidding, milestone submission/approval, escrow ledger entries, disputes).
+- Smart-contract agreement state machine tied to project lifecycle events.
+- JSON endpoints for authenticated frontend integration and diagnostics.
+- Dual UI model:
+  - Legacy Flask/Jinja UI on main routes.
+  - New React UI served by Flask at /new-ui.
 
-## 🏗 Architecture & Design
-The system follows a standard **MVC (Model-View-Controller)** pattern built with Python, enabling a clean separation between data, business logic, and presentation.
-*   **Backend:** Python 3, Flask, SQLAlchemy (ORM)
-*   **Frontend:** HTML5, Bootstrap 4, Jinja2 Templates, FontAwesome
-*   **Database:** SQLite (default for fast development & local runs) or easily upgradable to PostgreSQL
-*   **Scoring Model Structure:** 
-    A tailored 5-dimension evaluation model capping at 1000 points total:
-    *   *Financial Strength (300 points)*
-    *   *Operational Stability (250 points)*
-    *   *Credit History (250 points)*
-    *   *Team Assessment (100 points)*
-    *   *Industry Risk (100 points)*
+## Installation
 
-## ✨ Core Features
-*   🏢 **Company Management**: Register, classify, and maintain profiles across different tier brackets of local renovation companies.
-*   📊 **Credit Scoring Engine**: Automatically calculate sector-specific scores and map them to standardized credit grades and risk levels.
-*   🦺 **OSH And ESG Signals**: Capture workplace-safety controls, 16kg handling readiness, training coverage, and ESG maturity as part of DecoFinance trust review.
-*   💰 **Loan Processing Hub**: End-to-end lifecycle management of business loan applications, underwriting review, and repayment monitoring.
-*   🧱 **Project And Escrow Workflows**: Manage customer projects, bids, milestones, escrow releases, and dispute handling.
-*   🤝 **Smart Contract Engine**: Automatically translate bid acceptance, milestone approval, escrow release, and dispute freezes into a governed contract lifecycle.
-*   📈 **Risk Data Dashboard**: Portfolio views for score trends, pending decisions, exposure, watchlists, dispute activity, and real-time safety backlogs.
-*   🔒 **Administration System**: Restricted, authenticated access routing tailored for platform reviewers and administrators.
+1. Create and activate a Python virtual environment.
+2. Install Python dependencies:
+   - pip install -r requirements.txt
+3. Optional: prepare local environment values:
+   - copy .env.example to .env and update values.
 
-## 🚀 Installation
+## Quick Start
 
-1. **Clone the repository** and navigate to the project directory:
-   ```bash
-   git clone https://github.com/your-username/renovation-credit-system.git
-   cd renovation-credit-system
-   ```
+Windows:
+- .\start.bat
 
-2. **Create and activate a virtual environment**:
-   *Windows:*
-   ```cmd
-   python -m venv .venv
-   .venv\Scripts\activate
-   ```
-   *macOS/Linux:*
-   ```bash
-   python3 -m venv .venv
-   source .venv/bin/activate
-   ```
+Linux/macOS:
+- ./start.sh
 
-3. **Install dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
+Manual launch:
+- python app.py
 
-4. **Environment Configuration**:
-   A sample environment variable file is provided. Copy it to create your active configuration.
-   ```bash
-   cp .env.example .env
-   ```
+Default app URL:
+- http://localhost:5001
 
-## 🎯 Getting Started (Demo & Test Info)
+New UI URL:
+- http://localhost:5001/new-ui/
 
-To instantly interact with the platform as a new user without manually filling out forms first, you can automatically seed the database with mock records.
+Optional script flags:
+- SKIP_NEW_UI_BUILD=1 to skip React build in start scripts.
+- FORCE_NEW_UI_BUILD=1 to force rebuilding React UI in start scripts.
 
-1. **Initialize & Seed the Database**:
-   The built-in script effectively recreates your tables from scratch and registers a default **admin user**, two placeholder **renovation companies**, **credit scores**, and **loan applications**.
-   ```bash
-   python seed_db.py
-   ```
+## Environment Variables
 
-   To generate larger randomized demo data sets, run:
-   *   **Windows Prompted Generator**: `./generate_random_data.bat`
-   *   **Manual Python**: `python generate_random_data.py --count 25 --init`
+Primary variables used by backend runtime/config:
 
-2. **Launch the Server**:
-   Pick any of the three commands below to fire up the system on `http://localhost:5001`.
-   *   **Using Windows Script**: `.\start.bat`
-   *   **Using Bash Script**: `./start.sh`
-   *   **Using Manual Python**: `python app.py`
+- SECRET_KEY
+- DATABASE_URL
+- LOG_LEVEL
+- LOG_FILE
+- MAIL_SERVER
+- MAIL_PORT
+- MAIL_USE_TLS
+- MAIL_USERNAME
+- MAIL_PASSWORD
 
-3. **Demo Login Credentials**:
-   Head over to [http://localhost:5001](http://localhost:5001) in your browser.
-   *   **Username:** `admin`
-   *   **Password:** `password123`
+Frontend build/runtime related variables used by the React app:
 
-## 🧪 Testing & Tools
+- VITE_API_BASE (optional, defaults to /api)
 
-We've provided comprehensive automated scripts that ensure all core services are intact.
+## Running Tests
 
-*   **1. Run Mock System Tests:**
-    Performs a localized integration check testing the core credit scoring downgrades and loan evaluations logic sequentially directly to the CLI interface.
-    ```bash
-    python tests/test_system.py
-    ```
+- Full regression:
+  - pytest -vv
+- Selenium browser flows:
+  - pytest -vv tests/frontend/test_ui_selenium.py
 
-*   **2. Execute the Pytest Suite:**
-    Bootstraps an in-memory SQL database array to silently and automatically verify that all URL Routes load smoothly ensuring 200/302 HTTP status codes responses.
-    ```bash
-    pytest
-    ```
+## Documentation Index
 
-## 📚 Documentation
-For a precise deep dive outlining the scope of operations and API architectures, please refer to our internal specifications defined logically inside the `docs/` folder:
-*   📝 [01_Requirements_en.md](docs/01_Requirements_en.md) - System scoping and operational user roles
-*   🏗 [02_Architecture_en.md](docs/02_Architecture_en.md) - Cloud hosting layout & internal application blueprint
-*   🗄 [03_Database_en.md](docs/03_Database_en.md) - Entity-Relationship diagram concepts and fields mapping
-*   🔌 [04_API_en.md](docs/04_API_en.md) - Exposed Application Programming Interfaces
-*   🤝 [11_Smart_Contract_System.md](docs/11_Smart_Contract_System.md) - Application-layer contract lifecycle for escrow and disputes
+- docs/01_Requirements_en.md
+- docs/02_Architecture_en.md
+- docs/03_Database_en.md
+- docs/04_API_en.md
+- docs/11_Smart_Contract_System.md
+- docs/12_Test_Report.md
+- docs/15_Workflow_Examples.md
 
-## 📁 Project Structure
-```text
-renovation-credit-system/
-├── app.py                # Main Flask entry-point
-├── config.py             # Global environmental & security configurations
-├── seed_db.py            # Development sample data generator
-├── start.bat / start.sh  # Quickstart terminal executables
-├── /models               # Database Schemas (User, Company, Loan, CreditScore)
-├── /routes               # Application URL View Controllers
-├── /services             # Complex logic (Credit Scoring Engine logic)
-├── /templates            # HTML Jinja2 Views
-├── /static               # UI styles & scripts
-├── /tests                # Pytest unit and functional integration suites
-└── /docs                 # Extensive markdown project documentation
-```
+## Project Notes
+
+- Schema is managed via SQLAlchemy create_all with lightweight runtime patching for missing company compliance columns.
+- No migration framework directory is currently present in the repository.

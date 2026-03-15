@@ -1,7 +1,8 @@
 from collections import OrderedDict
 from datetime import datetime, timezone
+from pathlib import Path
 
-from flask import Blueprint, render_template
+from flask import Blueprint, current_app, render_template, send_from_directory
 
 from models.company import Company
 from models.credit_score import CreditScore
@@ -201,3 +202,36 @@ def dashboard():
 @main_bp.route('/about')
 def about():
     return render_template('about.html')
+
+
+def _new_ui_dist_dir():
+    return Path(current_app.root_path) / 'DecoFinance Project Overview' / 'dist'
+
+
+@main_bp.route('/new-ui')
+@main_bp.route('/new-ui/')
+def new_ui_index():
+    dist_dir = _new_ui_dist_dir()
+    index_file = dist_dir / 'index.html'
+    if not index_file.exists():
+        return (
+            'New UI build not found. Run "npm run build" in "DecoFinance Project Overview" first.',
+            503,
+        )
+    return send_from_directory(dist_dir, 'index.html')
+
+
+@main_bp.route('/new-ui/<path:path>')
+def new_ui_assets(path):
+    dist_dir = _new_ui_dist_dir()
+    target = dist_dir / path
+    if target.exists() and target.is_file():
+        return send_from_directory(dist_dir, path)
+
+    index_file = dist_dir / 'index.html'
+    if not index_file.exists():
+        return (
+            'New UI build not found. Run "npm run build" in "DecoFinance Project Overview" first.',
+            503,
+        )
+    return send_from_directory(dist_dir, 'index.html')

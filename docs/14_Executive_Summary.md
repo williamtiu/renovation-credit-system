@@ -48,6 +48,11 @@ The current DecoFinance repository already includes:
 - loan application review, disbursement, and repayment;
 - audit logging and JSON inspection APIs.
 
+It also now runs a dual UI model:
+
+- legacy Flask/Jinja experience;
+- React experience served at /new-ui through Flask.
+
 ## 6. Smart Contract Positioning
 
 The smart-contract feature is implemented as an application-layer state engine, not a blockchain deployment. That choice keeps the solution practical for the current Flask monolith while still giving the system governed contract states such as `draft`, `active`, `milestone_submitted`, `frozen`, and `completed`.
@@ -60,7 +65,11 @@ The current build is supported by automated validation across backend and fronte
 
 Most recent validated result:
 
-- full regression suite: `33 passed in 57.60s`
+- full regression suite: `57 passed, 1 warning in 102.93s`
+
+Most recent Selenium UI suite:
+
+- `4 passed, 1 warning in 65.13s`
 
 The project also includes Selenium-based UI tests and stored log artifacts under `test_logs/` for review.
 
@@ -89,4 +98,5 @@ DecoFinance is no longer just a scoring demo. It is now a more complete renovati
 ## 11. Version History
 | Version | Date | Summary |
 |------|------|------|
-| v1.0 | 2026-03-09 | Initial executive summary for the updated DecoFinance project |
+| v1.0 | 2026-03-09 | Initial executive summary for updated DecoFinance project |
+| v1.1 | 2026-03-16 | Synced with dual-UI architecture and latest validated regression outcomes |

@@ -2,22 +2,28 @@
 
 ## 1. Architecture Summary
 
-DecoFinance is implemented as a Flask monolith with server-rendered Jinja templates, SQLAlchemy models, SQLite-friendly persistence, and role-aware route protection. The architecture favors incremental extension over framework replacement.
+DecoFinance is implemented as a Flask monolith with SQLAlchemy models and role-aware route protection. It now runs a dual-UI pattern:
+
+- legacy server-rendered Jinja UI on primary routes;
+- React UI build served by Flask under /new-ui.
 
 ```text
-Users
+Browser
+  |
+  +-- Flask Jinja routes (legacy UI)
+  +-- /new-ui (React bundle served by Flask)
   |
   v
-Flask Blueprints + Jinja Templates
+Flask Blueprints
   |
   +-- auth
-  +-- main/dashboard
-  +-- companies/report/pdf
-  +-- loans/review/disbursement
-  +-- projects/bids/milestones
+  +-- main
+  +-- companies
+  +-- loans
+  +-- projects
   +-- disputes
-  +-- admin/audit
-  +-- api/json endpoints
+  +-- admin
+  +-- api
   |
   v
 Service Layer
@@ -34,7 +40,7 @@ Service Layer
 SQLAlchemy Models
   |
   v
-SQLite or other SQLAlchemy-supported database
+SQLite (default) or other SQLAlchemy-supported RDBMS
 ```
 
 ## 2. Technology Choices
@@ -42,7 +48,8 @@ SQLite or other SQLAlchemy-supported database
 | Layer | Technology | Current Use |
 |------|------|------|
 | Web Framework | Flask 3 | App factory, blueprints, request lifecycle |
-| Templating | Jinja2 | Dashboard, reports, project and loan UI |
+| Templating | Jinja2 | Legacy UI pages and workflows |
+| New UI | React + Vite build | Served under /new-ui through Flask static delivery |
 | ORM | Flask-SQLAlchemy / SQLAlchemy | Models and query layer |
 | Local Database | SQLite | Default development and test database |
 | Testing | pytest | Backend and route regression coverage |
@@ -75,7 +82,13 @@ SQLite or other SQLAlchemy-supported database
 ### 3.5 Monitoring and Audit
 - Dashboard trend summaries and watchlists.
 - Audit logs for sensitive actions.
-- JSON API endpoints for system statistics and entity inspection.
+- JSON API endpoints for system statistics, auth bootstrap, project inspection, and developer diagnostics.
+
+### 3.6 New UI Integration Layer
+- React build output lives under DecoFinance Project Overview/dist.
+- Flask main blueprint serves this bundle at /new-ui and /new-ui/<path> with SPA fallback.
+- React app authenticates via session-backed /api/auth endpoints.
+- Developer diagnostics page uses /api/developer/summary.
 
 ## 4. Smart Contract Design
 
@@ -105,10 +118,11 @@ The smart contract feature is implemented as an application-layer state machine 
 
 ## 6. Deployment Shape
 
-- Local Flask process via `python app.py`.
-- Windows startup via `start.bat`.
-- Fixed demo data via `seed_db.py`.
-- Bulk random data via `generate_random_data.py` and `generate_random_data.bat`.
+- Local Flask process via python app.py (port 5001).
+- Windows startup via start.bat and Linux/macOS startup via start.sh.
+- Startup scripts can auto-build /new-ui bundle when dist is missing.
+- Fixed demo data via seed_db.py.
+- Bulk random data via generate_random_data.py and generate_random_data.bat.
 
 ## 7. Testing Architecture
 
@@ -120,4 +134,5 @@ The smart contract feature is implemented as an application-layer state machine 
 | Version | Date | Summary |
 |------|------|------|
 | v1.0 | 2026-03-03 | Initial target-state architecture draft |
-| v1.1 | 2026-03-09 | Rewritten to match the implemented Flask/Jinja architecture |
+| v1.1 | 2026-03-09 | Rewritten to match implemented Flask/Jinja architecture |
+| v1.2 | 2026-03-16 | Synced with dual-UI (/new-ui), auth JSON endpoints, and developer diagnostics integration |

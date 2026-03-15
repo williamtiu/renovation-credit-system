@@ -1,6 +1,7 @@
+from datetime import datetime, timezone
 from functools import wraps
 
-from flask import Blueprint, g, jsonify, request
+from flask import Blueprint, g, jsonify, request, session
 
 from models.company import Company
 from models.credit_score import CreditScore
@@ -10,11 +11,14 @@ from models.loan_application import LoanApplication
 from models.project import Project
 from models.project_bid import ProjectBid
 from models.project_milestone import ProjectMilestone
+from models.user import User
 from services.smart_contract_service import get_or_create_contract
 from services.credit_scorer import CreditScorer
 from utils.auth_helper import can_manage_company
 
 api_bp = Blueprint('api', __name__)
+
+SELF_REGISTRATION_ROLES = {'customer', 'company_user'}
 
 
 def api_login_required(f):
@@ -57,6 +61,91 @@ def _can_access_project(project):
     if g.user.role == 'company_user':
         return project.status == 'open_for_bids' or _company_has_project_access(project, g.user.company_id)
     return False
+
+
+def _serialize_user(user):
+    company = user.company
+    return {
+        'id': str(user.id),
+        'name': user.username,
+        'email': user.email,
+        'role': user.role,
+        'companyId': str(user.company_id) if user.company_id is not None else None,
+        'companyName': company.company_name if company else None,
+        'creditScore': company.trust_score_cached if company else None,
+        'trustLevel': company.risk_level if company else None,
+        'trustGrade': None,
+    }
+
+
+@api_bp.route('/auth/me', methods=['GET'])
+def auth_me():
+    if getattr(g, 'user', None) is None:
+        return jsonify({'success': False, 'error': 'Authentication required'}), 401
+    if not g.user.is_active:
+        return jsonify({'success': False, 'error': 'Account is inactive'}), 403
+    return jsonify({'success': True, 'data': _serialize_user(g.user)})
+
+
+@api_bp.route('/auth/login', methods=['POST'])
+def auth_login_json():
+    payload = request.get_json(silent=True) or {}
+    identifier = (payload.get('identifier') or payload.get('email') or payload.get('username') or '').strip()
+    password = payload.get('password') or ''
+
+    if not identifier or not password:
+        return jsonify({'success': False, 'error': 'Identifier and password are required'}), 400
+
+    user = User.query.filter(
+        db.or_(
+            User.username == identifier,
+            User.email == identifier,
+        )
+    ).first()
+
+    if user and not user.is_active:
+        return jsonify({'success': False, 'error': 'Account is inactive'}), 403
+
+    if not user or not user.check_password(password):
+        return jsonify({'success': False, 'error': 'Invalid credentials'}), 401
+
+    session['user_id'] = user.id
+    return jsonify({'success': True, 'data': _serialize_user(user)})
+
+
+@api_bp.route('/auth/logout', methods=['POST'])
+def auth_logout_json():
+    session.pop('user_id', None)
+    return jsonify({'success': True, 'data': {'message': 'Logged out'}})
+
+
+@api_bp.route('/auth/register', methods=['POST'])
+def auth_register_json():
+    payload = request.get_json(silent=True) or {}
+    username = (payload.get('username') or payload.get('name') or '').strip()
+    email = (payload.get('email') or '').strip().lower()
+    password = payload.get('password') or ''
+    role = (payload.get('role') or 'customer').strip()
+
+    if role not in SELF_REGISTRATION_ROLES:
+        return jsonify({'success': False, 'error': 'Selected role is not available for self-registration'}), 400
+
+    if not username or not email or not password:
+        return jsonify({'success': False, 'error': 'Username, email and password are required'}), 400
+
+    if User.query.filter_by(username=username).first():
+        return jsonify({'success': False, 'error': 'Username already exists'}), 409
+
+    if User.query.filter_by(email=email).first():
+        return jsonify({'success': False, 'error': 'Email already exists'}), 409
+
+    user = User(username=username, email=email, role=role)
+    user.set_password(password)
+    db.session.add(user)
+    db.session.commit()
+
+    session['user_id'] = user.id
+    return jsonify({'success': True, 'data': _serialize_user(user)}), 201
 
 @api_bp.route('/companies', methods=['GET', 'POST'])
 @api_login_required
@@ -254,3 +343,36 @@ def get_project_contract(id):
 def get_disputes():
     disputes = DisputeCase.query.order_by(DisputeCase.opened_at.desc()).limit(50).all()
     return jsonify({'success': True, 'data': [dispute.to_dict() for dispute in disputes]})
+
+
+@api_bp.route('/developer/summary', methods=['GET'])
+@api_login_required
+def developer_summary():
+    now = datetime.now(timezone.utc).isoformat()
+    data = {
+        'timestamp': now,
+        'user': _serialize_user(g.user),
+        'counts': {
+            'companies': Company.query.count(),
+            'projects': Project.query.count(),
+            'loans': LoanApplication.query.count(),
+            'disputes': DisputeCase.query.count(),
+            'creditScores': CreditScore.query.count(),
+        },
+        'api': {
+            'base': '/api',
+            'projectEndpoints': [
+                '/api/projects',
+                '/api/projects/<id>/bids',
+                '/api/projects/<id>/milestones',
+                '/api/projects/<id>/contract',
+            ],
+            'authEndpoints': [
+                '/api/auth/me',
+                '/api/auth/login',
+                '/api/auth/logout',
+                '/api/auth/register',
+            ],
+        },
+    }
+    return jsonify({'success': True, 'data': data})

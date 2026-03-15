@@ -24,6 +24,8 @@ from models.audit_log import AuditLog
 from models.company import Company
 from models.credit_score import CreditScore
 from models.database import db
+from models.escrow_ledger_entry import EscrowLedgerEntry
+from models.project import Project
 from models.user import User
 
 
@@ -114,6 +116,22 @@ def _login(driver, wait, live_server, username, password='password123'):
     password_input.send_keys(password)
     driver.find_element(By.CSS_SELECTOR, 'button[type="submit"]').click()
     wait.until(EC.presence_of_element_located((By.LINK_TEXT, 'Logout')))
+
+
+def _register(driver, wait, live_server, username, email, role, password='password123'):
+    driver.get(f'{live_server}/auth/register')
+    wait.until(EC.presence_of_element_located((By.ID, 'username'))).send_keys(username)
+    driver.find_element(By.ID, 'email').send_keys(email)
+    Select(driver.find_element(By.ID, 'role')).select_by_value(role)
+    driver.find_element(By.ID, 'password').send_keys(password)
+    driver.find_element(By.CSS_SELECTOR, 'button[type="submit"]').click()
+    wait.until(EC.presence_of_element_located((By.ID, 'username')))
+
+
+def _set_checkbox(driver, element_id, checked=True):
+    checkbox = driver.find_element(By.ID, element_id)
+    if checkbox.is_selected() != checked:
+        checkbox.click()
 
 
 def _logout(driver, wait):
@@ -375,3 +393,102 @@ def test_reviewer_can_compare_reports_and_download_pdf(live_server):
             assert downloaded_file.name.endswith('.pdf')
         finally:
             driver.quit()
+
+
+def test_full_customer_and_company_user_journeys(live_server):
+    driver = _build_driver()
+    wait = WebDriverWait(driver, 10)
+    unique_suffix = str(int(time.time()))
+
+    customer_username = f'customer_journey_{unique_suffix}'
+    customer_email = f'customer_journey_{unique_suffix}@test.com'
+    company_username = f'builder_journey_{unique_suffix}'
+    company_email = f'builder_journey_{unique_suffix}@test.com'
+    project_title = f'Journey Flat Renovation {unique_suffix}'
+
+    try:
+        # Customer journey: register, login, and create project request with category/size/style details.
+        _register(driver, wait, live_server, customer_username, customer_email, 'customer')
+        _login(driver, wait, live_server, customer_username)
+        driver.get(f'{live_server}/projects/add')
+
+        wait.until(EC.presence_of_element_located((By.ID, 'title'))).send_keys(project_title)
+        driver.find_element(By.ID, 'property_type').send_keys('Flat - Residential')
+        driver.find_element(By.ID, 'description').send_keys('Size: 680 sqft; Style: Scandinavian modern')
+        driver.find_element(By.ID, 'property_address').send_keys('88 Testing Road, Kowloon')
+        driver.find_element(By.ID, 'district').send_keys('Kowloon')
+        driver.find_element(By.ID, 'budget_amount').send_keys('420000')
+        driver.find_element(By.CSS_SELECTOR, 'button[type="submit"]').click()
+        wait.until(EC.text_to_be_present_in_element((By.TAG_NAME, 'body'), project_title))
+        _logout(driver, wait)
+
+        # Decoration company journey: register/login, complete profile setup (license + consent simulation), then submit bid.
+        _register(driver, wait, live_server, company_username, company_email, 'company_user')
+        _login(driver, wait, live_server, company_username)
+        driver.get(f'{live_server}/companies/add')
+
+        wait.until(EC.presence_of_element_located((By.ID, 'company_name'))).send_keys(f'Journey Builder {unique_suffix}')
+        driver.find_element(By.ID, 'business_registration').send_keys(f'BR{unique_suffix[-8:]}')
+        driver.find_element(By.ID, 'contact_person').send_keys('Journey Manager')
+        driver.find_element(By.ID, 'phone').send_keys('23456789')
+        driver.find_element(By.ID, 'email').send_keys(company_email)
+        driver.find_element(By.ID, 'district').send_keys('Kowloon')
+        driver.find_element(By.ID, 'annual_revenue').send_keys('2800000')
+
+        # Simulate BD license and TU consent readiness through compliance profile fields.
+        _set_checkbox(driver, 'has_license', True)
+        driver.find_element(By.ID, 'license_type').send_keys('Minor Works Contractor')
+        driver.find_element(By.ID, 'licence_number').send_keys(f'LIC-{unique_suffix[-6:]}')
+        Select(driver.find_element(By.ID, 'licence_verification_status')).select_by_value('verified')
+        driver.find_element(By.ID, 'insurance_provider').send_keys('Trusted Insurer')
+        Select(driver.find_element(By.ID, 'insurance_verification_status')).select_by_value('verified')
+        _set_checkbox(driver, 'osh_policy_in_place', True)
+        _set_checkbox(driver, 'heavy_lifting_compliance', True)
+        _set_checkbox(driver, 'lifting_equipment_available', True)
+        driver.find_element(By.ID, 'safety_training_coverage').send_keys('90')
+        Select(driver.find_element(By.ID, 'esg_policy_level')).select_by_value('basic')
+
+        driver.find_element(By.CSS_SELECTOR, 'button[type="submit"].btn-primary').click()
+        wait.until(EC.text_to_be_present_in_element((By.TAG_NAME, 'body'), 'Company created successfully.'))
+
+        _open_project_from_list(driver, wait, live_server, project_title)
+        wait.until(EC.presence_of_element_located((By.NAME, 'bid_amount'))).send_keys('398000')
+        driver.find_element(By.NAME, 'proposed_duration_days').send_keys('80')
+        driver.find_element(By.NAME, 'proposal_summary').send_keys('Turnkey delivery with milestone reporting')
+        driver.find_element(By.CSS_SELECTOR, 'form[action$="/bids"] button[type="submit"]').click()
+        wait.until(EC.text_to_be_present_in_element((By.TAG_NAME, 'body'), 'Bid submitted successfully.'))
+        _logout(driver, wait)
+
+        # Customer continues: review bids, accept/sign contract, add milestone, then approve after company submission.
+        _login(driver, wait, live_server, customer_username)
+        _open_project_from_list(driver, wait, live_server, project_title)
+        wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, 'form[action*="/accept"] button[type="submit"]'))).click()
+        wait.until(EC.text_to_be_present_in_element((By.TAG_NAME, 'body'), 'Bid accepted and project contracted.'))
+
+        driver.find_element(By.NAME, 'sequence_no').send_keys('1')
+        driver.find_element(By.NAME, 'name').send_keys('Waterproofing and prep')
+        driver.find_element(By.NAME, 'planned_amount').send_keys('100000')
+        driver.find_element(By.NAME, 'planned_percentage').send_keys('25')
+        driver.find_element(By.CSS_SELECTOR, 'form[action$="/milestones/add"] button[type="submit"]').click()
+        wait.until(EC.text_to_be_present_in_element((By.TAG_NAME, 'body'), 'Milestone created successfully.'))
+        _logout(driver, wait)
+
+        _login(driver, wait, live_server, company_username)
+        _open_project_from_list(driver, wait, live_server, project_title)
+        wait.until(EC.presence_of_element_located((By.NAME, 'evidence_notes'))).send_keys('Progress photos and delivery checklist uploaded')
+        driver.find_element(By.CSS_SELECTOR, 'form[action*="/milestones/"] button[type="submit"]').click()
+        wait.until(EC.text_to_be_present_in_element((By.TAG_NAME, 'body'), 'Milestone submitted for approval.'))
+        _logout(driver, wait)
+
+        _login(driver, wait, live_server, customer_username)
+        _open_project_from_list(driver, wait, live_server, project_title)
+        wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, 'form[action*="/approve"] button[type="submit"]'))).click()
+        wait.until(EC.text_to_be_present_in_element((By.TAG_NAME, 'body'), 'Milestone approved.'))
+
+        with create_app().app_context():
+            project = Project.query.filter_by(title=project_title).first()
+            assert project is not None
+            released_entries = EscrowLedgerEntry.query.filter_by(project_id=project.id, entry_type='released').count()
+            assert released_entries >= 1
+    finally:
+        driver.quit()

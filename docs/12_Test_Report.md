@@ -77,15 +77,19 @@ This provides an additional integrated workflow check for core system behavior.
 
 Most recent validated full-suite result during the current update cycle:
 
-- `33 passed in 57.60s`
+- `57 passed, 1 warning in 102.93s`
 
-Focused smart-contract regression during the same cycle:
+Most recent validated frontend Selenium suite result:
 
-- `tests/test_projects.py`: `4 passed in 3.29s`
+- `4 passed, 1 warning in 65.13s`
 
-Random-data generation smoke test during the same cycle:
+Most recent targeted two-role E2E journey result:
 
-- `generate_random_data.py --count 2 --init` completed successfully.
+- `1 passed, 1 warning in 23.55s`
+
+Focused API/new-ui integration regression during the same cycle:
+
+- new test file `tests/test_api_new_ui_integration.py` fully passing.
 
 ## 5. Test Log Artifacts
 
@@ -97,6 +101,12 @@ The repository already contains log files under `test_logs/`, including:
 - `pytest_routes_report.log`
 - `routes_simple.log`
 - `system_workflow.log`
+
+Additional current-cycle logs include:
+
+- `full_pytest_post_e2e_fix_20260316_012809.log`
+- `frontend_selenium_full_20260316_012512.log`
+- `e2e_journeys_targeted_rerun2_20260316_012331.log`
 
 These logs are useful for review, bug fixing, and demonstration evidence.
 
@@ -111,8 +121,13 @@ These logs are useful for review, bug fixing, and demonstration evidence.
 ### 6.2 Current Gaps
 - There is no dedicated load or performance benchmark suite.
 - Security testing is limited to framework-safe implementation patterns and route behavior, not penetration tooling.
-- File-upload workflows are not yet part of the active automated suite.
+- Dedicated file-upload workflows are not yet part of the active automated suite.
 - Real third-party integrations are not under test because they are not part of the current implementation.
+
+### 6.3 Resolved During Latest Cycle
+- API self-registration now blocks privileged roles in JSON auth flow.
+- Company bidding eligibility derivation now aligns with compliance/profile state at create/edit/score time.
+- Two-role real-user journey is automated from registration through milestone approval and escrow release.
 
 ## 7. Release Readiness Assessment
 
@@ -133,4 +148,5 @@ For production use, additional work would still be needed in the areas of migrat
 ## 8. Version History
 | Version | Date | Summary |
 |------|------|------|
-| v1.0 | 2026-03-09 | Initial consolidated automated test report for current DecoFinance build |
+| v1.0 | 2026-03-09 | Initial consolidated automated test report |
+| v1.1 | 2026-03-16 | Synced with latest full-suite and Selenium results plus new E2E and integration coverage |

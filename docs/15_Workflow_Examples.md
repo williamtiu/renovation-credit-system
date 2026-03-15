@@ -4,6 +4,23 @@
 
 This document complements the API reference by showing practical request, response, and form-driven workflow examples for the current DecoFinance system.
 
+## 1.1 End-to-End Journey Snapshot
+
+Current browser automation covers two primary role journeys:
+
+1. Customer
+- self-register/login
+- create project request (category, size, style captured in property_type/description)
+- review incoming bid
+- accept bid and activate contract
+- approve submitted milestone and release escrow
+
+2. Decoration Company User
+- self-register/login
+- complete company profile (licence + insurance + OSH/ESG readiness)
+- discover open project and submit bid
+- submit milestone evidence for approval
+
 ## 2. Registration Workflow
 
 ### Route
@@ -28,6 +45,35 @@ role=company_user
 - user is created;
 - password is hashed;
 - user is redirected to the login page.
+
+Guard rule:
+
+- self-registration is restricted to customer and company_user.
+
+## 2.1 JSON Auth Workflow (used by /new-ui)
+
+Routes:
+
+- POST /api/auth/register
+- POST /api/auth/login
+- GET /api/auth/me
+- POST /api/auth/logout
+
+Example JSON register:
+
+{
+	"username": "customer_demo",
+	"email": "customer_demo@example.com",
+	"password": "password123",
+	"role": "customer"
+}
+
+Example JSON login:
+
+{
+	"identifier": "customer_demo@example.com",
+	"password": "password123"
+}
 
 ## 3. Project Creation Workflow
 
@@ -105,6 +151,10 @@ Guard rules:
 - company must be active and verified for bidding;
 - the same company cannot create multiple active bids on the same project.
 
+Eligibility note:
+
+- company bid eligibility is derived from active status plus compliance readiness (licence/insurance/OSH thresholds).
+
 ## 6. Milestone Approval Workflow
 
 ### Routes
@@ -140,6 +190,10 @@ Guard rules:
 - only milestones in `planned` state may be submitted;
 - only milestones in `submitted` state may be approved;
 - milestones with open disputes cannot be approved.
+
+Escrow note:
+
+- milestone approval triggers release_milestone_amount and writes a released ledger entry.
 
 ## 7. Dispute Workflow
 
@@ -220,10 +274,16 @@ Requires `admin` or `reviewer`.
 
 Requires an authenticated session.
 
+### Developer Diagnostics
+- `GET /api/developer/summary`
+
+Requires an authenticated session and returns current user, aggregate counts, and endpoint groups used by the new UI developer page.
+
 These routes are useful for testing, demo verification, and review support.
 
 ## 10. Version History
 | Version | Date | Summary |
 |------|------|------|
 | v1.0 | 2026-03-09 | Initial workflow examples covering major form and JSON flows |
-| v1.1 | 2026-03-12 | Added current edit flow and documented enforced authorization and state guard rules |
+| v1.1 | 2026-03-12 | Added current edit flow and enforced authorization/state guard rules |
+| v1.2 | 2026-03-16 | Synced with /api/auth endpoints, /api/developer/summary, and full two-role E2E journey |

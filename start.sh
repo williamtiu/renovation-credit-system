@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 echo "======================================================="
 echo "   Starting DecoFinance"
 echo "======================================================="
@@ -19,9 +21,36 @@ else
     echo "       (Tip: Run 'python3 -m venv .venv' to create one)"
 fi
 
+NEW_UI_DIR="DecoFinance Project Overview"
+NEED_BUILD=0
+
+if [ -f "$NEW_UI_DIR/package.json" ]; then
+    if [ "${FORCE_NEW_UI_BUILD:-0}" = "1" ]; then
+        NEED_BUILD=1
+    fi
+    if [ ! -f "$NEW_UI_DIR/dist/index.html" ]; then
+        NEED_BUILD=1
+    fi
+
+    if [ "${SKIP_NEW_UI_BUILD:-0}" != "1" ]; then
+        if [ "$NEED_BUILD" = "1" ]; then
+            echo "[INFO] Building New UI for /new-ui ..."
+            pushd "$NEW_UI_DIR" >/dev/null
+            npm install
+            npm run build
+            popd >/dev/null
+        else
+            echo "[INFO] Existing New UI build found. Skipping build."
+        fi
+    else
+        echo "[INFO] SKIP_NEW_UI_BUILD=1 detected. Skipping New UI build."
+    fi
+fi
+
 # Run the application
 echo "[INFO] Starting Flask development server..."
-echo "[INFO] Application will be available at http://localhost:5001"
+echo "[INFO] Application: http://localhost:5001"
+echo "[INFO] New UI entry: http://localhost:5001/new-ui/"
 echo ""
 
 # Try python3 first, fallback to python
