@@ -1,0 +1,132 @@
+{% extends "zh/base.html" %}
+
+{% block title %}贷款申请 - DecoFinance{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <h2><i class="fas fa-file-invoice-dollar"></i> 新贷款申请</h2>
+            <hr>
+        </div>
+    </div>
+
+    <form method="POST" action="{{ url_for('loans.add_application') }}">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-building"></i> 公司信息</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="company_id">申请公司 <span class="text-danger">*</span></label>
+                            <select class="form-control" id="company_id" name="company_id" required>
+                                <option value="">请选择公司</option>
+                                {% for c in companies %}
+                                <option value="{{ c.id }}">{{ c.company_name }} ({{ c.business_registration }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="project_id">关联项目</label>
+                            <select class="form-control" id="project_id" name="project_id">
+                                <option value="">无关联项目</option>
+                                {% for project in projects %}
+                                <option value="{{ project.id }}">{{ project.title }} ({{ project.status }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="fas fa-money-bill-wave"></i> 贷款详情</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="loan_amount">贷款金额 (HKD) <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control" id="loan_amount" name="loan_amount" 
+                                   step="0.01" min="0" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="loan_purpose">贷款用途 <span class="text-danger">*</span></label>
+                            <textarea class="form-control" id="loan_purpose" name="loan_purpose" rows="3" required 
+                                      placeholder="例如：设备、材料"></textarea>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="loan_term_months">贷款期限 (月) <span class="text-danger">*</span></label>
+                                    <select class="form-control" id="loan_term_months" name="loan_term_months" required>
+                                        <option value="12">12 个月</option>
+                                        <option value="24">24 个月</option>
+                                        <option value="36">36 个月</option>
+                                        <option value="48">48 个月</option>
+                                        <option value="60">60 个月</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="expected_interest_rate">预期利率 (%)</label>
+                                    <input type="number" class="form-control" id="expected_interest_rate" 
+                                           name="expected_interest_rate" step="0.1" min="0" max="20">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0"><i class="fas fa-shield-alt"></i> 担保信息</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="collateral_type">担保类型</label>
+                            <select class="form-control" id="collateral_type" name="collateral_type">
+                                <option value="">无担保</option>
+                                <option value="Property">房产</option>
+                                <option value="Equipment">设备</option>
+                                <option value="Vehicle">车辆</option>
+                                <option value="Accounts Receivable">应收账款</option>
+                                <option value="Inventory">库存</option>
+                                <option value="Other">其他</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="collateral_value">担保价值 (HKD)</label>
+                            <input type="number" class="form-control" id="collateral_value" name="collateral_value" 
+                                   step="0.01" min="0">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="guarantor">担保人</label>
+                            <input type="text" class="form-control" id="guarantor" name="guarantor">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-body">
+                        <button type="submit" class="btn btn-primary btn-lg btn-block">
+                            <i class="fas fa-paper-plane"></i> 提交申请
+                        </button>
+                        <a href="{{ url_for('loans.list_loans') }}" class="btn btn-secondary btn-lg btn-block">
+                            <i class="fas fa-times"></i> 取消
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

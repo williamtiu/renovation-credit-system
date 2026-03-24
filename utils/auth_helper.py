@@ -41,3 +41,17 @@ def can_manage_company(user, company):
 def require_ownership(condition):
     if not condition:
         abort(403)
+
+
+def user_has_company(user):
+    """Check if a user already has an associated company"""
+    if user is None:
+        return False
+    return user.company_id is not None
+
+
+def company_user_can_add(user):
+    """Check if a company_user can add a new company (only one allowed)"""
+    if user is None or user.role != 'company_user':
+        return True
+    return user.company_id is None

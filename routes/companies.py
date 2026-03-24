@@ -3,6 +3,7 @@ from io import BytesIO
 from datetime import datetime, timezone
 
 from flask import Blueprint, flash, g, redirect, render_template, request, send_file, url_for
+from utils.template_helper import render_template_with_lang_fallback
 
 from models.company import Company
 from models.credit_score import CreditScore
@@ -14,7 +15,7 @@ from models.project_bid import ProjectBid
 from services.audit_service import log_action
 from services.credit_scorer import CreditScorer
 from services.report_service import build_credit_report_pdf
-from utils.auth_helper import can_manage_company, login_required, role_required, require_ownership
+from utils.auth_helper import can_manage_company, company_user_can_add, login_required, role_required, require_ownership
 
 companies_bp = Blueprint('companies', __name__)
 
@@ -250,7 +251,7 @@ def _load_latest_score_map(companies):
     return latest_scores
 
 
-def _build_credit_report(company, latest_score, credit_scores, loan_applications, project_bids, disputes):
+def _build_credit_report(company, latest_score, credit_scores, loan_applications, project_bids, disputes, lang='en'):
     today = datetime.now(timezone.utc).date()
     years_in_business = None
     if company.established_date:
@@ -269,34 +270,60 @@ def _build_credit_report(company, latest_score, credit_scores, loan_applications
     osh_status = 'verified' if company.osh_policy_in_place and company.heavy_lifting_compliance and (training_coverage or 0) >= 80 else 'review'
     esg_status = 'verified' if (company.esg_policy_level or 'none') in ['basic', 'advanced'] else 'review'
 
+    # 根据语言设置标签
+    if lang == 'zh':
+        verification_labels = {
+            'Company status': '公司状态',
+            'Contractor licence': '承建商牌照',
+            'Insurance cover': '保险覆盖',
+            'Bid eligibility': '投标资格',
+            'OSH controls': 'OSH 管控',
+            'ESG readiness': 'ESG 准备度',
+        }
+        score_labels = {
+            'Financial strength': '财务实力',
+            'Operational stability': '运营稳定性',
+            'Qualifications': '资质认证',
+            'Customer reviews': '客户评价',
+        }
+        monitoring_types = {
+            'Score refresh': '评分刷新',
+            'Loan application': '贷款申请',
+            'Dispute case': '争议案件',
+        }
+    else:
+        verification_labels = {}
+        score_labels = {}
+        monitoring_types = {}
+
     verification_checks = [
         {
-            'label': 'Company status',
+            'label': verification_labels.get('Company status', 'Company status'),
             'value': company.status or 'unknown',
             'status': 'verified' if company.status == 'active' else 'review',
         },
         {
-            'label': 'Contractor licence',
+            'label': verification_labels.get('Contractor licence', 'Contractor licence'),
             'value': company.licence_verification_status or 'pending',
             'status': company.licence_verification_status or 'pending',
         },
         {
-            'label': 'Insurance cover',
+            'label': verification_labels.get('Insurance cover', 'Insurance cover'),
             'value': company.insurance_verification_status or 'pending',
             'status': company.insurance_verification_status or 'pending',
         },
         {
-            'label': 'Bid eligibility',
+            'label': verification_labels.get('Bid eligibility', 'Bid eligibility'),
             'value': 'eligible' if company.is_verified_for_bidding else 'restricted',
             'status': 'verified' if company.is_verified_for_bidding else 'review',
         },
         {
-            'label': 'OSH controls',
+            'label': verification_labels.get('OSH controls', 'OSH controls'),
             'value': f'{training_coverage or 0}% training · 16kg rule ' + ('aligned' if company.heavy_lifting_compliance else 'not confirmed'),
             'status': osh_status,
         },
         {
-            'label': 'ESG readiness',
+            'label': verification_labels.get('ESG readiness', 'ESG readiness'),
             'value': (company.esg_policy_level or 'none').replace('_', ' '),
             'status': esg_status,
         },
@@ -305,11 +332,10 @@ def _build_credit_report(company, latest_score, credit_scores, loan_applications
     score_components = []
     if latest_score:
         score_components = [
-            {'label': 'Financial strength', 'score': latest_score.financial_strength_score or 0, 'max_score': 300},
-            {'label': 'Operational stability', 'score': latest_score.operational_stability_score or 0, 'max_score': 250},
-            {'label': 'Credit behaviour', 'score': latest_score.credit_history_score or 0, 'max_score': 250},
-            {'label': 'Qualifications', 'score': latest_score.qualification_score or 0, 'max_score': 100},
-            {'label': 'Industry and business risk', 'score': latest_score.industry_risk_score or 0, 'max_score': 100},
+            {'label': score_labels.get('Financial strength', 'Financial strength'), 'score': latest_score.financial_score or 0, 'max_score': 600},
+            {'label': score_labels.get('Operational stability', 'Operational stability'), 'score': latest_score.operational_score or 0, 'max_score': 250},
+            {'label': score_labels.get('Qualifications', 'Qualifications'), 'score': latest_score.qualification_score or 0, 'max_score': 200},
+            {'label': score_labels.get('Customer reviews', 'Customer reviews'), 'score': latest_score.customer_review_score or 0, 'max_score': 300},
         ]
 
     risk_factors = _build_monitoring_alerts(company, latest_score, overdue_accounts, open_disputes)
@@ -319,19 +345,19 @@ def _build_credit_report(company, latest_score, credit_scores, loan_applications
     recent_monitoring_activity = []
     for score in credit_scores[:3]:
         recent_monitoring_activity.append({
-            'type': 'Score refresh',
+            'type': monitoring_types.get('Score refresh', 'Score refresh'),
             'date': score.scored_at,
             'detail': f'{score.credit_score} / {score.credit_grade}',
         })
     for application in sorted(loan_applications, key=lambda item: item.applied_at or datetime.min.replace(tzinfo=timezone.utc), reverse=True)[:3]:
         recent_monitoring_activity.append({
-            'type': 'Loan application',
+            'type': monitoring_types.get('Loan application', 'Loan application'),
             'date': application.applied_at,
             'detail': f'HK$ {application.loan_amount:,.0f} · {application.application_status}',
         })
     for dispute in sorted(disputes, key=lambda item: item.opened_at or datetime.min.replace(tzinfo=timezone.utc), reverse=True)[:3]:
         recent_monitoring_activity.append({
-            'type': 'Dispute case',
+            'type': monitoring_types.get('Dispute case', 'Dispute case'),
             'date': dispute.opened_at,
             'detail': f'{dispute.dispute_type} · {dispute.status}',
         })
@@ -414,14 +440,14 @@ def _build_credit_report(company, latest_score, credit_scores, loan_applications
     }
 
 
-def _load_credit_report_context(company_id):
+def _load_credit_report_context(company_id, lang='en'):
     company = get_or_404(Company, company_id)
     credit_scores = CreditScore.query.filter_by(company_id=company_id).order_by(CreditScore.scored_at.desc()).all()
     latest_score = credit_scores[0] if credit_scores else None
     loan_applications = LoanApplication.query.filter_by(company_id=company_id).order_by(LoanApplication.applied_at.desc()).all()
     project_bids = ProjectBid.query.filter_by(company_id=company_id).order_by(ProjectBid.created_at.desc()).all()
     disputes = DisputeCase.query.filter_by(against_company_id=company_id).order_by(DisputeCase.opened_at.desc()).all()
-    report = _build_credit_report(company, latest_score, credit_scores, loan_applications, project_bids, disputes)
+    report = _build_credit_report(company, latest_score, credit_scores, loan_applications, project_bids, disputes, lang=lang)
 
     return company, credit_scores, latest_score, report
 
@@ -429,6 +455,9 @@ def _load_credit_report_context(company_id):
 @companies_bp.route('/compare-report')
 @role_required('admin', 'reviewer')
 def compare_reports():
+    from flask import session
+    lang = 'zh' if session.get('language') == 'ch' else 'en'
+    
     district = request.args.get('district', '').strip()
     risk_level = request.args.get('risk_level', '').strip()
     grade = request.args.get('grade', '').strip()
@@ -452,7 +481,7 @@ def compare_reports():
 
     compare_reports = []
     for company_id in selected_company_ids[:3]:
-        company, _, latest_score, report = _load_credit_report_context(company_id)
+        company, _, latest_score, report = _load_credit_report_context(company_id, lang=lang)
         compare_reports.append({
             'company': company,
             'latest_score': latest_score,
@@ -468,7 +497,7 @@ def compare_reports():
         if item[0]
     ]
 
-    return render_template(
+    return render_template_with_lang_fallback(
         'companies/compare.html',
         candidate_companies=candidate_companies,
         latest_scores=latest_scores,
@@ -492,6 +521,11 @@ def list_companies():
     
     query = Company.query
     
+    # 根据角色过滤数据访问范围
+    if g.user.role == 'company_user':
+        # 公司用户只能访问自己的公司
+        query = query.filter_by(id=g.user.company_id)
+    
     if search:
         query = query.filter(
             db.or_(
@@ -505,7 +539,7 @@ def list_companies():
     
     companies = query.order_by(Company.created_at.desc()).all()
     
-    return render_template('companies/list.html',
+    return render_template_with_lang_fallback('companies/list.html',
                          companies=companies,
                          search=search,
                          status=status)
@@ -513,6 +547,16 @@ def list_companies():
 @companies_bp.route('/add', methods=['GET', 'POST'])
 @role_required('admin', 'reviewer', 'company_user')
 def add_company():
+    # 公司用户只能添加一个公司
+    if g.user.role == 'company_user' and not company_user_can_add(g.user):
+        from flask import session
+        lang = session.get('language', 'en')
+        if lang == 'ch':
+            flash('您已经关联了一个公司，不能再添加新的公司。', 'warning')
+        else:
+            flash('You have already associated with a company and cannot add a new one.', 'warning')
+        return redirect(url_for('companies.list_companies'))
+    
     if request.method == 'POST':
         try:
             company = Company(owner_user_id=g.user.id)
@@ -534,7 +578,7 @@ def add_company():
             db.session.rollback()
             flash(f'Failed to create company: {str(e)}', 'error')
     
-    return render_template('companies/form.html', company=None)
+    return render_template_with_lang_fallback('companies/form.html', company=None)
 
 @companies_bp.route('/<int:id>')
 @login_required
@@ -546,7 +590,7 @@ def view_company(id):
     
     loan_applications = company.loan_applications
     
-    return render_template('companies/detail.html',
+    return render_template_with_lang_fallback('companies/detail.html',
                          company=company,
                          latest_score=latest_score,
                          credit_scores=credit_scores,
@@ -557,9 +601,12 @@ def view_company(id):
 @companies_bp.route('/<int:id>/credit-report')
 @login_required
 def view_credit_report(id):
-    company, credit_scores, latest_score, report = _load_credit_report_context(id)
+    from flask import session
+    lang = 'zh' if session.get('language') == 'ch' else 'en'
+    
+    company, credit_scores, latest_score, report = _load_credit_report_context(id, lang=lang)
 
-    return render_template(
+    return render_template_with_lang_fallback(
         'companies/report.html',
         company=company,
         latest_score=latest_score,
@@ -571,7 +618,10 @@ def view_credit_report(id):
 @companies_bp.route('/<int:id>/credit-report/download')
 @login_required
 def download_credit_report(id):
-    company, _, _, report = _load_credit_report_context(id)
+    from flask import session
+    lang = 'zh' if session.get('language') == 'ch' else 'en'
+    
+    company, _, _, report = _load_credit_report_context(id, lang=lang)
     pdf_bytes = build_credit_report_pdf(company, report)
     download_name = f"credit-report-{company.id}-{company.business_registration}.pdf"
 
@@ -604,7 +654,7 @@ def edit_company(id):
             db.session.rollback()
             flash(f'Failed to update company: {str(e)}', 'error')
     
-    return render_template('companies/form.html', company=company)
+    return render_template_with_lang_fallback('companies/form.html', company=company)
 
 @companies_bp.route('/<int:id>/score', methods=['POST'])
 @login_required

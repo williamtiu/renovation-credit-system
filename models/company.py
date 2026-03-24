@@ -60,6 +60,23 @@ class Company(db.Model):
     existing_loans = db.Column(db.Float)
     loan_repayment_history = db.Column(db.String(20))
     
+    # 新增财务指标字段（用于新的评分体系）
+    current_assets = db.Column(db.Float, default=0.0)  # 流动资产
+    current_liabilities = db.Column(db.Float, default=0.0)  # 流动负债
+    total_cash = db.Column(db.Float, default=0.0)  # 现金总额
+    total_liabilities = db.Column(db.Float, default=0.0)  # 总负债
+    shareholders_equity = db.Column(db.Float, default=0.0)  # 股东权益
+    audited_financials_uploaded = db.Column(db.Boolean, default=False)  # 是否上传经审计的财务报表
+    tax_returns_uploaded = db.Column(db.Boolean, default=False)  # 是否上传纳税申报表
+    
+    # 新增资质与认证字段
+    minor_works_contractor_registration = db.Column(db.String(100), default=None)  # 小型工程承建商注册号
+    minor_works_registration_verified = db.Column(db.Boolean, default=False)  # 小型工程注册验证状态
+    insurance_documents_uploaded = db.Column(db.Boolean, default=False)  # 保险文件是否上传
+    insurance_verified = db.Column(db.Boolean, default=False)  # 保险验证状态
+    osh_safety_officer_license = db.Column(db.String(100), default=None)  # OSH安全主任执照号
+    osh_safety_officer_verified = db.Column(db.Boolean, default=False)  # OSH安全主任验证状态
+    
     status = db.Column(db.String(20), default='active')  # active, suspended, blacklisted
     risk_level = db.Column(db.String(20))  # low, medium, high
     trust_score_cached = db.Column(db.Integer)
@@ -105,5 +122,20 @@ class Company(db.Model):
             'risk_level': self.risk_level,
             'trust_score_cached': self.trust_score_cached,
             'is_verified_for_bidding': self.is_verified_for_bidding,
-            'created_at': self.created_at.isoformat() if self.created_at else None
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            # 新增财务指标
+            'current_assets': self.current_assets,
+            'current_liabilities': self.current_liabilities,
+            'total_cash': self.total_cash,
+            'total_liabilities': self.total_liabilities,
+            'shareholders_equity': self.shareholders_equity,
+            'audited_financials_uploaded': self.audited_financials_uploaded,
+            'tax_returns_uploaded': self.tax_returns_uploaded,
+            # 新增资质认证
+            'minor_works_contractor_registration': self.minor_works_contractor_registration,
+            'minor_works_registration_verified': self.minor_works_registration_verified,
+            'insurance_documents_uploaded': self.insurance_documents_uploaded,
+            'insurance_verified': self.insurance_verified,
+            'osh_safety_officer_license': self.osh_safety_officer_license,
+            'osh_safety_officer_verified': self.osh_safety_officer_verified,
         }

@@ -1,0 +1,92 @@
+{% extends "zh/base.html" %}
+
+{% block title %}贷款申请列表 - DecoFinance{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <h2><i class="fas fa-file-invoice-dollar"></i> 贷款申请列表</h2>
+            <hr>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-6">
+            {% if g.user and g.user.role == 'company_user' %}
+            <a href="{{ url_for('loans.add_application') }}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> 新申请
+            </a>
+            {% endif %}
+        </div>
+        <div class="col-md-6">
+            <form method="GET" class="form-inline float-right">
+                <select name="status" class="form-control mr-2">
+                    <option value="">所有状态</option>
+                    <option value="pending" {% if request.args.get('status') == 'pending' %}selected{% endif %}>待处理</option>
+                    <option value="under_review" {% if request.args.get('status') == 'under_review' %}selected{% endif %}>审核中</option>
+                    <option value="approved" {% if request.args.get('status') == 'approved' %}selected{% endif %}>已批准</option>
+                    <option value="rejected" {% if request.args.get('status') == 'rejected' %}selected{% endif %}>已拒绝</option>
+                </select>
+                <button type="submit" class="btn btn-outline-secondary">
+                    <i class="fas fa-filter"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    {% if applications %}
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead class="thead-light">
+                <tr>
+                    <th>编号</th>
+                    <th>公司名称</th>
+                    <th>贷款金额</th>
+                    <th>用途</th>
+                    <th>期限</th>
+                    <th>状态</th>
+                    <th>申请日期</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for app in applications %}
+                <tr>
+                    <td><strong>#{{ app.id }}</strong></td>
+                    <td>{{ app.company.company_name }}</td>
+                    <td>HK$ {{ "{:,.0f}".format(app.loan_amount) }}</td>
+                    <td>{{ app.loan_purpose[:30] if app.loan_purpose else '-' }}{% if app.loan_purpose and app.loan_purpose|length > 30 %}...{% endif %}</td>
+                    <td>{{ app.loan_term_months }}个月</td>
+                    <td>
+                        {% if app.application_status == 'pending' %}
+                            <span class="badge badge-secondary">待处理</span>
+                        {% elif app.application_status == 'under_review' %}
+                            <span class="badge badge-info">审核中</span>
+                        {% elif app.application_status == 'approved' %}
+                            <span class="badge badge-success">已批准</span>
+                        {% elif app.application_status == 'rejected' %}
+                            <span class="badge badge-danger">已拒绝</span>
+                        {% else %}
+                            <span class="badge badge-warning">{{ app.application_status }}</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ app.applied_at.strftime('%Y-%m-%d') }}</td>
+                    <td>
+                        <a href="{{ url_for('loans.view_application', id=app.id) }}"
+                           class="btn btn-sm btn-info">
+                            <i class="fas fa-eye"></i> 查看
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle"></i> 暂无贷款申请记录。
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

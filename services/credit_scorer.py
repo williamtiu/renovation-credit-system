@@ -3,6 +3,14 @@ from models.credit_score import CreditScore
 import json
 
 class CreditScorer:
+    """
+    新的4大维度信托评分体系
+    - 财务实力 (Financial Strength) - 最高 600 分
+    - 运营稳定性 (Operational Stability) - 最高 250 分
+    - 资质与认证 (Qualifications) - 最高 200 分
+    - 客户评价 (Customer Reviews) - 最高 300 分
+    """
+    
     CREDIT_GRADES = {
         (751, 1000): 'AAA',
         (701, 750): 'AA',
@@ -37,31 +45,45 @@ class CreditScorer:
         pass
     
     def calculate_score(self, company):
+        """
+        计算新的4大维度评分
+        """
+        # 1. 财务实力评分 (最高 600 分)
         financial_score = self._score_financial_strength(company)
-        operational_score = self._score_operational_stability(company)
-        credit_history_score = self._score_credit_history(company)
-        qualification_score = self._score_qualifications(company)
-        industry_risk_score = self._score_industry_risk(company)
-        compliance_adjustment = self._score_compliance_adjustment(company)
         
+        # 2. 运营稳定性评分 (最高 250 分)
+        operational_score = self._score_operational_stability(company)
+        
+        # 3. 资质与认证评分 (最高 200 分)
+        qualification_score = self._score_qualifications(company)
+        
+        # 4. 客户评价评分 (最高 300 分)
+        customer_review_score = self._score_customer_reviews(company)
+        
+        # 计算总分
         total_score = (
             financial_score +
             operational_score +
-            credit_history_score +
             qualification_score +
-            industry_risk_score +
-            compliance_adjustment
+            customer_review_score
         )
         
+        # 限制在 0-1000 之间
         total_score = max(0, min(1000, total_score))
         
+        # 获取信用等级
         credit_grade = self._get_credit_grade(total_score)
         
+        # 获取风险等级
         risk_level = self._get_risk_level(total_score)
         
+        # 计算推荐贷款额度
         recommended_limit = self._calculate_loan_limit(company, credit_grade)
+        
+        # 获取推荐利率
         recommended_rate = self.INTEREST_RATES.get(credit_grade, 8.0)
         
+        # 识别风险因素
         risk_factors = self._identify_risk_factors(company)
         
         return {
@@ -70,18 +92,27 @@ class CreditScorer:
             'risk_level': risk_level,
             'financial_score': financial_score,
             'operational_score': operational_score,
-            'credit_history_score': credit_history_score,
             'qualification_score': qualification_score,
-            'industry_risk_score': industry_risk_score,
-            'compliance_adjustment': compliance_adjustment,
+            'customer_review_score': customer_review_score,
             'recommended_loan_limit': recommended_limit,
             'recommended_interest_rate': recommended_rate,
             'risk_factors': risk_factors
         }
     
     def _score_financial_strength(self, company):
+        """
+        财务实力评分 (最高 600 分)
+        
+        包含5个指标：
+        1. 注册资本 (30-150 分)
+        2. 年营收 (30-150 分)
+        3. 流动比率 (30-150 分)
+        4. 现金比率 (30-150 分)
+        5. 债务权益比 (30-150 分)
+        """
         score = 0
         
+        # 1. 注册资本 (30-150 分)
         if company.registered_capital:
             if company.registered_capital >= 10000000:
                 score += 150
@@ -93,7 +124,10 @@ class CreditScorer:
                 score += 60
             else:
                 score += 30
+        else:
+            score += 30
         
+        # 2. 年营收 (30-150 分)
         if company.annual_revenue:
             if company.annual_revenue >= 50000000:
                 score += 150
@@ -105,10 +139,56 @@ class CreditScorer:
                 score += 60
             else:
                 score += 30
+        else:
+            score += 30
+        
+        # 3. 流动比率 (30-150 分)
+        if company.current_assets and company.current_liabilities and company.current_liabilities > 0:
+            current_ratio = company.current_assets / company.current_liabilities
+            if current_ratio > 1.6:
+                score += 150
+            elif current_ratio >= 1.1:
+                score += 100
+            else:
+                score += 50
+        else:
+            score += 50
+        
+        # 4. 现金比率 (30-150 分)
+        if company.total_cash and company.total_liabilities and company.total_liabilities > 0:
+            cash_ratio = company.total_cash / company.total_liabilities
+            if cash_ratio > 1.6:
+                score += 150
+            elif cash_ratio >= 1.1:
+                score += 100
+            else:
+                score += 50
+        else:
+            score += 50
+        
+        # 5. 债务权益比 (30-150 分)
+        if company.total_liabilities and company.shareholders_equity and company.shareholders_equity > 0:
+            debt_to_equity = company.total_liabilities / company.shareholders_equity
+            if debt_to_equity < 1:
+                score += 150
+            elif debt_to_equity <= 2:
+                score += 100
+            else:
+                score += 50
+        else:
+            score += 50
         
         return score
     
     def _score_operational_stability(self, company):
+        """
+        运营稳定性评分 (最高 250 分)
+        
+        包含3个指标：
+        1. 成立年限 (20-100 分)
+        2. 完成项目数 (20-100 分)
+        3. 员工人数 (20-50 分)
+        """
         score = 0
         
         if company.established_date:
@@ -127,6 +207,8 @@ class CreditScorer:
                 score += 40
             else:
                 score += 20
+        else:
+            score += 20
         
         if company.project_count_completed:
             if company.project_count_completed >= 100:
@@ -139,6 +221,8 @@ class CreditScorer:
                 score += 40
             else:
                 score += 20
+        else:
+            score += 20
         
         if company.employee_count:
             if company.employee_count >= 50:
@@ -149,151 +233,109 @@ class CreditScorer:
                 score += 30
             else:
                 score += 20
-        
-        return score
-    
-    def _score_credit_history(self, company):
-        score = 0
-        
-        repayment_map = {
-            'excellent': 150,
-            'good': 120,
-            'Good': 120,
-            'fair': 80,
-            'Fair': 80,
-            'poor': 40,
-            'Poor': 40
-        }
-        score += repayment_map.get(company.loan_repayment_history, 80)
-        
-        if company.bank_account_years:
-            if company.bank_account_years >= 5:
-                score += 50
-            elif company.bank_account_years >= 3:
-                score += 40
-            elif company.bank_account_years >= 1:
-                score += 30
-            else:
-                score += 20
-        
-        if company.existing_loans and company.annual_revenue and company.annual_revenue > 0:
-            debt_ratio = company.existing_loans / company.annual_revenue
-            if debt_ratio < 0.3:
-                score += 50
-            elif debt_ratio < 0.5:
-                score += 40
-            elif debt_ratio < 0.7:
-                score += 30
-            else:
-                score += 10
         else:
-            score += 40
+            score += 20
         
         return score
     
     def _score_qualifications(self, company):
+        """
+        资质与认证评分 (最高 200 分)
+        
+        包含3个必须项和2个加分项：
+        1. Business Registration and Company Registration (必须) - 50 分
+        2. Minor Works Contractor Registration (必须) - 50 分
+        3. Insurance Status (上传+验证) - 50 分
+        4. OSH Safety Officer (有合格人员) - 50 分
+        5. ISO Certification (加分) - 0-50 分
+        """
         score = 0
         
-        if company.has_license:
-            score += 60
+        if company.business_registration:
+            score += 50
         
-        if company.iso_certified:
+        if company.minor_works_contractor_registration and company.minor_works_registration_verified:
+            score += 50
+        elif company.minor_works_contractor_registration:
             score += 25
         
-        if company.professional_memberships:
-            score += 15
-
-        if getattr(company, 'insurance_verification_status', None) == 'verified':
-            score += 15
+        if company.insurance_documents_uploaded and company.insurance_verified:
+            score += 50
+        elif company.insurance_documents_uploaded:
+            score += 25
+        
+        if company.osh_safety_officer_license and company.osh_safety_officer_verified:
+            score += 50
+        elif company.osh_safety_officer_license:
+            score += 25
+        
+        if company.iso_certified:
+            score += 50
         
         return score
     
-    def _score_industry_risk(self, company):
+    def _score_customer_reviews(self, company):
+        """
+        客户评价评分 (最高 300 分)
+        
+        包含2个部分：
+        1. 客户评分平均值 (1-5分) - 30-150 分
+        2. DecoFinance 主观评估 - 0-150 分
+        """
+        score = 0
+        
+        avg_rating = getattr(company, 'average_rating', None)
+        if avg_rating is not None:
+            rating_score = 30 + (avg_rating - 1) * 30
+            score += rating_score
+        else:
+            score += 30
+        
+        subjective_score = self._subjective_assessment(company)
+        score += subjective_score
+        
+        return score
+    
+    def _subjective_assessment(self, company):
+        """
+        DecoFinance 主观评估 (0-150 分)
+        """
         score = 50
         
-        high_risk_districts = ['Remote Area', 'Unknown']
-        if company.district in high_risk_districts:
-            score -= 20
-        else:
-            score += 20
-        
-        high_value_services = ['Commercial Renovation', 'Large Scale Projects']
-        if company.main_service_type in high_value_services:
-            score += 15
-        else:
-            score += 10
-        
         if company.status == 'active':
-            score += 15
+            score += 20
         elif company.status == 'suspended':
             score -= 30
         elif company.status == 'blacklisted':
             score -= 50
         
-        return max(0, min(100, score))
-
-    def _score_compliance_adjustment(self, company):
-        adjustment = 0
-
-        if getattr(company, 'licence_verification_status', None) == 'verified':
-            adjustment += 30
-        elif getattr(company, 'licence_verification_status', None) == 'rejected':
-            adjustment -= 40
-
-        if getattr(company, 'insurance_verification_status', None) == 'verified':
-            adjustment += 20
-        elif getattr(company, 'insurance_verification_status', None) == 'rejected':
-            adjustment -= 20
-
-        if getattr(company, 'dispute_count_cached', 0) > 0:
-            adjustment -= min(40, company.dispute_count_cached * 10)
-
-        if getattr(company, 'osh_policy_in_place', False):
-            adjustment += 20
+        if company.district in ['Remote Area', 'Unknown']:
+            score -= 20
         else:
-            adjustment -= 15
-
-        training_coverage = getattr(company, 'safety_training_coverage', None)
-        if training_coverage is not None:
-            if training_coverage >= 90:
-                adjustment += 20
-            elif training_coverage >= 80:
-                adjustment += 10
-            elif training_coverage < 60:
-                adjustment -= 20
-            else:
-                adjustment -= 5
-
-        if getattr(company, 'heavy_lifting_compliance', False):
-            adjustment += 10
+            score += 20
+        
+        if company.main_service_type in ['Commercial Renovation', 'Large Scale Projects']:
+            score += 15
         else:
-            adjustment -= 10
-
-        if getattr(company, 'lifting_equipment_available', False):
-            adjustment += 5
-        else:
-            adjustment -= 5
-
-        safety_incident_count = getattr(company, 'safety_incident_count', 0) or 0
-        if safety_incident_count > 0:
-            adjustment -= min(30, safety_incident_count * 10)
-
-        esg_policy_level = (getattr(company, 'esg_policy_level', None) or 'none').lower()
-        if esg_policy_level == 'advanced':
-            adjustment += 15
-        elif esg_policy_level == 'basic':
-            adjustment += 8
-        else:
-            adjustment -= 5
-
-        green_material_ratio = getattr(company, 'green_material_ratio', None)
-        if green_material_ratio is not None:
-            if green_material_ratio >= 40:
-                adjustment += 10
-            elif green_material_ratio >= 20:
-                adjustment += 5
-
-        return adjustment
+            score += 10
+        
+        if company.audited_financials_uploaded:
+            score += 20
+        
+        if company.tax_returns_uploaded:
+            score += 20
+        
+        if company.professional_memberships:
+            score += 15
+        
+        green_ratio = getattr(company, 'green_material_ratio', None)
+        if green_ratio is not None:
+            if green_ratio >= 40:
+                score += 20
+            elif green_ratio >= 20:
+                score += 10
+        
+        return max(0, min(150, score))
     
     def _get_credit_grade(self, score):
         for (min_score, max_score), grade in self.CREDIT_GRADES.items():
@@ -322,8 +364,26 @@ class CreditScorer:
     def _identify_risk_factors(self, company):
         risk_factors = []
         
-        if not company.has_license:
-            risk_factors.append('Missing contractor licence information')
+        if not company.registered_capital:
+            risk_factors.append('Missing registered capital information')
+        
+        if not company.annual_revenue:
+            risk_factors.append('Missing annual revenue information')
+        
+        if company.current_assets and company.current_liabilities and company.current_liabilities > 0:
+            current_ratio = company.current_assets / company.current_liabilities
+            if current_ratio < 1.1:
+                risk_factors.append(f'Current ratio too low ({current_ratio:.2f})')
+        
+        if company.total_cash and company.total_liabilities and company.total_liabilities > 0:
+            cash_ratio = company.total_cash / company.total_liabilities
+            if cash_ratio < 1.1:
+                risk_factors.append(f'Cash ratio too low ({cash_ratio:.2f})')
+        
+        if company.total_liabilities and company.shareholders_equity and company.shareholders_equity > 0:
+            debt_to_equity = company.total_liabilities / company.shareholders_equity
+            if debt_to_equity > 2:
+                risk_factors.append(f'Debt to equity ratio too high ({debt_to_equity:.2f})')
         
         if company.established_date:
             established = company.established_date
@@ -334,52 +394,37 @@ class CreditScorer:
             if years < 2:
                 risk_factors.append('Short operating history')
         
-        if company.existing_loans and company.annual_revenue and company.annual_revenue > 0:
-            debt_ratio = company.existing_loans / company.annual_revenue
-            if debt_ratio > 0.7:
-                risk_factors.append('High debt-to-revenue ratio')
+        if not company.project_count_completed or company.project_count_completed < 10:
+            risk_factors.append('Limited project completion history')
         
-        if company.loan_repayment_history in ['poor', 'Poor']:
-            risk_factors.append('Poor loan repayment history')
+        if not company.employee_count or company.employee_count < 10:
+            risk_factors.append('Small employee base')
         
-        if not company.annual_revenue or company.annual_revenue < 1000000:
-            risk_factors.append('Low annual revenue')
-
-        if getattr(company, 'licence_verification_status', None) != 'verified':
-            risk_factors.append('Licence verification incomplete')
-
-        if getattr(company, 'insurance_verification_status', None) != 'verified':
-            risk_factors.append('Insurance verification incomplete')
-
-        if not getattr(company, 'osh_policy_in_place', False):
-            risk_factors.append('OSH policy evidence missing')
-
-        training_coverage = getattr(company, 'safety_training_coverage', None)
-        if training_coverage is None:
-            risk_factors.append('Safety training coverage not disclosed')
-        elif training_coverage < 80:
-            risk_factors.append(f'Safety training coverage below target ({training_coverage}%)')
-
-        if not getattr(company, 'heavy_lifting_compliance', False):
-            risk_factors.append('16kg handling control not confirmed')
-
-        if not getattr(company, 'lifting_equipment_available', False):
-            risk_factors.append('Lifting equipment availability not confirmed')
-
-        safety_incident_count = getattr(company, 'safety_incident_count', 0) or 0
-        if safety_incident_count > 0:
-            risk_factors.append(f'{safety_incident_count} safety incident(s) recorded in the last 12 months')
-
-        esg_policy_level = (getattr(company, 'esg_policy_level', None) or 'none').lower()
-        if esg_policy_level == 'none':
-            risk_factors.append('ESG governance framework not declared')
-
-        green_material_ratio = getattr(company, 'green_material_ratio', None)
-        if green_material_ratio is not None and green_material_ratio < 20:
-            risk_factors.append(f'Green material adoption remains low ({green_material_ratio}%)')
-
-        if getattr(company, 'dispute_count_cached', 0) > 0:
-            risk_factors.append(f'Open dispute history count: {company.dispute_count_cached}')
+        if not company.business_registration:
+            risk_factors.append('Missing business registration')
+        
+        if not company.minor_works_contractor_registration:
+            risk_factors.append('Missing minor works contractor registration')
+        elif not company.minor_works_registration_verified:
+            risk_factors.append('Minor works registration not verified')
+        
+        if not company.insurance_documents_uploaded:
+            risk_factors.append('Insurance documents not uploaded')
+        elif not company.insurance_verified:
+            risk_factors.append('Insurance not verified')
+        
+        if not company.osh_safety_officer_license:
+            risk_factors.append('Missing OSH safety officer information')
+        elif not company.osh_safety_officer_verified:
+            risk_factors.append('OSH safety officer not verified')
+        
+        avg_rating = getattr(company, 'average_rating', None)
+        if avg_rating is not None and avg_rating < 3:
+            risk_factors.append(f'Low average customer rating ({avg_rating:.1f}/5)')
+        
+        subjective_score = self._subjective_assessment(company)
+        if subjective_score < 50:
+            risk_factors.append('Low subjective assessment score')
         
         if company.status != 'active':
             risk_factors.append(f'Company status is {company.status}')
@@ -391,16 +436,15 @@ class CreditScorer:
             company_id=company.id,
             credit_score=scoring_result['total_score'],
             credit_grade=scoring_result['credit_grade'],
-            financial_strength_score=scoring_result['financial_score'],
-            operational_stability_score=scoring_result['operational_score'],
-            credit_history_score=scoring_result['credit_history_score'],
+            financial_score=scoring_result['financial_score'],
+            operational_score=scoring_result['operational_score'],
             qualification_score=scoring_result['qualification_score'],
-            industry_risk_score=scoring_result['industry_risk_score'],
+            customer_review_score=scoring_result['customer_review_score'],
             risk_level=scoring_result['risk_level'],
             risk_factors=json.dumps(scoring_result['risk_factors'], ensure_ascii=False),
             recommended_loan_limit=scoring_result['recommended_loan_limit'],
             recommended_interest_rate=scoring_result['recommended_interest_rate'],
-            scoring_model_version='v1.1-decofinance',
+            scoring_model_version='v2.0-new-4-dimensions',
             expires_at=datetime.now(timezone.utc) + timedelta(days=180),
             notes=notes
         )

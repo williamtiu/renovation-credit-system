@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
+from functools import wraps
 
 from models.database import db
 from models.user import User
@@ -37,7 +38,11 @@ def register():
         
         flash('Registration successful! Please log in.', 'success')
         return redirect(url_for('auth.login'))
-        
+    
+    # Determine template based on language
+    lang = session.get('language', 'en')
+    if lang == 'ch':
+        return render_template('zh/auth/register.html')
     return render_template('auth/register.html')
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
@@ -57,7 +62,11 @@ def login():
             return redirect(url_for('main.index'))
             
         flash('Invalid username or password.', 'danger')
-        
+    
+    # Determine template based on language
+    lang = session.get('language', 'en')
+    if lang == 'ch':
+        return render_template('zh/auth/login.html')
     return render_template('auth/login.html')
 
 @auth_bp.route('/logout')

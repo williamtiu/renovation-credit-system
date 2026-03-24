@@ -2,7 +2,38 @@ from collections import OrderedDict
 from datetime import datetime, timezone
 from pathlib import Path
 
-from flask import Blueprint, current_app, render_template, send_from_directory
+from flask import Blueprint, current_app, render_template, send_from_directory, session, redirect, url_for, request, abort
+import os
+
+
+def _get_template_name(base_name):
+    """Get template name based on language setting"""
+    lang = session.get('language', 'en')
+    if lang == 'ch':
+        return f'zh/{base_name}'
+    return base_name
+
+
+def render_template_with_lang_fallback(template_name, **context):
+    """
+    Render template with language support.
+    For Chinese language, try zh/ template first, fallback to English if not found.
+    """
+    lang = session.get('language', 'en')
+    
+    if lang == 'ch':
+        # For Chinese, check if zh template exists
+        zh_template = f'zh/{template_name}' if not template_name.startswith('zh/') else template_name
+        template_path = os.path.join(current_app.root_path, 'templates', zh_template)
+        
+        if os.path.exists(template_path):
+            return render_template(zh_template, **context)
+        else:
+            # Fallback to English template
+            en_template = template_name.replace('zh/', '')
+            return render_template(en_template, **context)
+    
+    return render_template(template_name, **context)
 
 from models.company import Company
 from models.credit_score import CreditScore
@@ -72,7 +103,7 @@ def index():
     recent_applications = LoanApplication.query.order_by(LoanApplication.applied_at.desc()).limit(5).all()
     recent_projects = Project.query.order_by(Project.created_at.desc()).limit(5).all()
     
-    return render_template('index.html',
+    return render_template_with_lang_fallback('index.html',
                          total_companies=total_companies,
                          active_companies=active_companies,
                          total_loans=total_loans,
@@ -175,7 +206,7 @@ def dashboard():
         if grade[0]
     ]
     
-    return render_template('dashboard.html',
+    return render_template_with_lang_fallback('dashboard.html',
                          total_companies=total_companies,
                          verified_companies=verified_companies,
                          total_projects=total_projects,
@@ -201,7 +232,7 @@ def dashboard():
 
 @main_bp.route('/about')
 def about():
-    return render_template('about.html')
+    return render_template_with_lang_fallback('about.html')
 
 
 def _new_ui_dist_dir():
@@ -219,6 +250,18 @@ def new_ui_index():
             503,
         )
     return send_from_directory(dist_dir, 'index.html')
+
+
+@main_bp.route('/set_language/<lang>')
+def set_language(lang):
+    """Set language preference"""
+    if lang in ['en', 'ch']:
+        session['language'] = lang
+    # Redirect back to the page that triggered the language switch
+    referrer = request.referrer
+    if referrer:
+        return redirect(referrer)
+    return redirect(url_for('main.index'))
 
 
 @main_bp.route('/new-ui/<path:path>')

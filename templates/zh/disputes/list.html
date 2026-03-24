@@ -1,0 +1,44 @@
+{% extends "zh/base.html" %}
+
+{% block title %}纠纷列表 - DecoFinance{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>纠纷处理</h2>
+    <div class="card">
+        <div class="card-body">
+            {% if disputes %}
+            <table class="table">
+                <thead>
+                    <tr><th>ID</th><th>项目</th><th>类型</th><th>状态</th><th>开启日期</th><th>操作</th></tr>
+                </thead>
+                <tbody>
+                    {% for dispute in disputes %}
+                    <tr>
+                        <td>#{{ dispute.id }}</td>
+                        <td>{{ dispute.project.title if dispute.project else '-' }}</td>
+                        <td>{{ dispute.dispute_type }}</td>
+                        <td>{{ dispute.status }}</td>
+                        <td>{{ dispute.opened_at.strftime('%Y-%m-%d') if dispute.opened_at else '-' }}</td>
+                        <td>
+                            {% if g.user and g.user.role in ['reviewer', 'admin'] and dispute.status != 'resolved' %}
+                            <form method="POST" action="{{ url_for('disputes.mark_resolved', id=dispute.id) }}">
+                                <input type="hidden" name="resolution_summary" value="审核后已解决。">
+                                <button type="submit" class="btn btn-sm btn-success">解决</button>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="6"><strong>描述：</strong> {{ dispute.description }}{% if dispute.resolution_summary %}<br><strong>解决方案：</strong> {{ dispute.resolution_summary }}{% endif %}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="text-muted">暂无纠纷。</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

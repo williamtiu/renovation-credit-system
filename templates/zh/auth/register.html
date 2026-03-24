@@ -1,0 +1,46 @@
+{% extends 'zh/base.html' %}
+
+{% block title %}注册 - DecoFinance{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6 col-lg-5">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white text-center border-0 pt-4">
+                <h3 class="mb-0">创建账号</h3>
+                <p class="text-muted small">加入我们，管理装修信用。</p>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST" action="{{ url_for('auth.register') }}">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">用户名</label>
+                        <input type="text" class="form-control" id="username" name="username" required autofocus>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">邮箱</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="role" class="form-label">角色</label>
+                        <select class="form-control" id="role" name="role" required>
+                            <option value="customer">客户</option>
+                            <option value="company_user">公司用户</option>
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label for="password" class="form-label">密码</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                    </div>
+                    <div class="d-grid mb-3">
+                        <button type="submit" class="btn btn-primary">注册</button>
+                    </div>
+                    <div class="text-center">
+                        <span class="text-muted">已经有账号？</span> 
+                        <a href="{{ url_for('auth.login') }}" class="text-decoration-none">登录</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

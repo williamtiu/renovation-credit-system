@@ -1,0 +1,218 @@
+{% extends "zh/base.html" %}
+
+{% block title %}仪表板 - DecoFinance{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">📊 仪表板</h1>
+
+<!-- 关键指标 -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon">🏢</div>
+        <div class="stat-value">{{ total_companies }}</div>
+        <div class="stat-label">注册公司总数</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">✅</div>
+        <div class="stat-value">{{ verified_companies }}</div>
+        <div class="stat-label">已验证公司</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">🧱</div>
+        <div class="stat-value">{{ total_projects }}</div>
+        <div class="stat-label">项目总数</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">⚠️</div>
+        <div class="stat-value">{{ open_disputes }}</div>
+        <div class="stat-label">未解决纠纷</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">📊</div>
+        <div class="stat-value">{{ scored_companies }}</div>
+        <div class="stat-label">已评分公司</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">⭐</div>
+        <div class="stat-value">{{ average_trust_score|round(1) }}</div>
+        <div class="stat-label">平均信任评分</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">💰</div>
+        <div class="stat-value">HK$ {{ "{:,.0f}".format(approved_loan_volume) }}</div>
+        <div class="stat-label">批准贷款总额</div>
+    </div>
+</div>
+
+<div class="dashboard-grid mt-4">
+    <!-- 信用评级分布 -->
+    <div class="card">
+        <div class="card-header">
+            <h2>📊 信用评级分布</h2>
+        </div>
+        <div class="card-body">
+            {% if grade_distribution %}
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>等级</th>
+                            <th>公司数量</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for grade in grade_distribution %}
+                        <tr>
+                            <td>
+                                <span class="badge badge-{{ grade[0]|lower }}">{{ grade[0] }}</span>
+                            </td>
+                            <td>{{ grade[1] }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="text-muted">暂无数据</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- 贷款状态统计 -->
+    <div class="card">
+        <div class="card-header">
+            <h2>💰 贷款状态统计</h2>
+        </div>
+        <div class="card-body">
+            {% if loan_status_stats %}
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>状态</th>
+                            <th>数量</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for stat in loan_status_stats %}
+                        <tr>
+                            <td>
+                                <span class="badge badge-{{ stat[0] }}">{{ stat[0] }}</span>
+                            </td>
+                            <td>{{ stat[1] }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="text-muted">暂无数据</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- 风险等级分布 -->
+    <div class="card">
+        <div class="card-header">
+            <h2>⚠️ 风险等级分布</h2>
+        </div>
+        <div class="card-body">
+            {% if risk_distribution %}
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>风险等级</th>
+                            <th>公司数量</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for risk in risk_distribution %}
+                        <tr>
+                            <td>
+                                <span class="badge badge-{{ risk[0]|default('secondary') }}">{{ risk[0] or '未评级' }}</span>
+                            </td>
+                            <td>{{ risk[1] }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="text-muted">暂无数据</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- 项目状态统计 -->
+    <div class="card">
+        <div class="card-header">
+            <h2>🧱 项目状态统计</h2>
+        </div>
+        <div class="card-body">
+            {% if project_status_stats %}
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>状态</th>
+                            <th>数量</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for stat in project_status_stats %}
+                        <tr>
+                            <td>
+                                <span class="badge badge-{{ stat[0] }}">{{ stat[0] }}</span>
+                            </td>
+                            <td>{{ stat[1] }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="text-muted">暂无数据</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- 监控列表 -->
+<div class="card mt-4">
+    <div class="card-header">
+        <h2>⚠️ 监控列表公司</h2>
+        <a href="{{ url_for('companies.list_companies') }}" class="btn btn-sm">查看全部</a>
+    </div>
+    <div class="card-body">
+        {% if watchlist_companies %}
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>公司名称</th>
+                        <th>状态</th>
+                        <th>风险等级</th>
+                        <th>纠纷数</th>
+                        <th>安全评分</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for company in watchlist_companies %}
+                    <tr>
+                        <td>
+                            <a href="{{ url_for('companies.view_company', id=company.id) }}">
+                                {{ company.company_name }}
+                            </a>
+                        </td>
+                        <td>
+                            <span class="badge badge-{{ company.status }}">{{ company.status }}</span>
+                        </td>
+                        <td>
+                            <span class="badge badge-{{ company.risk_level|default('secondary') }}">
+                                {{ company.risk_level or '未评级' }}
+                            </span>
+                        </td>
+                        <td>{{ company.dispute_count_cached or 0 }}</td>
+                        <td>{{ company.safety_training_coverage or 0 }}%</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="text-muted">暂无监控列表公司</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

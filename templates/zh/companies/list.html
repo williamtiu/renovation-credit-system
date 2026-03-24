@@ -1,12 +1,12 @@
-{% extends "base.html" %}
+{% extends "zh/base.html" %}
 
-{% block title %}Company List - DecoFinance{% endblock %}
+{% block title %}公司列表 - DecoFinance{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
     <div class="row">
         <div class="col-md-12">
-            <h2><i class="fas fa-building"></i> Renovation Company List</h2>
+            <h2><i class="fas fa-building"></i> 装修公司列表</h2>
             <hr>
         </div>
     </div>
@@ -15,15 +15,15 @@
     <div class="row mb-3">
         <div class="col-md-6">
             <a href="{{ url_for('companies.add_company') }}" class="btn btn-primary">
-                <i class="fas fa-plus"></i> Add Company
+                <i class="fas fa-plus"></i> 添加公司
             </a>
         </div>
         <div class="col-md-6">
             <form method="GET" class="form-inline float-right">
-                <input type="text" name="search" class="form-control mr-2" placeholder="SearchCompany Name..." 
+                <input type="text" name="search" class="form-control mr-2" placeholder="搜索公司名称..." 
                        value="{{ request.args.get('search', '') }}">
                 <button type="submit" class="btn btn-outline-secondary">
-                    <i class="fas fa-search"></i> Search
+                    <i class="fas fa-search"></i> 搜索
                 </button>
             </form>
         </div>
@@ -35,14 +35,14 @@
         <table class="table table-hover">
             <thead class="thead-light">
                 <tr>
-                    <th>Company Name</th>
-                    <th>BR No.</th>
-                    <th>Contact Person</th>
-                    <th>Phone</th>
-                    <th>District</th>
-                    <th>Credit Score</th>
-                    <th>Status</th>
-                    <th>Actions</th>
+                    <th>公司名称</th>
+                    <th>商业登记号</th>
+                    <th>联系人</th>
+                    <th>电话</th>
+                    <th>区域</th>
+                    <th>信用评分</th>
+                    <th>状态</th>
+                    <th>操作</th>
                 </tr>
             </thead>
             <tbody>
@@ -58,30 +58,30 @@
                             <span class="badge badge-success">{{ company.credit_scores[0].credit_grade }}</span>
                             <span>{{ company.credit_scores[0].credit_score }}</span>
                         {% else %}
-                            <span class="badge badge-secondary">Unscored</span>
+                            <span class="badge badge-secondary">未评分</span>
                         {% endif %}
                     </td>
                     <td>
                         {% if company.status == 'active' %}
-                            <span class="badge badge-success">Low Risk</span>
+                            <span class="badge badge-success">低风险</span>
                         {% elif company.status == 'suspended' %}
-                            <span class="badge badge-warning">Medium Risk</span>
+                            <span class="badge badge-warning">中等风险</span>
                         {% else %}
-                            <span class="badge badge-danger">High Risk</span>
+                            <span class="badge badge-danger">高风险</span>
                         {% endif %}
                     </td>
                     <td>
-                        <div class="action-buttons">
+                        <div class="btn-group btn-group-sm">
                             <a href="{{ url_for('companies.view_company', id=company.id) }}" 
-                               class="btn-action btn-view" title="View Details">
+                               class="btn-action btn-view" title="查看详情">
                                 <i class="fas fa-eye"></i>
                             </a>
                             <a href="{{ url_for('companies.edit_company', id=company.id) }}" 
-                               class="btn-action btn-edit" title="Edit">
+                               class="btn-action btn-edit" title="编辑">
                                 <i class="fas fa-edit"></i>
                             </a>
                             <a href="{{ url_for('companies.calculate_score', id=company.id) }}" 
-                               class="btn-action btn-score" title="Calculate Score">
+                               class="btn-action btn-score" title="计算评分">
                                 <i class="fas fa-chart-bar"></i>
                             </a>
                         </div>
@@ -93,7 +93,7 @@
     </div>
     {% else %}
     <div class="alert alert-info">
-        <i class="fas fa-info-circle"></i> No company records found. Please add the first renovation company.
+        <i class="fas fa-info-circle"></i> 暂无公司记录，请添加第一家装修公司。
     </div>
     {% endif %}
 </div>

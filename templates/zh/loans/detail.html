@@ -1,0 +1,83 @@
+{% extends "zh/base.html" %}
+
+{% block title %}贷款申请详情 - DecoFinance{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12 d-flex justify-content-between align-items-center">
+            <h2><i class="fas fa-file-invoice-dollar"></i> 贷款申请详情</h2>
+            <div>
+                <a href="{{ url_for('loans.list_loans') }}" class="btn btn-secondary">返回列表</a>
+                {% if g.user and g.user.role in ['admin', 'reviewer'] and application.application_status == 'pending' %}
+                <a href="{{ url_for('loans.review_application', id=application.id) }}" class="btn btn-warning"><i class="fas fa-gavel"></i> 审批/拒绝</a>
+                {% endif %}
+            </div>
+        </div>
+        <hr class="mt-2">
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <!-- 申请状态 -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-info-circle"></i> 申请状态</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>状态：</strong>
+                        {% if application.application_status == 'pending' %}
+                            <span class="badge bg-warning">待处理</span>
+                        {% elif application.application_status == 'approved' %}
+                            <span class="badge bg-success">已批准</span>
+                        {% elif application.application_status == 'rejected' %}
+                            <span class="badge bg-danger">已拒绝</span>
+                        {% endif %}
+                    </p>
+                    <p><strong>申请日期：</strong>{{ application.applied_at.strftime('%Y-%m-%d %H:%M') if application.applied_at else '-' }}</p>
+                    <p><strong>公司名称：</strong><a href="{{ url_for('companies.view_company', id=company.id) }}">{{ company.company_name }}</a></p>
+                    <p><strong>相关项目：</strong>
+                        {% if application.project %}
+                        <a href="{{ url_for('projects.view_project', id=application.project.id) }}">{{ application.project.title }}</a>
+                        {% else %}
+                        -
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+
+            <!-- 申请内容 -->
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-money-bill-wave"></i> 申请内容</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>申请金额：</strong>HK$ {{ "{:,.2f}".format(application.loan_amount) }}</p>
+                    <p><strong>分期期数：</strong>{{ application.loan_term_months }} 个月</p>
+                    <p><strong>贷款用途：</strong>{{ application.loan_purpose or '-' }}</p>
+                </div>
+            </div>
+            
+            {% if application.application_status != 'pending' %}
+            <!-- 审批结果 -->
+            <div class="card mb-4">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0"><i class="fas fa-check-circle"></i> 审批结果</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>审批日期：</strong>{{ application.approval_date.strftime('%Y-%m-%d %H:%M') if application.approval_date else '-' }}</p>
+                    {% if application.application_status == 'approved' %}
+                        <p><strong>批准金额：</strong>HK$ {{ "{:,.2f}".format(application.approved_amount or 0) }}</p>
+                        <p><strong>批准利率：</strong>{{ application.approved_interest_rate }}%</p>
+                        <p><strong>附加条件：</strong>{{ application.approval_conditions or '无' }}</p>
+                        <p><strong>审批人 ID：</strong>{{ application.reviewed_by_user_id or '-' }}</p>
+                    {% elif application.application_status == 'rejected' %}
+                        <p><strong>拒绝原因：</strong>{{ application.rejection_reason or '无' }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

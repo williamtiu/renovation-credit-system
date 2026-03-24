@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,7 +8,7 @@
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <!-- Navbar -->
+    <!-- 导航栏 -->
     <nav class="navbar">
         <div class="nav-brand">
             <a href="{{ url_for('main.index') }}">
@@ -16,23 +16,23 @@
             </a>
         </div>
         <ul class="nav-menu">
-            <li><a href="{{ url_for('main.index') }}">🏠 Home</a></li>
-            <li><a href="{{ url_for('main.dashboard') }}">📊 Dashboard</a></li>
-            <li><a href="{{ url_for('companies.list_companies') }}">🏢 Companies</a></li>
+            <li><a href="{{ url_for('main.index') }}">🏠 首页</a></li>
+            <li><a href="{{ url_for('main.dashboard') }}">📊 仪表板</a></li>
+            <li><a href="{{ url_for('companies.list_companies') }}">🏢 公司列表</a></li>
             {% if g.user and g.user.role in ['company_user', 'admin', 'reviewer'] %}
-            <li><a href="{{ url_for('loans.list_loans') }}">💰 Loan Applications</a></li>
+            <li><a href="{{ url_for('loans.list_loans') }}">💰 贷款申请</a></li>
             {% endif %}
-            <li><a href="{{ url_for('projects.list_projects') }}">🧱 Projects</a></li>
-            <li><a href="{{ url_for('disputes.list_disputes') }}">⚠️ Disputes</a></li>
-            <li><a href="{{ url_for('main.new_ui_index') }}">✨ New UI</a></li>
+            <li><a href="{{ url_for('projects.list_projects') }}">🧱 项目管理</a></li>
+            <li><a href="{{ url_for('disputes.list_disputes') }}">⚠️ 纠纷处理</a></li>
+            <li><a href="{{ url_for('main.new_ui_index') }}">✨ 新版界面</a></li>
             {% if g.user and g.user.role in ['admin', 'reviewer'] %}
-            <li><a href="{{ url_for('companies.compare_reports') }}">🆚 Compare Reports</a></li>
-            <li><a href="{{ url_for('admin.audit_logs') }}">🧾 Audit Logs</a></li>
+            <li><a href="{{ url_for('companies.compare_reports') }}">🆚 报告对比</a></li>
+            <li><a href="{{ url_for('admin.audit_logs') }}">🧾 审计日志</a></li>
             {% endif %}
-            <li><a href="{{ url_for('main.about') }}">ℹ️ About</a></li>
+            <li><a href="{{ url_for('main.about') }}">ℹ️ 关于</a></li>
         </ul>
         <div class="nav-actions">
-            <!-- Language Switcher -->
+            <!-- 语言切换器 -->
             <div class="language-switcher" style="display: inline-flex; gap: 5px; margin-right: 15px;">
                 <a href="{{ url_for('main.set_language', lang='en') }}" 
                    class="btn btn-sm {{ 'btn-primary' if session.get('language', 'en') == 'en' else 'btn-outline-light' }}"
@@ -44,21 +44,21 @@
             
             {% if g.user %}
                 <span style="color: white; margin-right: 15px;">{{ g.user.username }} · {{ g.user.role }}</span>
-                <a href="{{ url_for('auth.logout') }}" class="btn btn-secondary" style="margin-right: 10px;">Logout</a>
+                <a href="{{ url_for('auth.logout') }}" class="btn btn-secondary" style="margin-right: 10px;">退出登录</a>
             {% else %}
-                <a href="{{ url_for('auth.login') }}" class="btn btn-secondary" style="margin-right: 10px;">Login</a>
-                <a href="{{ url_for('auth.register') }}" class="btn btn-secondary" style="margin-right: 10px;">Register</a>
+                <a href="{{ url_for('auth.login') }}" class="btn btn-secondary" style="margin-right: 10px;">登录</a>
+                <a href="{{ url_for('auth.register') }}" class="btn btn-secondary" style="margin-right: 10px;">注册</a>
             {% endif %}
             {% if g.user and g.user.role in ['admin', 'reviewer', 'company_user'] %}
-            <a href="{{ url_for('companies.add_company') }}" class="btn btn-primary">+ Add Company</a>
+            <a href="{{ url_for('companies.add_company') }}" class="btn btn-primary">+ 添加公司</a>
             {% endif %}
             {% if g.user and g.user.role in ['customer', 'admin'] %}
-            <a href="{{ url_for('projects.add_project') }}" class="btn btn-primary">+ Add Project</a>
+            <a href="{{ url_for('projects.add_project') }}" class="btn btn-primary">+ 添加项目</a>
             {% endif %}
         </div>
     </nav>
 
-    <!-- Flash Messages -->
+    <!-- 闪送消息 -->
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             <div class="flash-messages">
@@ -72,16 +72,16 @@
         {% endif %}
     {% endwith %}
 
-    <!-- Main Content -->
+    <!-- 主内容区 -->
     <main class="container">
         {% block content %}{% endblock %}
     </main>
 
-    <!-- Footer -->
+    <!-- 页脚 -->
     <footer class="footer">
         <div class="container">
-            <p>© 2026 DecoFinance | Decorator trust, financing, and risk intelligence</p>
-            <p>Helping lenders, suppliers, and customers verify renovation firms and monitor project-backed lending.</p>
+            <p>© 2026 DecoFinance | 装修行业信用、融资和风险智能平台</p>
+            <p>帮助贷款机构、供应商和客户验证装修公司并监控项目支持的贷款。</p>
         </div>
     </footer>
 

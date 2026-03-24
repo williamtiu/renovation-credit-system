@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 
 from flask import Blueprint, abort, flash, g, redirect, render_template, request, url_for
+from utils.template_helper import render_template_with_lang_fallback
 
 from models.company import Company
 from models.database import db, get_or_404
@@ -82,7 +83,7 @@ def list_projects():
         ]
     else:
         projects = Project.query.order_by(Project.created_at.desc()).all()
-    return render_template('projects/list.html', projects=projects)
+    return render_template_with_lang_fallback('projects/list.html', projects=projects)
 
 
 @projects_bp.route('/add', methods=['GET', 'POST'])
@@ -98,7 +99,7 @@ def add_project():
         db.session.commit()
         flash('Project created successfully.', 'success')
         return redirect(url_for('projects.view_project', id=project.id))
-    return render_template('projects/form.html', project=None)
+    return render_template_with_lang_fallback('projects/form.html', project=None)
 
 
 @projects_bp.route('/<int:id>/edit', methods=['GET', 'POST'])
@@ -118,7 +119,7 @@ def edit_project(id):
         flash('Project updated successfully.', 'success')
         return redirect(url_for('projects.view_project', id=project.id))
 
-    return render_template('projects/form.html', project=project)
+    return render_template_with_lang_fallback('projects/form.html', project=project)
 
 
 @projects_bp.route('/<int:id>')
@@ -130,7 +131,7 @@ def view_project(id):
     if not has_contract:
         get_or_create_contract(project, actor_user_id=g.user.id if g.user else None)
         db.session.commit()
-    return render_template('projects/detail.html', project=project)
+    return render_template_with_lang_fallback('projects/detail.html', project=project)
 
 
 @projects_bp.route('/<int:id>/bids', methods=['POST'])
