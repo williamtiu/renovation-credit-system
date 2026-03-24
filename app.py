@@ -27,6 +27,7 @@ from models.dispute_case import DisputeCase
 from models.smart_contract_agreement import SmartContractAgreement
 from models.consent_record import ConsentRecord
 from models.audit_log import AuditLog
+from models.company_verification import CompanyVerification, LoanReferral, Bank
 from services.credit_scorer import CreditScorer
 from datetime import datetime
 import os
@@ -96,6 +97,7 @@ def create_app(config_name='default'):
     from routes.projects import projects_bp
     from routes.disputes import disputes_bp
     from routes.admin import admin_bp
+    from routes.verifications import verifications_bp
     
     app.register_blueprint(auth_bp)
     app.register_blueprint(main_bp)
@@ -105,6 +107,7 @@ def create_app(config_name='default'):
     app.register_blueprint(projects_bp, url_prefix='/projects')
     app.register_blueprint(disputes_bp, url_prefix='/disputes')
     app.register_blueprint(admin_bp, url_prefix='/admin')
+    app.register_blueprint(verifications_bp, url_prefix='/verifications')
     
     return app
 

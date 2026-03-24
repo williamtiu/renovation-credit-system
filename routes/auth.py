@@ -69,7 +69,7 @@ def login():
         return render_template('zh/auth/login.html')
     return render_template('auth/login.html')
 
-@auth_bp.route('/logout')
+@auth_bp.route('/logout', methods=['GET', 'POST'])
 def logout():
     if session.get('user_id'):
         log_action('user_logged_out', 'User', session.get('user_id'), actor_user_id=session.get('user_id'))

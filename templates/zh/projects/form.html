@@ -1,4 +1,4 @@
-{% extends "zh/base.html" %}
+{% extends "base.html" %}
 
 {% block title %}{{ '编辑项目' if project else '创建项目' }} - DecoFinance{% endblock %}
 
@@ -34,11 +34,11 @@
                         <input type="number" step="0.01" class="form-control" id="budget_amount" name="budget_amount" value="{{ project.budget_amount if project else '' }}" required>
                     </div>
                     <div class="col-md-4 mb-3">
-                        <label for="target_start_date">计划开始</label>
+                        <label for="target_start_date">目标开始日期</label>
                         <input type="date" class="form-control" id="target_start_date" name="target_start_date" value="{{ project.target_start_date.isoformat() if project and project.target_start_date else '' }}">
                     </div>
                     <div class="col-md-4 mb-3">
-                        <label for="target_end_date">计划结束</label>
+                        <label for="target_end_date">目标结束日期</label>
                         <input type="date" class="form-control" id="target_end_date" name="target_end_date" value="{{ project.target_end_date.isoformat() if project and project.target_end_date else '' }}">
                     </div>
                 </div>

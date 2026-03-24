@@ -1,4 +1,4 @@
-{% extends "zh/base.html" %}
+{% extends "base.html" %}
 
 {% block title %}项目详情 - DecoFinance{% endblock %}
 
@@ -19,11 +19,11 @@
             <div class="card mb-4">
                 <div class="card-header"><h5>项目摘要</h5></div>
                 <div class="card-body">
-                    <p><strong>描述：</strong> {{ project.description or '-' }}</p>
-                    <p><strong>物业类型：</strong> {{ project.property_type or '-' }}</p>
-                    <p><strong>地址：</strong> {{ project.property_address or '-' }}</p>
-                    <p><strong>预算：</strong> HK$ {{ "{:,.0f}".format(project.budget_amount) }}</p>
-                    <p><strong>区域：</strong> {{ project.district or '-' }}</p>
+                    <p><strong>描述:</strong> {{ project.description or '-' }}</p>
+                    <p><strong>物业类型:</strong> {{ project.property_type or '-' }}</p>
+                    <p><strong>地址:</strong> {{ project.property_address or '-' }}</p>
+                    <p><strong>预算:</strong> HK$ {{ "{:,.0f}".format(project.budget_amount) }}</p>
+                    <p><strong>地区:</strong> {{ project.district or '-' }}</p>
                 </div>
             </div>
 
@@ -33,7 +33,7 @@
                     {% if project.bids %}
                     <table class="table">
                         <thead>
-                            <tr><th>公司</th><th>投标金额</th><th>工期</th><th>状态</th><th>操作</th></tr>
+                            <tr><th>公司</th><th>投标金额</th><th>工期</th><th>状态</th><th></th></tr>
                         </thead>
                         <tbody>
                             {% for bid in project.bids %}
@@ -63,9 +63,9 @@
                     <form method="POST" action="{{ url_for('projects.submit_bid', id=project.id) }}">
                         <div class="row">
                             <div class="col-md-4 mb-2"><input type="number" step="0.01" class="form-control" name="bid_amount" placeholder="投标金额" required></div>
-                            <div class="col-md-4 mb-2"><input type="number" class="form-control" name="proposed_duration_days" placeholder="工期天数"></div>
+                            <div class="col-md-4 mb-2"><input type="number" class="form-control" name="proposed_duration_days" placeholder="工期（天）"></div>
                             <div class="col-md-4 mb-2"><button type="submit" class="btn btn-primary w-100">提交投标</button></div>
-                            <div class="col-md-12"><textarea class="form-control" name="proposal_summary" rows="2" placeholder="方案摘要"></textarea></div>
+                            <div class="col-md-12"><textarea class="form-control" name="proposal_summary" rows="2" placeholder="投标摘要"></textarea></div>
                         </div>
                     </form>
                     {% endif %}
@@ -78,15 +78,106 @@
             <div class="card mb-4 border-primary">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">智能合约</h5>
-                    <span class="badge bg-{{ 'success' if contract else 'secondary' }}">{{ '已创建' if contract else '未创建' }}</span>
+                    {% if contract %}
+                    <span class="badge bg-primary">{{ contract.status }}</span>
+                    {% endif %}
                 </div>
                 <div class="card-body">
                     {% if contract %}
-                    <p><strong>合约 ID：</strong> {{ contract.contract_id }}</p>
-                    <p><strong>状态：</strong> {{ contract.contract_status }}</p>
-                    <p><strong>创建时间：</strong> {{ contract.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                    <p><strong>合约代码:</strong> {{ contract.contract_code }}</p>
+                    <p><strong>托管余额:</strong> HK$ {{ "{:,.0f}".format(contract.escrow_balance) }}</p>
+                    <p><strong>已释放:</strong> HK$ {{ "{:,.0f}".format(contract.released_amount) }}</p>
+                    <p><strong>已冻结:</strong> HK$ {{ "{:,.0f}".format(contract.frozen_amount) }}</p>
+                    <p><strong>里程碑:</strong> {{ contract.approved_milestones }} / {{ contract.milestones_total }}</p>
+                    <p><strong>未解决纠纷:</strong> {{ contract.dispute_count }}</p>
+                    {% set events = contract.parsed_events() %}
+                    {% if events %}
+                    <hr>
+                    <h6>最近合约事件</h6>
+                    <ul class="list-group list-group-flush">
+                        {% for event in events[-5:] | reverse %}
+                        <li class="list-group-item px-0">
+                            <div class="fw-bold">{{ event.event_type.replace('_', ' ')|title }}</div>
+                            <div class="small text-muted">{{ event.created_at }}</div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
                     {% else %}
-                    <p class="text-muted mb-0">智能合约将在接受投标后自动创建。</p>
+                    <p class="text-muted">合约尚未初始化。</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header"><h5>里程碑</h5></div>
+                <div class="card-body">
+                    {% if project.milestones %}
+                    <ul class="list-group mb-3">
+                        {% for milestone in project.milestones %}
+                        <li class="list-group-item">
+                            <div class="d-flex justify-content-between">
+                                <strong>{{ milestone.sequence_no }}. {{ milestone.name }}</strong>
+                                <span>{{ milestone.status }}</span>
+                            </div>
+                            <div>HK$ {{ "{:,.0f}".format(milestone.planned_amount) }}</div>
+                            <div class="mt-2">
+                                {% if g.user and g.user.role in ['company_user', 'admin'] and milestone.status == 'planned' %}
+                                <form method="POST" action="{{ url_for('projects.submit_milestone', id=milestone.id) }}" class="mb-2">
+                                    <textarea class="form-control mb-2" name="evidence_notes" rows="2" placeholder="证据说明"></textarea>
+                                    <button type="submit" class="btn btn-sm btn-primary">提交里程碑</button>
+                                </form>
+                                {% endif %}
+                                {% if g.user and g.user.role in ['customer', 'admin'] and milestone.status == 'submitted' %}
+                                <form method="POST" action="{{ url_for('projects.approve_milestone', id=milestone.id) }}">
+                                    <button type="submit" class="btn btn-sm btn-success">批准里程碑</button>
+                                </form>
+                                {% endif %}
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p class="text-muted">暂无里程碑。</p>
+                    {% endif %}
+
+                    {% if g.user and g.user.role in ['customer', 'admin'] and project.status in ['contracted', 'in_progress'] %}
+                    <hr>
+                    <h6>添加里程碑</h6>
+                    <form method="POST" action="{{ url_for('projects.add_milestone', id=project.id) }}">
+                        <div class="mb-2"><input type="number" class="form-control" name="sequence_no" placeholder="序号" required></div>
+                        <div class="mb-2"><input type="text" class="form-control" name="name" placeholder="里程碑名称" required></div>
+                        <div class="mb-2"><textarea class="form-control" name="description" rows="2" placeholder="描述"></textarea></div>
+                        <div class="row">
+                            <div class="col-md-6 mb-2"><input type="number" step="0.01" class="form-control" name="planned_amount" placeholder="金额"></div>
+                            <div class="col-md-6 mb-2"><input type="number" step="0.01" class="form-control" name="planned_percentage" placeholder="百分比"></div>
+                        </div>
+                        <div class="mb-2"><input type="date" class="form-control" name="due_date"></div>
+                        <button type="submit" class="btn btn-secondary">添加里程碑</button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><h5>提交纠纷</h5></div>
+                <div class="card-body">
+                    {% if g.user %}
+                    <form method="POST" action="{{ url_for('disputes.add_dispute') }}">
+                        <input type="hidden" name="project_id" value="{{ project.id }}">
+                        <div class="mb-2">
+                            <label for="milestone_id">里程碑</label>
+                            <select class="form-control" id="milestone_id" name="milestone_id">
+                                <option value="">项目级纠纷</option>
+                                {% for milestone in project.milestones %}
+                                <option value="{{ milestone.id }}">{{ milestone.sequence_no }}. {{ milestone.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-2"><input type="text" class="form-control" name="dispute_type" placeholder="纠纷类型" required></div>
+                        <div class="mb-2"><textarea class="form-control" name="description" rows="3" placeholder="描述问题" required></textarea></div>
+                        <button type="submit" class="btn btn-danger">提交纠纷</button>
+                    </form>
                     {% endif %}
                 </div>
             </div>

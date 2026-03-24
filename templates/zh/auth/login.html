@@ -1,35 +1,113 @@
-{% extends 'zh/base.html' %}
+{% extends 'base.html' %}
 
 {% block title %}登录 - DecoFinance{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center mt-5">
-    <div class="col-md-6 col-lg-5">
-        <div class="card shadow-sm border-0">
-            <div class="card-header bg-white text-center border-0 pt-4">
-                <h3 class="mb-0">欢迎回来</h3>
-                <p class="text-muted small">请登录以继续。</p>
+<div class="hero">
+    <h1>登录 DecoFinance</h1>
+    <p class="hero-subtitle">访问您的装修信用平台</p>
+</div>
+
+<div class="content-wrapper">
+    <div class="dashboard-grid">
+        <div class="card">
+            <div class="card-header">
+                <h2>欢迎回来</h2>
             </div>
-            <div class="card-body p-4">
-                <form method="POST" action="{{ url_for('auth.login') }}">
-                    <div class="mb-3">
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('auth.login') }}" class="space-y-4">
+                    <div>
                         <label for="username" class="form-label">用户名</label>
                         <input type="text" class="form-control" id="username" name="username" required autofocus>
                     </div>
-                    <div class="mb-4">
+                    <div>
                         <label for="password" class="form-label">密码</label>
                         <input type="password" class="form-control" id="password" name="password" required>
                     </div>
-                    <div class="d-grid mb-3">
-                        <button type="submit" class="btn btn-primary">登录</button>
-                    </div>
-                    <div class="text-center">
-                        <span class="text-muted">还没有账号？</span> 
-                        <a href="{{ url_for('auth.register') }}" class="text-decoration-none">注册</a>
-                    </div>
+                    <button type="submit" class="btn btn-primary w-100">登录</button>
                 </form>
+                
+                <div class="mt-4 text-center">
+                    <span class="text-muted">还没有账户？ </span>
+                    <a href="{{ url_for('auth.register') }}" class="text-decoration-none" style="color: var(--primary-color); font-weight: 500;">注册</a>
+                </div>
+                
+                <div class="mt-4">
+                    <div class="d-flex justify-content-center align-items-center mb-3">
+                        <div class="flex-grow-1" style="height: 1px; background: var(--border-color);"></div>
+                        <span class="px-3 text-muted" style="font-size: 0.75rem;">快速演示访问</span>
+                        <div class="flex-grow-1" style="height: 1px; background: var(--border-color);"></div>
+                    </div>
+                    
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <button type="button" class="btn btn-outline-primary w-100" onclick="loginAs('company@demo.com')">
+                                <i class="fas fa-building me-2"></i>装修公司
+                            </button>
+                        </div>
+                        <div class="col-6">
+                            <button type="button" class="btn btn-outline-success w-100" onclick="loginAs('customer@demo.com')">
+                                <i class="fas fa-user me-2"></i>客户
+                            </button>
+                        </div>
+                        <div class="col-6">
+                            <button type="button" class="btn btn-outline-purple w-100" onclick="loginAs('reviewer@demo.com')">
+                                <i class="fas fa-clipboard-list me-2"></i>审核员
+                            </button>
+                        </div>
+                        <div class="col-6">
+                            <button type="button" class="btn btn-outline-danger w-100" onclick="loginAs('admin@demo.com')">
+                                <i class="fas fa-cog me-2"></i>管理员
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card" style="background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: white; border: none;">
+            <div class="card-body">
+                <div style="text-align: center;">
+                    <i class="fas fa-shield-alt" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.8;"></i>
+                    <h2 style="margin-bottom: 1rem;">基于信任的融资</h2>
+                    <p style="opacity: 0.9; margin-bottom: 2rem;">
+                        装修行业首个综合信任和信用评分平台。建立信誉，获得融资，透明管理项目。
+                    </p>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-card" style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2);">
+                            <div class="stat-value" style="color: white;">10K+</div>
+                            <div class="stat-label">公司</div>
+                        </div>
+                        <div class="stat-card" style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2);">
+                            <div class="stat-value" style="color: white;">$500M+</div>
+                            <div class="stat-label">贷款</div>
+                        </div>
+                        <div class="stat-card" style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2);">
+                            <div class="stat-value" style="color: white;">98%</div>
+                            <div class="stat-label">满意度</div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+function loginAs(email) {
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '{{ url_for("auth.login") }}';
+    
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = 'username';
+    input.value = email;
+    
+    form.appendChild(input);
+    document.body.appendChild(form);
+    form.submit();
+}
+</script>
 {% endblock %}

@@ -3,11 +3,16 @@
 {% block title %}Dashboard - DecoFinance{% endblock %}
 
 {% block content %}
-<section class="dashboard-page">
+<div class="page-header">
+    <h1>Dashboard</h1>
+    <p>Portfolio Monitoring & Risk Management</p>
+</div>
+
+<div class="content-wrapper">
     <div class="dashboard-hero-panel">
         <div>
-            <p class="eyebrow">Portfolio Monitoring</p>
-            <h1>DecoFinance Risk Management Dashboard</h1>
+            <p class="dashboard-eyebrow">Portfolio Monitoring</p>
+            <h2>DecoFinance Risk Management Dashboard</h2>
             <p class="text-muted">A lender-facing view of trust scores, verification backlog, OSH review pressure, ESG readiness, loan pipeline stress, and dispute hotspots.</p>
         </div>
         <div class="metric-strip">
@@ -35,25 +40,31 @@
         <div class="kpi-card"><span>ESG-ready companies</span><strong>{{ esg_ready_companies }}</strong><small>Declared ESG policy with sustainable delivery intent</small></div>
     </div>
 
-    <div class="report-grid">
-        <article class="card report-section-card">
-            <div class="card-header"><h2>Score Trend</h2></div>
+    <div class="dashboard-grid">
+        <div class="card">
+            <div class="card-header">
+                <h2><i class="fas fa-chart-line me-2"></i>Score Trend</h2>
+            </div>
             <div class="card-body">
                 <div id="score-trend-chart" class="chart-shell" data-chart-kind="line" data-chart-points='{{ score_trend_series|tojson }}'></div>
             </div>
-        </article>
+        </div>
 
-        <article class="card report-section-card">
-            <div class="card-header"><h2>Dispute Trend</h2></div>
+        <div class="card">
+            <div class="card-header">
+                <h2><i class="fas fa-exclamation-triangle me-2"></i>Dispute Trend</h2>
+            </div>
             <div class="card-body">
                 <div id="dispute-trend-chart" class="chart-shell" data-chart-kind="bar" data-chart-points='{{ dispute_trend_series|tojson }}'></div>
             </div>
-        </article>
+        </div>
     </div>
 
     {% if g.user and g.user.role in ['admin', 'reviewer'] %}
-    <article class="card report-section-card">
-        <div class="card-header"><h2>Comparison Filters</h2></div>
+    <div class="card">
+        <div class="card-header">
+            <h2><i class="fas fa-filter me-2"></i>Comparison Filters</h2>
+        </div>
         <div class="card-body">
             <form method="GET" action="{{ url_for('companies.compare_reports') }}" class="filter-form-grid">
                 <div class="form-group">
@@ -96,27 +107,31 @@
                 </div>
             </form>
         </div>
-    </article>
+    </div>
     {% endif %}
 
-    <div class="report-grid">
-        <article class="card report-section-card">
-            <div class="card-header"><h2>Portfolio Overview</h2></div>
+    <div class="dashboard-grid">
+        <div class="card">
+            <div class="card-header">
+                <h2><i class="fas fa-chart-pie me-2"></i>Portfolio Overview</h2>
+            </div>
             <div class="card-body split-tables">
                 <div>
                     <h3>Credit grade distribution</h3>
                     {% if grade_distribution %}
-                    <table class="table">
-                        <thead><tr><th>Grade</th><th>Count</th></tr></thead>
-                        <tbody>
-                            {% for grade, count in grade_distribution %}
-                            <tr>
-                                <td><span class="badge badge-{{ grade|lower }}">{{ grade }}</span></td>
-                                <td>{{ count }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead><tr><th>Grade</th><th>Count</th></tr></thead>
+                            <tbody>
+                                {% for grade, count in grade_distribution %}
+                                <tr>
+                                    <td><span class="badge badge-{{ grade|lower }}">{{ grade }}</span></td>
+                                    <td>{{ count }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                     {% else %}
                     <p class="text-muted">No grade data available.</p>
                     {% endif %}
@@ -124,26 +139,30 @@
                 <div>
                     <h3>Risk distribution</h3>
                     {% if risk_distribution %}
-                    <table class="table">
-                        <thead><tr><th>Risk</th><th>Count</th></tr></thead>
-                        <tbody>
-                            {% for risk, count in risk_distribution %}
-                            <tr>
-                                <td><span class="status-chip status-{{ (risk or 'unknown')|lower }}">{{ (risk or 'unknown')|replace('_', ' ')|title }}</span></td>
-                                <td>{{ count }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead><tr><th>Risk</th><th>Count</th></tr></thead>
+                            <tbody>
+                                {% for risk, count in risk_distribution %}
+                                <tr>
+                                    <td><span class="status-chip status-{{ (risk or 'unknown')|lower }}">{{ (risk or 'unknown')|replace('_', ' ')|title }}</span></td>
+                                    <td>{{ count }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                     {% else %}
                     <p class="text-muted">No risk data available.</p>
                     {% endif %}
                 </div>
             </div>
-        </article>
+        </div>
 
-        <article class="card report-section-card">
-            <div class="card-header"><h2>Credit Watchlist</h2></div>
+        <div class="card">
+            <div class="card-header">
+                <h2><i class="fas fa-eye me-2"></i>Credit Watchlist</h2>
+            </div>
             <div class="card-body">
                 {% if watchlist_companies %}
                 <div class="watchlist-table">
@@ -164,92 +183,106 @@
                 <p class="text-muted">No companies currently meet watchlist conditions.</p>
                 {% endif %}
             </div>
-        </article>
+        </div>
     </div>
 
-    <div class="report-grid">
-        <article class="card report-section-card">
-            <div class="card-header"><h2>Pipeline Status</h2></div>
+    <div class="dashboard-grid">
+        <div class="card">
+            <div class="card-header">
+                <h2><i class="fas fa-clipboard-list me-2"></i>Pipeline Status</h2>
+            </div>
             <div class="card-body split-tables">
                 <div>
                     <h3>Loan workflow</h3>
                     {% if loan_status_stats %}
-                    <table class="table">
-                        <thead><tr><th>Status</th><th>Count</th></tr></thead>
-                        <tbody>
-                            {% for status, count in loan_status_stats %}
-                            <tr><td>{{ status|replace('_', ' ')|title }}</td><td>{{ count }}</td></tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead><tr><th>Status</th><th>Count</th></tr></thead>
+                            <tbody>
+                                {% for status, count in loan_status_stats %}
+                                <tr><td>{{ status|replace('_', ' ')|title }}</td><td>{{ count }}</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                     {% else %}
                     <p class="text-muted">No loan pipeline data available.</p>
                     {% endif %}
                 </div>
                 <div>
                     <h3>Project and dispute workflow</h3>
-                    <table class="table compact-table">
-                        <thead><tr><th>Type</th><th>Status</th><th>Count</th></tr></thead>
+                    <div class="table-responsive">
+                        <table class="table compact-table">
+                            <thead><tr><th>Type</th><th>Status</th><th>Count</th></tr></thead>
+                            <tbody>
+                                {% for status, count in project_status_stats %}
+                                <tr><td>Project</td><td>{{ status|replace('_', ' ')|title }}</td><td>{{ count }}</td></tr>
+                                {% endfor %}
+                                {% for status, count in dispute_status_stats %}
+                                <tr><td>Dispute</td><td>{{ status|replace('_', ' ')|title }}</td><td>{{ count }}</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2><i class="fas fa-hourglass-half me-2"></i>Pending Underwriting Queue</h2>
+            </div>
+            <div class="card-body">
+                {% if pending_loans %}
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead><tr><th>Company</th><th>Amount</th><th>Status</th><th>Applied</th></tr></thead>
                         <tbody>
-                            {% for status, count in project_status_stats %}
-                            <tr><td>Project</td><td>{{ status|replace('_', ' ')|title }}</td><td>{{ count }}</td></tr>
-                            {% endfor %}
-                            {% for status, count in dispute_status_stats %}
-                            <tr><td>Dispute</td><td>{{ status|replace('_', ' ')|title }}</td><td>{{ count }}</td></tr>
+                            {% for loan in pending_loans %}
+                            <tr>
+                                <td><strong>{{ loan.company.company_name }}</strong></td>
+                                <td>HK$ {{ '{:,.0f}'.format(loan.loan_amount or 0) }}</td>
+                                <td>{{ loan.application_status|replace('_', ' ')|title }}</td>
+                                <td>{{ loan.applied_at.strftime('%Y-%m-%d') if loan.applied_at else '-' }}</td>
+                            </tr>
                             {% endfor %}
                         </tbody>
                     </table>
                 </div>
-            </div>
-        </article>
-
-        <article class="card report-section-card">
-            <div class="card-header"><h2>Pending Underwriting Queue</h2></div>
-            <div class="card-body">
-                {% if pending_loans %}
-                <table class="table">
-                    <thead><tr><th>Company</th><th>Amount</th><th>Status</th><th>Applied</th></tr></thead>
-                    <tbody>
-                        {% for loan in pending_loans %}
-                        <tr>
-                            <td>{{ loan.company.company_name }}</td>
-                            <td>HK$ {{ '{:,.0f}'.format(loan.loan_amount or 0) }}</td>
-                            <td>{{ loan.application_status|replace('_', ' ')|title }}</td>
-                            <td>{{ loan.applied_at.strftime('%Y-%m-%d') if loan.applied_at else '-' }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
                 {% else %}
                 <p class="text-muted">No pending or under-review loans.</p>
                 {% endif %}
             </div>
-        </article>
+        </div>
     </div>
 
-    <article class="card report-section-card">
-        <div class="card-header"><h2>Recent Score Activity</h2></div>
+    <div class="card">
+        <div class="card-header">
+            <h2><i class="fas fa-history me-2"></i>Recent Score Activity</h2>
+        </div>
         <div class="card-body">
             {% if recent_scores %}
-            <table class="table">
-                <thead><tr><th>Company</th><th>Score</th><th>Grade</th><th>Risk</th><th>Date</th><th>Report</th></tr></thead>
-                <tbody>
-                    {% for score in recent_scores %}
-                    <tr>
-                        <td>{{ score.company.company_name }}</td>
-                        <td>{{ score.credit_score }}</td>
-                        <td><span class="badge badge-{{ score.credit_grade|lower }}">{{ score.credit_grade }}</span></td>
-                        <td>{{ score.risk_level|replace('_', ' ')|title }}</td>
-                        <td>{{ score.scored_at.strftime('%Y-%m-%d') if score.scored_at else '-' }}</td>
-                        <td><a href="{{ url_for('companies.view_credit_report', id=score.company_id) }}">Open report</a></td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead><tr><th>Company</th><th>Score</th><th>Grade</th><th>Risk</th><th>Date</th><th>Report</th></tr></thead>
+                    <tbody>
+                        {% for score in recent_scores %}
+                        <tr>
+                            <td><strong>{{ score.company.company_name }}</strong></td>
+                            <td>{{ score.credit_score }}</td>
+                            <td><span class="badge badge-{{ score.credit_grade|lower }}">{{ score.credit_grade }}</span></td>
+                            <td>{{ score.risk_level|replace('_', ' ')|title }}</td>
+                            <td>{{ score.scored_at.strftime('%Y-%m-%d') if score.scored_at else '-' }}</td>
+                            <td><a href="{{ url_for('companies.view_credit_report', id=score.company_id) }}">Open report</a></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
             {% else %}
             <p class="text-muted">No score activity yet.</p>
             {% endif %}
         </div>
-    </article>
-</section>
+    </div>
+</div>
 {% endblock %}

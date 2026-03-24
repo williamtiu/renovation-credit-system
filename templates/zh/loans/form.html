@@ -1,4 +1,4 @@
-{% extends "zh/base.html" %}
+{% extends "base.html" %}
 
 {% block title %}贷款申请 - DecoFinance{% endblock %}
 
@@ -29,7 +29,7 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="project_id">关联项目</label>
+                            <label for="project_id">相关项目</label>
                             <select class="form-control" id="project_id" name="project_id">
                                 <option value="">无关联项目</option>
                                 {% for project in projects %}
@@ -62,11 +62,11 @@
                                 <div class="form-group">
                                     <label for="loan_term_months">贷款期限 (月) <span class="text-danger">*</span></label>
                                     <select class="form-control" id="loan_term_months" name="loan_term_months" required>
-                                        <option value="12">12 个月</option>
-                                        <option value="24">24 个月</option>
-                                        <option value="36">36 个月</option>
-                                        <option value="48">48 个月</option>
-                                        <option value="60">60 个月</option>
+                                        <option value="12">12个月</option>
+                                        <option value="24">24个月</option>
+                                        <option value="36">36个月</option>
+                                        <option value="48">48个月</option>
+                                        <option value="60">60个月</option>
                                     </select>
                                 </div>
                             </div>
@@ -86,13 +86,13 @@
             <div class="col-md-4">
                 <div class="card mb-4">
                     <div class="card-header bg-info text-white">
-                        <h5 class="mb-0"><i class="fas fa-shield-alt"></i> 担保信息</h5>
+                        <h5 class="mb-0"><i class="fas fa-shield-alt"></i> 抵押信息</h5>
                     </div>
                     <div class="card-body">
                         <div class="form-group">
-                            <label for="collateral_type">担保类型</label>
+                            <label for="collateral_type">抵押类型</label>
                             <select class="form-control" id="collateral_type" name="collateral_type">
-                                <option value="">无担保</option>
+                                <option value="">无抵押</option>
                                 <option value="Property">房产</option>
                                 <option value="Equipment">设备</option>
                                 <option value="Vehicle">车辆</option>
@@ -103,7 +103,7 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="collateral_value">担保价值 (HKD)</label>
+                            <label for="collateral_value">抵押价值 (HKD)</label>
                             <input type="number" class="form-control" id="collateral_value" name="collateral_value" 
                                    step="0.01" min="0">
                         </div>

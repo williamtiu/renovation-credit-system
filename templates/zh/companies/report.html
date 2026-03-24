@@ -1,4 +1,4 @@
-{% extends "zh/base.html" %}
+{% extends "base.html" %}
 
 {% block title %}信贷报告 - DecoFinance{% endblock %}
 
@@ -6,39 +6,39 @@
 <section class="report-page">
     <div class="report-header-card">
         <div>
-            <p class="eyebrow">信贷报告 / Credit Report</p>
+            <p class="eyebrow">信贷報告 / Credit Report</p>
             <h1>{{ company.company_name }}</h1>
-            <p class="text-muted">DecoFinance 承保摘要，灵感来自常见的 TransUnion 报告部分，并扩展了装修行业的 OSH、ESG 和项目风险监控。</p>
+            <p class="text-muted">DecoFinance 承保摘要，灵感来源于常见的 TransUnion 报告部分，并扩展了装修行业的职安健、ESG 和项目风险监控。</p>
         </div>
         <div class="report-header-actions">
             <div class="report-header-meta">
-                <div><span>报告编号</span><strong>{{ report.report_id }}</strong></div>
+                <div><span>报告ID</span><strong>{{ report.report_id }}</strong></div>
                 <div><span>生成时间</span><strong>{{ report.generated_at.strftime('%Y-%m-%d %H:%M') }}</strong></div>
                 <div><span>模型版本</span><strong>{{ report.summary.model_version }}</strong></div>
             </div>
             <div class="page-actions">
-                <a href="{{ url_for('companies.download_credit_report', id=company.id) }}" class="btn btn-primary">下载 PDF</a>
+                <a href="{{ url_for('companies.download_credit_report', id=company.id) }}" class="btn btn-primary">下载PDF</a>
                 {% if g.user and g.user.role in ['admin', 'reviewer'] %}
                 <a href="{{ url_for('companies.compare_reports', company_ids=company.id) }}" class="btn btn-secondary">比较此报告</a>
                 {% endif %}
-                <a href="{{ url_for('companies.view_company', id=company.id) }}" class="btn btn-secondary">返回公司页面</a>
+                <a href="{{ url_for('companies.view_company', id=company.id) }}" class="btn btn-secondary">返回公司</a>
             </div>
         </div>
     </div>
 
     <div class="report-top-grid">
         <article class="card report-summary-card">
-            <div class="card-header"><h2>评分摘要</h2></div>
+            <div class="card-header"><h2>分数摘要</h2></div>
             <div class="card-body">
                 <div class="report-score-card large">
                     <div>
                         <div class="report-score-number">{{ report.summary.score or 'N/A' }}</div>
-                        <div class="report-grade-pill">{{ report.summary.grade or 'Unrated' }}</div>
+                        <div class="report-grade-pill">{{ report.summary.grade or '未评级' }}</div>
                     </div>
                     <div class="report-score-meta">
                         <p><strong>风险等级：</strong> {{ report.summary.risk_level|replace('_', ' ')|title }}</p>
                         <p><strong>建议额度：</strong> HK$ {{ "{:,.0f}".format(report.summary.recommended_loan_limit or 0) }}</p>
-                        <p><strong>预期利率：</strong> {{ report.summary.recommended_interest_rate or '-' }}{% if report.summary.recommended_interest_rate %}%{% endif %}</p>
+                        <p><strong>预期定价：</strong> {{ report.summary.recommended_interest_rate or '-' }}{% if report.summary.recommended_interest_rate %}%{% endif %}</p>
                         <p><strong>最后评分：</strong> {{ report.summary.score_date.strftime('%Y-%m-%d') if report.summary.score_date else '尚未计算' }}</p>
                     </div>
                 </div>
@@ -48,11 +48,11 @@
                         <strong>{{ report.exposure.approved_application_count }}</strong>
                     </div>
                     <div class="metric-pill">
-                        <span>中标项目</span>
+                        <span>中标次数</span>
                         <strong>{{ report.project_behaviour.accepted_bid_count }}</strong>
                     </div>
                     <div class="metric-pill">
-                        <span>未决争议</span>
+                        <span>未解决纠纷</span>
                         <strong>{{ report.project_behaviour.open_dispute_count }}</strong>
                     </div>
                 </div>
@@ -63,9 +63,9 @@
             <div class="card-header"><h2>主体识别</h2></div>
             <div class="card-body data-grid-two">
                 <div>
-                    <p><strong>中文/商号名称：</strong> {{ report.subject.company_name }}</p>
+                    <p><strong>中文/商号：</strong> {{ report.subject.company_name }}</p>
                     <p><strong>英文名称：</strong> {{ report.subject.company_name_en or '-' }}</p>
-                    <p><strong>商业登记号：</strong> {{ report.subject.business_registration }}</p>
+                    <p><strong>商业登记：</strong> {{ report.subject.business_registration }}</p>
                     <p><strong>主要服务：</strong> {{ report.subject.main_service_type or '-' }}</p>
                 </div>
                 <div>
@@ -80,7 +80,7 @@
 
     <div class="report-grid">
         <article class="card report-section-card">
-            <div class="card-header"><h2>评分因子明细</h2></div>
+            <div class="card-header"><h2>分数因素明细</h2></div>
             <div class="card-body">
                 {% if report.score_components %}
                 <div class="score-factor-list">
@@ -97,7 +97,7 @@
                     {% endfor %}
                 </div>
                 {% else %}
-                <p class="text-muted">在计算信托评分之前，暂无评分明细。</p>
+                <p class="text-muted">在计算信任分数之前，没有分数明细可用。</p>
                 {% endif %}
             </div>
         </article>
@@ -117,20 +117,20 @@
                     {% endfor %}
                 </div>
                 <div class="mini-note">
-                    牌照：{{ company.licence_number or '-' }}{% if company.licence_expiry_date %} · 到期 {{ company.licence_expiry_date }}{% endif %}<br>
-                    保险：{{ company.insurance_provider or '-' }}{% if company.insurance_expiry_date %} · 到期 {{ company.insurance_expiry_date }}{% endif %}
+                    执照：{{ company.licence_number or '-' }}{% if company.licence_expiry_date %} · 到期日 {{ company.licence_expiry_date }}{% endif %}<br>
+                    保险：{{ company.insurance_provider or '-' }}{% if company.insurance_expiry_date %} · 到期日 {{ company.insurance_expiry_date }}{% endif %}
                 </div>
             </div>
         </article>
 
         <article class="card report-section-card">
-            <div class="card-header"><h2>信贷敞口</h2></div>
+            <div class="card-header"><h2>信贷风险敞口</h2></div>
             <div class="card-body metric-grid">
                 <div class="metric-box"><span>申请次数</span><strong>{{ report.exposure.loan_application_count }}</strong></div>
                 <div class="metric-box"><span>批准率</span><strong>{% if report.exposure.approval_rate is not none %}{{ report.exposure.approval_rate }}%{% else %}-{% endif %}</strong></div>
                 <div class="metric-box"><span>申请金额</span><strong>HK$ {{ "{:,.0f}".format(report.exposure.total_requested_amount or 0) }}</strong></div>
                 <div class="metric-box"><span>批准金额</span><strong>HK$ {{ "{:,.0f}".format(report.exposure.total_approved_amount or 0) }}</strong></div>
-                <div class="metric-box"><span>未还余额</span><strong>HK$ {{ "{:,.0f}".format(report.exposure.outstanding_balance or 0) }}</strong></div>
+                <div class="metric-box"><span>未偿余额</span><strong>HK$ {{ "{:,.0f}".format(report.exposure.outstanding_balance or 0) }}</strong></div>
                 <div class="metric-box"><span>逾期账户</span><strong>{{ report.exposure.overdue_accounts }}</strong></div>
             </div>
         </article>
@@ -138,28 +138,28 @@
         <article class="card report-section-card">
             <div class="card-header"><h2>项目行为</h2></div>
             <div class="card-body metric-grid">
-                <div class="metric-box"><span>总投标数</span><strong>{{ report.project_behaviour.bid_count }}</strong></div>
-                <div class="metric-box"><span>中标数</span><strong>{{ report.project_behaviour.accepted_bid_count }}</strong></div>
+                <div class="metric-box"><span>投标总数</span><strong>{{ report.project_behaviour.bid_count }}</strong></div>
+                <div class="metric-box"><span>中标次数</span><strong>{{ report.project_behaviour.accepted_bid_count }}</strong></div>
                 <div class="metric-box"><span>中标率</span><strong>{% if report.project_behaviour.bid_success_rate is not none %}{{ report.project_behaviour.bid_success_rate }}%{% else %}-{% endif %}</strong></div>
-                <div class="metric-box"><span>未决争议</span><strong>{{ report.project_behaviour.open_dispute_count }}</strong></div>
-                <div class="metric-box"><span>已解决争议</span><strong>{{ report.project_behaviour.resolved_dispute_count }}</strong></div>
-                <div class="metric-box"><span>总案件数</span><strong>{{ report.project_behaviour.reported_dispute_count }}</strong></div>
+                <div class="metric-box"><span>未解决纠纷</span><strong>{{ report.project_behaviour.open_dispute_count }}</strong></div>
+                <div class="metric-box"><span>已解决纠纷</span><strong>{{ report.project_behaviour.resolved_dispute_count }}</strong></div>
+                <div class="metric-box"><span>总案例数</span><strong>{{ report.project_behaviour.reported_dispute_count }}</strong></div>
             </div>
         </article>
     </div>
 
     <div class="report-grid">
         <article class="card report-section-card">
-            <div class="card-header"><h2>OSH 与 ESG 信号</h2></div>
+            <div class="card-header"><h2>职安健与ESG信号</h2></div>
             <div class="card-body metric-grid">
-                <div class="metric-box"><span>OSH 政策</span><strong>{{ '是' if report.osh_profile.policy_in_place else '否' }}</strong></div>
+                <div class="metric-box"><span>职安健政策</span><strong>{{ '是' if report.osh_profile.policy_in_place else '否' }}</strong></div>
                 <div class="metric-box"><span>培训覆盖率</span><strong>{{ report.osh_profile.training_coverage if report.osh_profile.training_coverage is not none else '-' }}{% if report.osh_profile.training_coverage is not none %}%{% endif %}</strong></div>
-                <div class="metric-box"><span>16kg 管控</span><strong>{{ '符合' if report.osh_profile.heavy_lifting_compliance else '待审查' }}</strong></div>
-                <div class="metric-box"><span>起重设备</span><strong>{{ '有' if report.osh_profile.lifting_equipment_available else '未知' }}</strong></div>
+                <div class="metric-box"><span>16kg控制</span><strong>{{ '符合' if report.osh_profile.heavy_lifting_compliance else '需审查' }}</strong></div>
+                <div class="metric-box"><span>搬运设备</span><strong>{{ '可用' if report.osh_profile.lifting_equipment_available else '未知' }}</strong></div>
                 <div class="metric-box"><span>安全事故</span><strong>{{ report.osh_profile.incident_count }}</strong></div>
-                <div class="metric-box"><span>ESG 等级</span><strong>{{ report.esg_profile.policy_level|replace('_', ' ')|title }}</strong></div>
+                <div class="metric-box"><span>ESG级别</span><strong>{{ report.esg_profile.policy_level|replace('_', ' ')|title }}</strong></div>
                 <div class="metric-box"><span>绿色材料使用</span><strong>{{ report.esg_profile.green_material_ratio if report.esg_profile.green_material_ratio is not none else '-' }}{% if report.esg_profile.green_material_ratio is not none %}%{% endif %}</strong></div>
-                <div class="metric-box"><span>ISO 认证</span><strong>{{ '是' if report.esg_profile.iso_certified else '否' }}</strong></div>
+                <div class="metric-box"><span>ISO认证</span><strong>{{ '是' if report.esg_profile.iso_certified else '否' }}</strong></div>
             </div>
         </article>
 
@@ -173,7 +173,7 @@
                     {% endfor %}
                 </ul>
                 {% else %}
-                <p class="text-muted">暂无活跃风险警报。</p>
+                <p class="text-muted">没有活跃的风险警报。</p>
                 {% endif %}
             </div>
         </article>
@@ -194,7 +194,7 @@
                     {% endfor %}
                 </div>
                 {% else %}
-                <p class="text-muted">暂无最近监控活动。</p>
+                <p class="text-muted">没有最近的监控活动。</p>
                 {% endif %}
             </div>
         </article>
@@ -202,14 +202,14 @@
 
     <div class="report-grid">
         <article class="card report-section-card">
-            <div class="card-header"><h2>评分历史</h2></div>
+            <div class="card-header"><h2>分数历史</h2></div>
             <div class="card-body">
                 {% if report.score_history %}
                 <table class="table">
                     <thead>
                         <tr>
                             <th>日期</th>
-                            <th>评分</th>
+                            <th>分数</th>
                             <th>等级</th>
                             <th>风险</th>
                         </tr>
@@ -226,7 +226,7 @@
                     </tbody>
                 </table>
                 {% else %}
-                <p class="text-muted">暂无历史评分记录。</p>
+                <p class="text-muted">没有历史分数可用。</p>
                 {% endif %}
             </div>
         </article>
@@ -235,7 +235,7 @@
             <div class="card-header"><h2>承保说明</h2></div>
             <div class="card-body">
                 <p>{{ report.disclaimer }}</p>
-                <p class="mini-note">建议用途：筛选、内部贷款审查、公司入职和争议风险监控。在任何信贷决策之前仍需人工审查，特别是当存在 OSH 或 ESG 警报时。</p>
+                <p class="mini-note">建议用途：筛选、内部贷款审查、公司入职和纠纷风险监控。在做出任何信贷决策前仍需人工审查，尤其是当存在职安健或ESG警报时。</p>
             </div>
         </article>
     </div>
@@ -246,9 +246,9 @@
             <div class="card-body">
                 <div class="audit-summary-grid">
                     <div class="metric-box">
-                        <span>最后评分刷新</span>
+                        <span>最后分数更新</span>
                         <strong>{{ report.audit_snapshot.last_score_refresh.created_at.strftime('%Y-%m-%d') if report.audit_snapshot.last_score_refresh and report.audit_snapshot.last_score_refresh.created_at else '-' }}</strong>
-                        <small>{{ report.audit_snapshot.last_score_refresh.actor if report.audit_snapshot.last_score_refresh else '无评分审计记录' }}</small>
+                        <small>{{ report.audit_snapshot.last_score_refresh.actor if report.audit_snapshot.last_score_refresh else '无分数审计记录' }}</small>
                     </div>
                     <div class="metric-box">
                         <span>最后验证更新</span>
@@ -261,9 +261,9 @@
                         <small>{{ report.audit_snapshot.last_loan_decision.actor if report.audit_snapshot.last_loan_decision else '无贷款审查记录' }}</small>
                     </div>
                     <div class="metric-box">
-                        <span>最后争议操作</span>
+                        <span>最后纠纷处理</span>
                         <strong>{{ report.audit_snapshot.last_dispute_action.created_at.strftime('%Y-%m-%d') if report.audit_snapshot.last_dispute_action and report.audit_snapshot.last_dispute_action.created_at else '-' }}</strong>
-                        <small>{{ report.audit_snapshot.last_dispute_action.actor if report.audit_snapshot.last_dispute_action else '无争议记录' }}</small>
+                        <small>{{ report.audit_snapshot.last_dispute_action.actor if report.audit_snapshot.last_dispute_action else '无纠纷记录' }}</small>
                     </div>
                 </div>
             </div>
@@ -285,7 +285,7 @@
                     {% endfor %}
                 </div>
                 {% else %}
-                <p class="text-muted">暂无此报告的审计事件。</p>
+                <p class="text-muted">此报告没有可用的审计事件。</p>
                 {% endif %}
             </div>
         </article>

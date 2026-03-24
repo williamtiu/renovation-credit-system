@@ -1,4 +1,4 @@
-{% extends "zh/base.html" %}
+{% extends "base.html" %}
 
 {% block title %}审计日志 - DecoFinance{% endblock %}
 
@@ -10,7 +10,7 @@
             {% if logs %}
             <table class="table table-sm">
                 <thead>
-                    <tr><th>时间</th><th>操作</th><th>目标</th><th>操作人</th><th>详情</th></tr>
+                    <tr><th>时间</th><th>操作</th><th>目标</th><th>操作者</th><th>详情</th></tr>
                 </thead>
                 <tbody>
                     {% for log in logs %}

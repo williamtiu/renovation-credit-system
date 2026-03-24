@@ -1,4 +1,4 @@
-{% extends "zh/base.html" %}
+{% extends "base.html" %}
 
 {% block title %}审批贷款申请 - DecoFinance{% endblock %}
 
@@ -8,7 +8,7 @@
     <hr>
     
     <div class="row">
-        <!-- Information -->
+        <!-- 信息 -->
         <div class="col-md-6">
             <div class="card mb-4">
                 <div class="card-header bg-info text-white">
@@ -16,7 +16,7 @@
                 </div>
                 <div class="card-body">
                     <p><strong>申请金额：</strong>HK$ {{ "{:,.2f}".format(application.loan_amount) }}</p>
-                    <p><strong>分期付款：</strong>{{ application.loan_term_months }} 个月</p>
+                    <p><strong>还款期数：</strong>{{ application.loan_term_months }} 个月</p>
                     <p><strong>贷款用途：</strong>{{ application.loan_purpose or '-' }}</p>
                     <p><strong>信用评分：</strong>{{ application.credit_score_at_application }} ({{ application.credit_grade_at_application }})</p>
                 </div>
@@ -24,19 +24,19 @@
             
             <div class="card mb-4">
                 <div class="card-header bg-warning text-dark">
-                    <h5 class="mb-0"><i class="fas fa-chart-line"></i> 信托信息</h5>
+                    <h5 class="mb-0"><i class="fas fa-chart-line"></i> 信任信息</h5>
                 </div>
                 <div class="card-body">
-                    <p>基于公司评分 ({{ application.credit_score_at_application }})：</p>
+                    <p>基于公司的评分 ({{ application.credit_score_at_application }})：</p>
                     <ul>
-                        <li>建议年利率水平约为 4.5%</li>
-                        <li>在决策时，应结合评分、合规性和项目背景。</li>
+                        <li>建议年利率水平约为4.5%</li>
+                        <li>决策时综合考虑评分、合规性和项目背景。</li>
                     </ul>
                 </div>
             </div>
         </div>
         
-        <!-- Form Action -->
+        <!-- 表单操作 -->
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header bg-primary text-white">
@@ -45,7 +45,7 @@
                 <div class="card-body">
                     <form method="POST" action="{{ url_for('loans.review_application', id=application.id) }}">
                         
-                        <!-- Form Status -->
+                        <!-- 表单状态 -->
                         <input type="hidden" name="action" id="action_field" value="">
 
                         <ul class="nav nav-tabs" id="reviewTabs" role="tablist">
@@ -62,7 +62,7 @@
                         </ul>
                         
                         <div class="tab-content mt-3" id="reviewTabsContent">
-                            <!-- Approve Details -->
+                            <!-- 批准详情 -->
                             <div class="tab-pane fade show active" id="approve" role="tabpanel" aria-labelledby="approve-tab">
                                 <div class="mb-3">
                                     <label for="approved_amount" class="form-label">批准金额 (HK$)</label>
@@ -78,12 +78,12 @@
                                 </div>
                             </div>
                             
-                            <!-- Reject Details -->
+                            <!-- 拒绝详情 -->
                             <div class="tab-pane fade" id="reject" role="tabpanel" aria-labelledby="reject-tab">
                                 <div class="mb-3">
                                     <label for="rejection_reason" class="form-label text-danger">拒绝原因 *</label>
                                     <textarea class="form-control" id="rejection_reason" name="rejection_reason" rows="4" placeholder="请填写拒绝原因..."></textarea>
-                                    <small class="text-muted">如果拒绝，应填写此字段（推荐）。</small>
+                                    <small class="text-muted">如果拒绝，此字段应填写（推荐）。</small>
                                 </div>
                             </div>
                         </div>

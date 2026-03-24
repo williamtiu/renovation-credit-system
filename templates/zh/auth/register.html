@@ -1,44 +1,133 @@
-{% extends 'zh/base.html' %}
+{% extends 'base.html' %}
 
 {% block title %}注册 - DecoFinance{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center mt-5">
-    <div class="col-md-6 col-lg-5">
-        <div class="card shadow-sm border-0">
-            <div class="card-header bg-white text-center border-0 pt-4">
-                <h3 class="mb-0">创建账号</h3>
-                <p class="text-muted small">加入我们，管理装修信用。</p>
+<div class="hero">
+    <h1>创建您的账户</h1>
+    <p class="hero-subtitle">加入 DecoFinance 管理装修信用</p>
+</div>
+
+<div class="content-wrapper">
+    <div class="dashboard-grid">
+        <div class="card">
+            <div class="card-header">
+                <h2>选择您的角色</h2>
             </div>
-            <div class="card-body p-4">
+            <div class="card-body">
                 <form method="POST" action="{{ url_for('auth.register') }}">
-                    <div class="mb-3">
-                        <label for="username" class="form-label">用户名</label>
-                        <input type="text" class="form-control" id="username" name="username" required autofocus>
-                    </div>
-                    <div class="mb-3">
-                        <label for="email" class="form-label">邮箱</label>
-                        <input type="email" class="form-control" id="email" name="email" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="role" class="form-label">角色</label>
-                        <select class="form-control" id="role" name="role" required>
-                            <option value="customer">客户</option>
-                            <option value="company_user">公司用户</option>
-                        </select>
-                    </div>
                     <div class="mb-4">
-                        <label for="password" class="form-label">密码</label>
-                        <input type="password" class="form-control" id="password" name="password" required>
+                        <label class="form-label">选择您的角色</label>
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <div class="d-flex align-items-start p-3 border rounded" style="background: #f8fafc; border-color: #cbd5e1;">
+                                    <div class="flex-shrink-0" style="width: 48px; height: 48px; background: #eff6ff; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="fas fa-building" style="color: #2563eb; font-size: 1.5rem;"></i>
+                                    </div>
+                                    <div class="flex-grow-1 ms-3">
+                                        <h5 class="mb-1" style="color: var(--text-color);">装修公司</h5>
+                                        <p class="mb-2 small text-muted">管理您的公司，投标项目，跟踪信任分数</p>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="role" id="roleCompany" value="company_user" checked>
+                                            <label class="form-check-label" for="roleCompany">选择此角色</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-12">
+                                <div class="d-flex align-items-start p-3 border rounded" style="background: #f8fafc; border-color: #cbd5e1;">
+                                    <div class="flex-shrink-0" style="width: 48px; height: 48px; background: #f0fdf4; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="fas fa-user" style="color: #16a34a; font-size: 1.5rem;"></i>
+                                    </div>
+                                    <div class="flex-grow-1 ms-3">
+                                        <h5 class="mb-1" style="color: var(--text-color);">客户</h5>
+                                        <p class="mb-2 small text-muted">创建装修项目，管理里程碑，雇佣承包商</p>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="role" id="roleCustomer" value="customer">
+                                            <label class="form-check-label" for="roleCustomer">选择此角色</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="d-grid mb-3">
-                        <button type="submit" class="btn btn-primary">注册</button>
+                    
+                    <div class="row g-3 mb-3">
+                        <div class="col-12">
+                            <label for="username" class="form-label">姓名</label>
+                            <input type="text" class="form-control" id="username" name="username" required>
+                        </div>
                     </div>
-                    <div class="text-center">
-                        <span class="text-muted">已经有账号？</span> 
-                        <a href="{{ url_for('auth.login') }}" class="text-decoration-none">登录</a>
+                    
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label for="email" class="form-label">电子邮箱</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="password" class="form-label">密码</label>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                        </div>
                     </div>
+                    
+                    <div class="row g-3 mb-4">
+                        <div class="col-12">
+                            <label for="confirm_password" class="form-label">确认密码</label>
+                            <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary w-100">创建账户</button>
                 </form>
+                
+                <div class="mt-4 text-center">
+                    <span class="text-muted">已经有账户？ </span>
+                    <a href="{{ url_for('auth.login') }}" class="text-decoration-none" style="color: var(--primary-color); font-weight: 500;">登录</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none;">
+            <div class="card-body">
+                <div style="text-align: center;">
+                    <i class="fas fa-rocket" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.8;"></i>
+                    <h2 style="margin-bottom: 1rem;">为什么加入 DecoFinance？</h2>
+                    <p style="opacity: 0.9; margin-bottom: 2rem;">
+                        建立信任，获得融资，通过我们的综合平台管理装修项目
+                    </p>
+                    
+                    <div class="space-y-3">
+                        <div class="d-flex align-items-start">
+                            <i class="fas fa-check-circle me-3" style="opacity: 0.8;"></i>
+                            <div>
+                                <h6 style="font-weight: 600; margin-bottom: 0.25rem;">信任评分</h6>
+                                <p class="small mb-0 opacity-90">装修行业专用信用评分，涵盖付款历史、合规性、职安健、ESG 等</p>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-start">
+                            <i class="fas fa-check-circle me-3" style="opacity: 0.8;"></i>
+                            <div>
+                                <h6 style="font-weight: 600; margin-bottom: 0.25rem;">贷款融资</h6>
+                                <p class="small mb-0 opacity-90">根据您的信任分数申请具有竞争力利率的装修贷款</p>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-start">
+                            <i class="fas fa-check-circle me-3" style="opacity: 0.8;"></i>
+                            <div>
+                                <h6 style="font-weight: 600; margin-bottom: 0.25rem;">项目市场</h6>
+                                <p class="small mb-0 opacity-90">发布装修项目或浏览并投标可用工作</p>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-start">
+                            <i class="fas fa-check-circle me-3" style="opacity: 0.8;"></i>
+                            <div>
+                                <h6 style="font-weight: 600; margin-bottom: 0.25rem;">纠纷解决</h6>
+                                <p class="small mb-0 opacity-90">公平透明的纠纷解决，由专家审核员监督</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
