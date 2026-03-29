@@ -10,133 +10,99 @@
             <div class="card-header"><h5>Basic Information</h5></div>
             <div class="card-body">
                 <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label for="company_name">Company Name</label>
+                    <div class="col-6 mb-3">
+                        <label for="company_name">Company Name (Chinese)</label>
                         <input type="text" class="form-control" id="company_name" name="company_name" value="{{ company.company_name if company else '' }}" required>
                     </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="company_name_en">English Name</label>
+                    <div class="col-6 mb-3">
+                        <label for="company_name_en">Company Name (English)</label>
                         <input type="text" class="form-control" id="company_name_en" name="company_name_en" value="{{ company.company_name_en if company else '' }}">
                     </div>
-                    <div class="col-md-6 mb-3">
+                    <div class="col-6 mb-3">
                         <label for="business_registration">Business Registration</label>
                         <input type="text" class="form-control" id="business_registration" name="business_registration" value="{{ company.business_registration if company else '' }}" required>
                     </div>
-                    <div class="col-md-6 mb-3">
+                    <div class="col-6 mb-3">
+                        <label for="company_registration_number">Company Registration Number</label>
+                        <input type="text" class="form-control" id="company_registration_number" name="company_registration_number" value="{{ company.company_registration_number if company else '' }}">
+                    </div>
+                    <div class="col-6 mb-3">
                         <label for="established_date">Established Date</label>
                         <input type="date" class="form-control" id="established_date" name="established_date" value="{{ company.established_date.isoformat() if company and company.established_date else '' }}">
                     </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="contact_person">Contact Person</label>
-                        <input type="text" class="form-control" id="contact_person" name="contact_person" value="{{ company.contact_person if company else '' }}">
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="contact_position">Contact Position</label>
-                        <input type="text" class="form-control" id="contact_position" name="contact_position" value="{{ company.contact_position if company else '' }}">
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="phone">Phone</label>
-                        <input type="text" class="form-control" id="phone" name="phone" value="{{ company.phone if company else '' }}">
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="email">Email</label>
-                        <input type="email" class="form-control" id="email" name="email" value="{{ company.email if company else '' }}">
-                    </div>
-                    <div class="col-md-12 mb-3">
-                        <label for="address">Address</label>
-                        <textarea class="form-control" id="address" name="address" rows="2">{{ company.address if company else '' }}</textarea>
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <label for="district">District</label>
-                        <input type="text" class="form-control" id="district" name="district" value="{{ company.district if company else '' }}">
-                    </div>
-                    <div class="col-md-4 mb-3">
+                    <div class="col-6 mb-3">
                         <label for="registered_capital">Registered Capital</label>
                         <input type="number" step="0.01" class="form-control" id="registered_capital" name="registered_capital" value="{{ company.registered_capital if company else '' }}">
                     </div>
-                    <div class="col-md-4 mb-3">
-                        <label for="annual_revenue">Annual Revenue</label>
-                        <input type="number" step="0.01" class="form-control" id="annual_revenue" name="annual_revenue" value="{{ company.annual_revenue if company else '' }}">
+                    <div class="col-6 mb-3">
+                        <label for="contact_person">Contact Person</label>
+                        <input type="text" class="form-control" id="contact_person" name="contact_person" value="{{ company.contact_person if company else '' }}">
+                    </div>
+                    <div class="col-6 mb-3">
+                        <label for="contact_position">Contact Position</label>
+                        <input type="text" class="form-control" id="contact_position" name="contact_position" value="{{ company.contact_position if company else '' }}">
+                    </div>
+                    <div class="col-6 mb-3">
+                        <label for="phone">Phone</label>
+                        <input type="text" class="form-control" id="phone" name="phone" value="{{ company.phone if company else '' }}">
+                    </div>
+                    <div class="col-6 mb-3">
+                        <label for="email">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" value="{{ company.email if company else '' }}">
+                    </div>
+                    <div class="col-6 mb-3">
+                        <label for="address">Address</label>
+                        <textarea class="form-control" id="address" name="address" rows="2">{{ company.address if company else '' }}</textarea>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="card mb-4">
-            <div class="card-header"><h5>Operations and Finance</h5></div>
+            <div class="card-header"><h5>Operation</h5></div>
             <div class="card-body">
                 <div class="row">
-                    <div class="col-md-4 mb-3">
-                        <label for="employee_count">Employees</label>
+                    <div class="col-12 mb-3">
+                        <label for="main_service_type">Main Service Type (e.g. Residential, Office, Industrial, Others)</label>
+                        <input type="text" class="form-control" id="main_service_type" name="main_service_type" value="{{ company.main_service_type if company else '' }}">
+                    </div>
+                    <div class="col-12 mb-3">
+                        <label for="annual_revenue">Annual Revenue (in HKD)</label>
+                        <input type="number" step="0.01" class="form-control" id="annual_revenue" name="annual_revenue" value="{{ company.annual_revenue if company else '' }}">
+                    </div>
+                    <div class="col-12 mb-3">
+                        <label for="employee_count">Number of Employee</label>
                         <input type="number" class="form-control" id="employee_count" name="employee_count" value="{{ company.employee_count if company else '' }}">
                     </div>
-                    <div class="col-md-4 mb-3">
+                    <div class="col-12 mb-3">
                         <label for="project_count_completed">Completed Projects</label>
                         <input type="number" class="form-control" id="project_count_completed" name="project_count_completed" value="{{ company.project_count_completed if company else '' }}">
                     </div>
-                    <div class="col-md-4 mb-3">
-                        <label for="average_project_value">Average Project Value</label>
+                    <div class="col-12 mb-3">
+                        <label for="average_project_value">Average Project Value (in HKD)</label>
                         <input type="number" step="0.01" class="form-control" id="average_project_value" name="average_project_value" value="{{ company.average_project_value if company else '' }}">
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <label for="main_service_type">Main Service Type</label>
-                        <input type="text" class="form-control" id="main_service_type" name="main_service_type" value="{{ company.main_service_type if company else '' }}">
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <label for="bank_account_years">Bank Account Years</label>
-                        <input type="number" class="form-control" id="bank_account_years" name="bank_account_years" value="{{ company.bank_account_years if company else '' }}">
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <label for="existing_loans">Existing Loans</label>
-                        <input type="number" step="0.01" class="form-control" id="existing_loans" name="existing_loans" value="{{ company.existing_loans if company else '' }}">
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <label for="loan_repayment_history">Repayment History</label>
-                        <select class="form-control" id="loan_repayment_history" name="loan_repayment_history">
-                            {% set history = company.loan_repayment_history if company else '' %}
-                            <option value="excellent" {% if history == 'excellent' %}selected{% endif %}>Excellent</option>
-                            <option value="good" {% if history in ['good', 'Good'] %}selected{% endif %}>Good</option>
-                            <option value="fair" {% if history in ['fair', 'Fair'] %}selected{% endif %}>Fair</option>
-                            <option value="poor" {% if history in ['poor', 'Poor'] %}selected{% endif %}>Poor</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4 mb-3 form-check mt-4">
-                        <input type="checkbox" class="form-check-input" id="has_license" name="has_license" {% if company and company.has_license %}checked{% endif %}>
-                        <label class="form-check-label" for="has_license">Has License</label>
-                    </div>
-                    <div class="col-md-4 mb-3 form-check mt-4">
-                        <input type="checkbox" class="form-check-input" id="iso_certified" name="iso_certified" {% if company and company.iso_certified %}checked{% endif %}>
-                        <label class="form-check-label" for="iso_certified">ISO Certified</label>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="card mb-4">
-            <div class="card-header"><h5>Compliance and Verification</h5></div>
+            <div class="card-header"><h5>Minor Works Contractor Registration</h5></div>
             <div class="card-body">
                 <div class="row">
-                    <div class="col-md-4 mb-3">
-                        <label for="license_type">License Type</label>
-                        <input type="text" class="form-control" id="license_type" name="license_type" value="{{ company.license_type if company else '' }}">
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <label for="licence_number">Licence Number</label>
-                        <input type="text" class="form-control" id="licence_number" name="licence_number" value="{{ company.licence_number if company else '' }}">
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <label for="licence_class">Licence Class</label>
+                    <div class="col-12 mb-3">
+                        <label for="licence_class">License Class (i.e. Level 1/2/3)</label>
                         <input type="text" class="form-control" id="licence_class" name="licence_class" value="{{ company.licence_class if company else '' }}">
                     </div>
-                    <div class="col-md-4 mb-3">
-                        <label for="licence_categories">Licence Categories</label>
+                    <div class="col-12 mb-3">
+                        <label for="licence_categories">License Category (i.e. Cat A-G)</label>
                         <input type="text" class="form-control" id="licence_categories" name="licence_categories" value="{{ company.licence_categories if company else '' }}">
                     </div>
-                    <div class="col-md-4 mb-3">
+                    <div class="col-12 mb-3">
                         <label for="licence_expiry_date">Licence Expiry</label>
                         <input type="date" class="form-control" id="licence_expiry_date" name="licence_expiry_date" value="{{ company.licence_expiry_date.isoformat() if company and company.licence_expiry_date else '' }}">
                     </div>
-                    <div class="col-md-4 mb-3">
+                    <div class="col-12 mb-3">
                         <label for="licence_verification_status">Licence Verification</label>
                         <select class="form-control" id="licence_verification_status" name="licence_verification_status">
                             {% set licence_status = company.licence_verification_status if company else 'pending' %}
@@ -145,19 +111,43 @@
                             <option value="rejected" {% if licence_status == 'rejected' %}selected{% endif %}>Rejected</option>
                         </select>
                     </div>
-                    <div class="col-md-4 mb-3">
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header"><h5>OSH Accredited Officers</h5></div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-12 mb-3">
+                        <label for="osh_officer_role">1. OSH Accredited Officer Role (e.g. Safety Consultant, Safety Auditor, Safety Supervisor (Construction) or other)</label>
+                        <input type="text" class="form-control" id="osh_officer_role" name="osh_officer_role" value="{{ company.osh_officer_role if company else '' }}">
+                    </div>
+                    <div class="col-12 mb-3">
+                        <label for="osh_officer_license_number">OSH Accredited Officer Licensed Number</label>
+                        <input type="text" class="form-control" id="osh_officer_license_number" name="osh_officer_license_number" value="{{ company.osh_officer_license_number if company else '' }}">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header"><h5>Insurance Coverage</h5></div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-12 mb-3">
                         <label for="insurance_provider">Insurance Provider</label>
                         <input type="text" class="form-control" id="insurance_provider" name="insurance_provider" value="{{ company.insurance_provider if company else '' }}">
                     </div>
-                    <div class="col-md-4 mb-3">
+                    <div class="col-12 mb-3">
                         <label for="insurance_policy_number">Insurance Policy Number</label>
                         <input type="text" class="form-control" id="insurance_policy_number" name="insurance_policy_number" value="{{ company.insurance_policy_number if company else '' }}">
                     </div>
-                    <div class="col-md-4 mb-3">
+                    <div class="col-12 mb-3">
                         <label for="insurance_expiry_date">Insurance Expiry</label>
                         <input type="date" class="form-control" id="insurance_expiry_date" name="insurance_expiry_date" value="{{ company.insurance_expiry_date.isoformat() if company and company.insurance_expiry_date else '' }}">
                     </div>
-                    <div class="col-md-4 mb-3">
+                    <div class="col-12 mb-3">
                         <label for="insurance_verification_status">Insurance Verification</label>
                         <select class="form-control" id="insurance_verification_status" name="insurance_verification_status">
                             {% set insurance_status = company.insurance_verification_status if company else 'pending' %}
@@ -165,10 +155,6 @@
                             <option value="verified" {% if insurance_status == 'verified' %}selected{% endif %}>Verified</option>
                             <option value="rejected" {% if insurance_status == 'rejected' %}selected{% endif %}>Rejected</option>
                         </select>
-                    </div>
-                    <div class="col-md-8 mb-3">
-                        <label for="professional_memberships">Professional Memberships</label>
-                        <input type="text" class="form-control" id="professional_memberships" name="professional_memberships" value="{{ company.professional_memberships if company else '' }}">
                     </div>
                 </div>
             </div>
@@ -178,27 +164,15 @@
             <div class="card-header"><h5>OSH and ESG Controls</h5></div>
             <div class="card-body">
                 <div class="row">
-                    <div class="col-md-4 mb-3 form-check mt-4">
-                        <input type="checkbox" class="form-check-input" id="osh_policy_in_place" name="osh_policy_in_place" {% if company and company.osh_policy_in_place %}checked{% endif %}>
-                        <label class="form-check-label" for="osh_policy_in_place">OSH policy documented</label>
-                    </div>
-                    <div class="col-md-4 mb-3 form-check mt-4">
-                        <input type="checkbox" class="form-check-input" id="heavy_lifting_compliance" name="heavy_lifting_compliance" {% if company and company.heavy_lifting_compliance %}checked{% endif %}>
-                        <label class="form-check-label" for="heavy_lifting_compliance">16kg handling control confirmed</label>
-                    </div>
-                    <div class="col-md-4 mb-3 form-check mt-4">
-                        <input type="checkbox" class="form-check-input" id="lifting_equipment_available" name="lifting_equipment_available" {% if company and company.lifting_equipment_available %}checked{% endif %}>
-                        <label class="form-check-label" for="lifting_equipment_available">Lifting equipment available</label>
-                    </div>
-                    <div class="col-md-4 mb-3">
+                    <div class="col-6 mb-3">
                         <label for="safety_training_coverage">Safety Training Coverage (%)</label>
                         <input type="number" min="0" max="100" class="form-control" id="safety_training_coverage" name="safety_training_coverage" value="{{ company.safety_training_coverage if company and company.safety_training_coverage is not none else '' }}">
                     </div>
-                    <div class="col-md-4 mb-3">
+                    <div class="col-6 mb-3">
                         <label for="safety_incident_count">Safety Incidents (12 months)</label>
                         <input type="number" min="0" class="form-control" id="safety_incident_count" name="safety_incident_count" value="{{ company.safety_incident_count if company and company.safety_incident_count is not none else 0 }}">
                     </div>
-                    <div class="col-md-4 mb-3">
+                    <div class="col-6 mb-3">
                         <label for="esg_policy_level">ESG Policy Level</label>
                         <select class="form-control" id="esg_policy_level" name="esg_policy_level">
                             {% set esg_level = company.esg_policy_level if company else 'none' %}
@@ -207,12 +181,12 @@
                             <option value="advanced" {% if esg_level == 'advanced' %}selected{% endif %}>Advanced</option>
                         </select>
                     </div>
-                    <div class="col-md-4 mb-3">
+                    <div class="col-6 mb-3">
                         <label for="green_material_ratio">Green Material Adoption (%)</label>
                         <input type="number" min="0" max="100" class="form-control" id="green_material_ratio" name="green_material_ratio" value="{{ company.green_material_ratio if company and company.green_material_ratio is not none else '' }}">
                     </div>
-                    <div class="col-md-8 mb-3">
-                        <div class="mini-note mt-4">DecoFinance uses these fields to compute OSH-inclusive trust signals, 16kg handling readiness, and ESG readiness for early-warning review.</div>
+                    <div class="col-12 mb-3">
+                        <div class="mini-note mt-2">DecoFinance uses these fields to compute OSH-inclusive trust signals, 16kg handling readiness, and ESG readiness for early-warning review.</div>
                     </div>
                 </div>
             </div>

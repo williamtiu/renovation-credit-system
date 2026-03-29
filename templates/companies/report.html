@@ -66,12 +66,13 @@
                     <p><strong>Chinese / Trading name:</strong> {{ report.subject.company_name }}</p>
                     <p><strong>English name:</strong> {{ report.subject.company_name_en or '-' }}</p>
                     <p><strong>Business registration:</strong> {{ report.subject.business_registration }}</p>
+                    <p><strong>Company Registration Number:</strong> {{ report.subject.company_registration_number or '-' }}</p>
                     <p><strong>Main service:</strong> {{ report.subject.main_service_type or '-' }}</p>
                 </div>
                 <div>
                     <p><strong>Contact:</strong> {{ report.subject.contact_person or '-' }}</p>
                     <p><strong>Role:</strong> {{ report.subject.contact_position or '-' }}</p>
-                    <p><strong>District:</strong> {{ report.subject.district or '-' }}</p>
+
                     <p><strong>Years in business:</strong> {{ report.subject.years_in_business if report.subject.years_in_business is not none else '-' }}</p>
                 </div>
             </div>
@@ -152,10 +153,9 @@
         <article class="card report-section-card">
             <div class="card-header"><h2>OSH And ESG Signals</h2></div>
             <div class="card-body metric-grid">
-                <div class="metric-box"><span>OSH policy</span><strong>{{ 'Yes' if report.osh_profile.policy_in_place else 'No' }}</strong></div>
+                <div class="metric-box"><span>OSH officer</span><strong>{{ report.osh_profile.osh_officer_role or '-' }}</strong></div>
                 <div class="metric-box"><span>Training coverage</span><strong>{{ report.osh_profile.training_coverage if report.osh_profile.training_coverage is not none else '-' }}{% if report.osh_profile.training_coverage is not none %}%{% endif %}</strong></div>
-                <div class="metric-box"><span>16kg control</span><strong>{{ 'Aligned' if report.osh_profile.heavy_lifting_compliance else 'Review' }}</strong></div>
-                <div class="metric-box"><span>Lifting equipment</span><strong>{{ 'Available' if report.osh_profile.lifting_equipment_available else 'Unknown' }}</strong></div>
+                <div class="metric-box"><span>OSH verified</span><strong>{{ 'Yes' if report.osh_profile.osh_safety_officer_verified else 'No' }}</strong></div>
                 <div class="metric-box"><span>Safety incidents</span><strong>{{ report.osh_profile.incident_count }}</strong></div>
                 <div class="metric-box"><span>ESG level</span><strong>{{ report.esg_profile.policy_level|replace('_', ' ')|title }}</strong></div>
                 <div class="metric-box"><span>Green material use</span><strong>{{ report.esg_profile.green_material_ratio if report.esg_profile.green_material_ratio is not none else '-' }}{% if report.esg_profile.green_material_ratio is not none %}%{% endif %}</strong></div>

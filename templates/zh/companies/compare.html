@@ -19,15 +19,7 @@
         <div class="card-header"><h2>筛选器</h2></div>
         <div class="card-body">
             <form method="GET" action="{{ url_for('companies.compare_reports') }}" class="filter-form-grid">
-                <div class="form-group">
-                    <label for="district">地区</label>
-                    <select id="district" name="district" class="form-control">
-                        <option value="">所有地区</option>
-                        {% for option in district_options %}
-                        <option value="{{ option }}" {% if filters.district == option %}selected{% endif %}>{{ option }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
+
                 <div class="form-group">
                     <label for="risk_level">风险等级</label>
                     <select id="risk_level" name="risk_level" class="form-control">
@@ -65,7 +57,7 @@
         <div class="card-header"><h2>选择公司</h2></div>
         <div class="card-body">
             <form method="GET" action="{{ url_for('companies.compare_reports') }}">
-                <input type="hidden" name="district" value="{{ filters.district }}">
+
                 <input type="hidden" name="risk_level" value="{{ filters.risk_level }}">
                 <input type="hidden" name="grade" value="{{ filters.grade }}">
                 <input type="hidden" name="verification" value="{{ filters.verification }}">
@@ -75,7 +67,7 @@
                         <input type="checkbox" name="company_ids" value="{{ company.id }}" {% if company.id in selected_company_ids %}checked{% endif %}>
                         <div>
                             <strong>{{ company.company_name }}</strong>
-                            <p class="text-muted">{{ company.district or '无地区' }} · {{ company.business_registration }}</p>
+                            <p class="text-muted">{{ company.business_registration }} · {{ company.company_registration_number or '-' }}</p>
                             <p>
                                 <span class="status-chip status-{{ (company.risk_level or 'unknown')|lower }}">{{ (company.risk_level or 'unknown')|replace('_', ' ')|title }}</span>
                                 {% if latest_scores.get(company.id) %}
@@ -109,6 +101,7 @@
                     <div class="report-score-meta">
                         <p><strong>{{ entry.company.company_name }}</strong></p>
                         <p>{{ entry.company.business_registration }}</p>
+                        <p>{{ entry.company.company_registration_number or '-' }}</p>
                     </div>
                 </div>
                 <div class="metric-grid mt-3">

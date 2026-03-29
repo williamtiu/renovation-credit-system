@@ -51,13 +51,13 @@ def _clamp_percentage(value):
 def _derive_bid_eligibility(company):
     status = company.status or 'active'
     training_coverage = company.safety_training_coverage or 0
+    # Check if company has license by verifying if licence_class or licence_categories is present
+    has_license = bool(company.licence_class or company.licence_categories)
     return (
         status == 'active' and
-        company.has_license and
+        has_license and
         company.licence_verification_status == 'verified' and
         company.insurance_verification_status == 'verified' and
-        company.osh_policy_in_place and
-        company.heavy_lifting_compliance and
         training_coverage >= 80
     )
 
@@ -90,6 +90,7 @@ def _apply_company_form(company):
     company.company_name = request.form['company_name'].strip()
     company.company_name_en = request.form.get('company_name_en') or None
     company.business_registration = request.form['business_registration'].strip()
+    company.company_registration_number = request.form.get('company_registration_number') or None
     company.established_date = _parse_date_value(request.form.get('established_date'))
     company.registered_capital = _parse_float_value(request.form.get('registered_capital'), 0.0) or 0.0
     company.contact_person = request.form.get('contact_person') or None
@@ -97,35 +98,25 @@ def _apply_company_form(company):
     company.phone = request.form.get('phone') or None
     company.email = request.form.get('email') or None
     company.address = request.form.get('address') or None
-    company.district = request.form.get('district') or None
     company.employee_count = _parse_int_value(request.form.get('employee_count'), 0) or 0
     company.annual_revenue = _parse_float_value(request.form.get('annual_revenue'), 0.0) or 0.0
     company.project_count_completed = _parse_int_value(request.form.get('project_count_completed'), 0) or 0
     company.average_project_value = _parse_float_value(request.form.get('average_project_value'), 0.0) or 0.0
     company.main_service_type = request.form.get('main_service_type') or None
-    company.has_license = _parse_checkbox('has_license')
-    company.license_type = request.form.get('license_type') or None
-    company.licence_number = request.form.get('licence_number') or None
     company.licence_class = request.form.get('licence_class') or None
     company.licence_categories = request.form.get('licence_categories') or None
     company.licence_expiry_date = _parse_date_value(request.form.get('licence_expiry_date'))
     company.licence_verification_status = request.form.get('licence_verification_status', 'pending')
-    company.iso_certified = _parse_checkbox('iso_certified')
-    company.professional_memberships = request.form.get('professional_memberships') or None
+    company.osh_officer_role = request.form.get('osh_officer_role') or None
+    company.osh_officer_license_number = request.form.get('osh_officer_license_number') or None
     company.insurance_provider = request.form.get('insurance_provider') or None
     company.insurance_policy_number = request.form.get('insurance_policy_number') or None
     company.insurance_expiry_date = _parse_date_value(request.form.get('insurance_expiry_date'))
     company.insurance_verification_status = request.form.get('insurance_verification_status', 'pending')
-    company.osh_policy_in_place = _parse_checkbox('osh_policy_in_place')
     company.safety_training_coverage = _clamp_percentage(_parse_int_value(request.form.get('safety_training_coverage')))
-    company.heavy_lifting_compliance = _parse_checkbox('heavy_lifting_compliance')
-    company.lifting_equipment_available = _parse_checkbox('lifting_equipment_available')
     company.safety_incident_count = _parse_int_value(request.form.get('safety_incident_count'), 0) or 0
     company.esg_policy_level = (request.form.get('esg_policy_level') or 'none').lower()
     company.green_material_ratio = _clamp_percentage(_parse_int_value(request.form.get('green_material_ratio')))
-    company.bank_account_years = _parse_int_value(request.form.get('bank_account_years'), 0) or 0
-    company.existing_loans = _parse_float_value(request.form.get('existing_loans'), 0.0) or 0.0
-    company.loan_repayment_history = request.form.get('loan_repayment_history', 'Good')
 
 
 def _build_monitoring_alerts(company, latest_score, overdue_accounts, open_disputes):
@@ -267,7 +258,7 @@ def _build_credit_report(company, latest_score, credit_scores, loan_applications
     open_disputes = [dispute for dispute in disputes if dispute.status == 'open']
     resolved_disputes = [dispute for dispute in disputes if dispute.status == 'resolved']
     training_coverage = company.safety_training_coverage
-    osh_status = 'verified' if company.osh_policy_in_place and company.heavy_lifting_compliance and (training_coverage or 0) >= 80 else 'review'
+    osh_status = 'verified' if company.osh_safety_officer_verified and (training_coverage or 0) >= 80 else 'review'
     esg_status = 'verified' if (company.esg_policy_level or 'none') in ['basic', 'advanced'] else 'review'
 
     # 根据语言设置标签
@@ -319,7 +310,7 @@ def _build_credit_report(company, latest_score, credit_scores, loan_applications
         },
         {
             'label': verification_labels.get('OSH controls', 'OSH controls'),
-            'value': f'{training_coverage or 0}% training · 16kg rule ' + ('aligned' if company.heavy_lifting_compliance else 'not confirmed'),
+            'value': f'{training_coverage or 0}% training · OSH verified: ' + ('Yes' if company.osh_safety_officer_verified else 'No'),
             'status': osh_status,
         },
         {
@@ -377,7 +368,6 @@ def _build_credit_report(company, latest_score, credit_scores, loan_applications
             'phone': company.phone,
             'email': company.email,
             'address': company.address,
-            'district': company.district,
             'main_service_type': company.main_service_type,
             'years_in_business': years_in_business,
         },
@@ -393,16 +383,17 @@ def _build_credit_report(company, latest_score, credit_scores, loan_applications
         'score_components': score_components,
         'verification_checks': verification_checks,
         'osh_profile': {
-            'policy_in_place': company.osh_policy_in_place,
+            'osh_officer_role': company.osh_officer_role,
+            'osh_officer_license_number': company.osh_officer_license_number,
+            'osh_safety_officer_license': company.osh_safety_officer_license,
+            'osh_safety_officer_verified': company.osh_safety_officer_verified,
             'training_coverage': training_coverage,
-            'heavy_lifting_compliance': company.heavy_lifting_compliance,
-            'lifting_equipment_available': company.lifting_equipment_available,
             'incident_count': company.safety_incident_count or 0,
         },
         'esg_profile': {
             'policy_level': company.esg_policy_level or 'none',
             'green_material_ratio': company.green_material_ratio,
-            'iso_certified': company.iso_certified,
+            'iso_certified': company.esg_policy_level in ['basic', 'advanced'],
         },
         'exposure': {
             'loan_application_count': len(loan_applications),
@@ -465,8 +456,6 @@ def compare_reports():
     selected_company_ids = [int(value) for value in request.args.getlist('company_ids') if value.isdigit()]
 
     query = Company.query
-    if district:
-        query = query.filter(Company.district == district)
     if risk_level:
         query = query.filter(Company.risk_level == risk_level)
     if verification == 'verified':
@@ -488,10 +477,7 @@ def compare_reports():
             'report': report,
         })
 
-    districts = [
-        item[0] for item in db.session.query(Company.district).filter(Company.district.isnot(None)).distinct().order_by(Company.district.asc()).all()
-        if item[0]
-    ]
+    districts = []
     grades = [
         item[0] for item in db.session.query(CreditScore.credit_grade).filter(CreditScore.credit_grade.isnot(None)).distinct().order_by(CreditScore.credit_grade.asc()).all()
         if item[0]

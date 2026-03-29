@@ -269,7 +269,8 @@ class CreditScorer:
         elif company.osh_safety_officer_license:
             score += 25
         
-        if company.iso_certified:
+        # Use ESG policy level as a proxy for ISO certification
+        if company.esg_policy_level in ['basic', 'advanced']:
             score += 50
         
         return score
@@ -309,11 +310,6 @@ class CreditScorer:
         elif company.status == 'blacklisted':
             score -= 50
         
-        if company.district in ['Remote Area', 'Unknown']:
-            score -= 20
-        else:
-            score += 20
-        
         if company.main_service_type in ['Commercial Renovation', 'Large Scale Projects']:
             score += 15
         else:
@@ -324,9 +320,6 @@ class CreditScorer:
         
         if company.tax_returns_uploaded:
             score += 20
-        
-        if company.professional_memberships:
-            score += 15
         
         green_ratio = getattr(company, 'green_material_ratio', None)
         if green_ratio is not None:

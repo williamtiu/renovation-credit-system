@@ -3,38 +3,92 @@
 {% block title %}关于 - DecoFinance{% endblock %}
 
 {% block content %}
-<div class="card">
-    <div class="card-header">
-        <h1>ℹ️ 关于 DecoFinance</h1>
-    </div>
-    <div class="card-body">
-        <h2>平台介绍</h2>
-        <p>
-            DecoFinance 是一个专门为装修行业设计的信用、融资和风险智能平台。
-            我们帮助贷款机构、供应商和客户验证装修公司并监控项目支持的贷款。
-        </p>
-
-        <h3 class="mt-4">核心功能</h3>
-        <ul>
-            <li><strong>装修公司数据管理：</strong>全面的装修公司信息管理和验证</li>
-            <li><strong>信用评分系统：</strong>基于合规、安全记录和 ESG 因素的智能信用评分</li>
-            <li><strong>项目融资：</strong>项目支持的贷款申请和审批流程</li>
-            <li><strong>风险评估：</strong>主动监控和预警系统</li>
-            <li><strong>银行集成：</strong>与金融机构的无缝对接</li>
-        </ul>
-
-        <h3 class="mt-4">技术栈</h3>
-        <p>
-            本平台使用 Flask + Jinja2 + SQLite 构建，提供稳定可靠的服务。
-        </p>
-
-        <h3 class="mt-4">联系方式</h3>
-        <p>
-            如有任何问题或建议，请联系我们的支持团队。
-        </p>
-
-        <div class="alert alert-info mt-4">
-            <strong>注意：</strong> 本平台仅供演示使用。
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <h1 class="text-center mb-4"><i class="fas fa-info-circle"></i> 关于 DecoFinance</h1>
+            
+            <div class="card">
+                <div class="card-body">
+                    <h3>🏠 平台介绍</h3>
+                    <p>
+                        DecoFinance 是一个专为装修行业设计的金融平台，为贷款机构、供应商和客户提供更清晰的方式来验证承包商、评估风险，并根据实际项目进度释放资金。
+                    </p>
+                    
+                    <hr>
+                    
+                    <h3>🎯 核心模块</h3>
+                    <ul>
+                        <li><strong>装修公司信任注册表：</strong>维护已验证的公司档案、执照、参考、保险和运营资质。</li>
+                        <li><strong>装修信用评分：</strong>从财务实力、运营稳定性、资质认证和客户评价四个维度评估企业。</li>
+                        <li><strong>项目支持融资：</strong>连接已验证的项目、投标、里程碑、托管逻辑和承保决策。</li>
+                        <li><strong>风险管理仪表板：</strong>监控评分变化、风险敞口、纠纷、逾期余额和投资组合观察列表。</li>
+                        <li><strong>审计与合规：</strong>保留同意书、验证历史和审核员操作，用于受控的贷款工作流程。</li>
+                    </ul>
+                    
+                    <hr>
+                    
+                    <h3>📊 评分模型 (v2.0)</h3>
+                    <p>DecoFinance 评分使用针对装修行业调整的四个维度：</p>
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>维度</th>
+                                <th>最高分</th>
+                                <th>关键指标</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>财务实力</strong></td>
+                                <td>600 分</td>
+                                <td>注册资本、年营收、流动比率、现金比率、债务权益比</td>
+                            </tr>
+                            <tr>
+                                <td><strong>运营稳定性</strong></td>
+                                <td>250 分</td>
+                                <td>成立年限、完成项目数、员工人数</td>
+                            </tr>
+                            <tr>
+                                <td><strong>资质认证</strong></td>
+                                <td>200 分</td>
+                                <td>商业登记、小型工程承包商注册、保险、OSH安全员、ISO认证</td>
+                            </tr>
+                            <tr>
+                                <td><strong>客户评价</strong></td>
+                                <td>300 分</td>
+                                <td>客户平均评分、DecoFinance 主观评估</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <div class="alert alert-info mt-3">
+                        <strong>总分范围：</strong> 0 - 1000 分<br>
+                        <strong>评分有效期：</strong> 180 天<br>
+                        <strong>信用等级：</strong> AAA (751-1000)、AA (701-750)、A (651-700)、BBB (601-650)、BB (551-600)、B (501-550)、C (0-500)
+                    </div>
+                    
+                    <hr>
+                    
+                    <h3>🔒 安全与隐私</h3>
+                    <p>
+                        平台记录同意书、审核员决策和运营检查点，使融资团队能够以更强的控制和可追溯性开展工作。
+                    </p>
+                    
+                    <hr>
+                    
+                    <h3>📞 市场定位</h3>
+                    <p>
+                        DecoFinance 围绕香港装修市场痛点设计：承包商质量参差不齐、现金流不均、里程碑纠纷以及贷款机构对实时项目风险的可视性有限。
+                    </p>
+                    
+                    <div class="text-center mt-4">
+                        <a href="{{ url_for('main.index') }}" class="btn btn-primary">
+                            <i class="fas fa-home"></i> 返回首页
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>

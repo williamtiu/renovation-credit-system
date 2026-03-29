@@ -41,6 +41,7 @@
                         <tr>
                             <th>公司名称</th>
                             <th>商业登记号</th>
+                            <th>公司注册号</th>
                             <th>联系人</th>
                             <th>电话</th>
                             <th>地区</th>
@@ -54,9 +55,10 @@
                         <tr>
                             <td><strong>{{ company.company_name }}</strong></td>
                             <td>{{ company.business_registration }}</td>
+                            <td>{{ company.company_registration_number or '-' }}</td>
                             <td>{{ company.contact_person }}</td>
                             <td>{{ company.phone }}</td>
-                            <td>{{ company.district or '-' }}</td>
+                            <td>-</td>
                             <td>
                                 {% if company.credit_scores %}
                                     <span class="badge badge-success">{{ company.credit_scores[0].credit_grade }}</span>

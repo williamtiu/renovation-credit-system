@@ -67,15 +67,7 @@
         </div>
         <div class="card-body">
             <form method="GET" action="{{ url_for('companies.compare_reports') }}" class="filter-form-grid">
-                <div class="form-group">
-                    <label for="district">District</label>
-                    <select id="district" name="district" class="form-control">
-                        <option value="">All districts</option>
-                        {% for option in district_filter_options %}
-                        <option value="{{ option }}">{{ option }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
+
                 <div class="form-group">
                     <label for="risk_level">Risk Level</label>
                     <select id="risk_level" name="risk_level" class="form-control">
@@ -170,7 +162,7 @@
                     <a class="watchlist-row" href="{{ url_for('companies.view_credit_report', id=company.id) }}">
                         <div>
                             <strong>{{ company.company_name }}</strong>
-                            <p class="text-muted">{{ company.business_registration }} · {{ company.status|title }}</p>
+                            <p class="text-muted">{{ company.business_registration }} · {{ company.company_registration_number or '-' }} · {{ company.status|title }}</p>
                         </div>
                         <div class="watchlist-row-meta">
                             <span class="status-chip status-{{ (company.risk_level or 'unknown')|lower }}">{{ (company.risk_level or 'unknown')|title }}</span>

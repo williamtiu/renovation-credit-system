@@ -170,8 +170,7 @@ def dashboard():
     ).count()
     safety_review_backlog = Company.query.filter(
         db.or_(
-            Company.osh_policy_in_place.is_(False),
-            Company.heavy_lifting_compliance.is_(False),
+            Company.osh_safety_officer_verified.is_(False),
             Company.safety_training_coverage.is_(None),
             Company.safety_training_coverage < 80,
             Company.safety_incident_count > 0,
@@ -185,7 +184,7 @@ def dashboard():
             Company.dispute_count_cached > 0,
             Company.status != 'active',
             Company.safety_incident_count > 0,
-            Company.heavy_lifting_compliance.is_(False),
+            Company.osh_safety_officer_verified.is_(False),
             Company.safety_training_coverage < 80,
         )
     ).order_by(Company.updated_at.desc()).limit(6).all()
@@ -197,10 +196,7 @@ def dashboard():
         DisputeCase.query.order_by(DisputeCase.opened_at.asc()).all(),
         lambda dispute: dispute.opened_at,
     )
-    district_filter_options = [
-        district[0] for district in db.session.query(Company.district).filter(Company.district.isnot(None)).distinct().order_by(Company.district.asc()).all()
-        if district[0]
-    ]
+    district_filter_options = []
     grade_filter_options = [
         grade[0] for grade in db.session.query(CreditScore.credit_grade).filter(CreditScore.credit_grade.isnot(None)).distinct().order_by(CreditScore.credit_grade.asc()).all()
         if grade[0]

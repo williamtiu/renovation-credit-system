@@ -10,165 +10,151 @@
             <div class="card-header"><h5>基本信息</h5></div>
             <div class="card-body">
                 <div class="row">
-                    <div class="col-md-6 mb-3">
+                    <div class="col-6 mb-3">
                         <label for="company_name">公司名称</label>
                         <input type="text" class="form-control" id="company_name" name="company_name" value="{{ company.company_name if company else '' }}" required>
                     </div>
-                    <div class="col-md-6 mb-3">
+                    <div class="col-6 mb-3">
                         <label for="company_name_en">英文名称</label>
                         <input type="text" class="form-control" id="company_name_en" name="company_name_en" value="{{ company.company_name_en if company else '' }}">
                     </div>
-                    <div class="col-md-6 mb-3">
+                    <div class="col-6 mb-3">
                         <label for="business_registration">商业登记号</label>
                         <input type="text" class="form-control" id="business_registration" name="business_registration" value="{{ company.business_registration if company else '' }}" required>
                     </div>
-                    <div class="col-md-6 mb-3">
+                    <div class="col-6 mb-3">
+                        <label for="company_registration_number">公司注册号</label>
+                        <input type="text" class="form-control" id="company_registration_number" name="company_registration_number" value="{{ company.company_registration_number if company else '' }}">
+                    </div>
+                    <div class="col-6 mb-3">
                         <label for="established_date">成立日期</label>
                         <input type="date" class="form-control" id="established_date" name="established_date" value="{{ company.established_date.isoformat() if company and company.established_date else '' }}">
                     </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="contact_person">联系人</label>
-                        <input type="text" class="form-control" id="contact_person" name="contact_person" value="{{ company.contact_person if company else '' }}">
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="contact_position">联系人职位</label>
-                        <input type="text" class="form-control" id="contact_position" name="contact_position" value="{{ company.contact_position if company else '' }}">
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="phone">电话</label>
-                        <input type="text" class="form-control" id="phone" name="phone" value="{{ company.phone if company else '' }}">
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="email">电子邮箱</label>
-                        <input type="email" class="form-control" id="email" name="email" value="{{ company.email if company else '' }}">
-                    </div>
-                    <div class="col-md-12 mb-3">
-                        <label for="address">地址</label>
-                        <textarea class="form-control" id="address" name="address" rows="2">{{ company.address if company else '' }}</textarea>
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <label for="district">地区</label>
-                        <input type="text" class="form-control" id="district" name="district" value="{{ company.district if company else '' }}">
-                    </div>
-                    <div class="col-md-4 mb-3">
+                    <div class="col-6 mb-3">
                         <label for="registered_capital">注册资本</label>
                         <input type="number" step="0.01" class="form-control" id="registered_capital" name="registered_capital" value="{{ company.registered_capital if company else '' }}">
                     </div>
-                    <div class="col-md-4 mb-3">
-                        <label for="annual_revenue">年度收入</label>
-                        <input type="number" step="0.01" class="form-control" id="annual_revenue" name="annual_revenue" value="{{ company.annual_revenue if company else '' }}">
+                    <div class="col-6 mb-3">
+                        <label for="contact_person">联系人</label>
+                        <input type="text" class="form-control" id="contact_person" name="contact_person" value="{{ company.contact_person if company else '' }}">
+                    </div>
+                    <div class="col-6 mb-3">
+                        <label for="contact_position">联系人职位</label>
+                        <input type="text" class="form-control" id="contact_position" name="contact_position" value="{{ company.contact_position if company else '' }}">
+                    </div>
+                    <div class="col-6 mb-3">
+                        <label for="phone">电话</label>
+                        <input type="text" class="form-control" id="phone" name="phone" value="{{ company.phone if company else '' }}">
+                    </div>
+                    <div class="col-6 mb-3">
+                        <label for="email">电子邮箱</label>
+                        <input type="email" class="form-control" id="email" name="email" value="{{ company.email if company else '' }}">
+                    </div>
+                    <div class="col-6 mb-3">
+                        <label for="address">地址</label>
+                        <textarea class="form-control" id="address" name="address" rows="2">{{ company.address if company else '' }}</textarea>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="card mb-4">
-            <div class="card-header"><h5>运营与财务</h5></div>
+            <div class="card-header"><h5>运营</h5></div>
             <div class="card-body">
                 <div class="row">
-                    <div class="col-md-4 mb-3">
+                    <div class="col-12 mb-3">
+                        <label for="main_service_type">主要服务类型 (例如：住宅、办公室、工业、其他)</label>
+                        <input type="text" class="form-control" id="main_service_type" name="main_service_type" value="{{ company.main_service_type if company else '' }}">
+                    </div>
+                    <div class="col-12 mb-3">
+                        <label for="annual_revenue">年收入 (港币)</label>
+                        <input type="number" step="0.01" class="form-control" id="annual_revenue" name="annual_revenue" value="{{ company.annual_revenue if company else '' }}">
+                    </div>
+                    <div class="col-12 mb-3">
                         <label for="employee_count">员工人数</label>
                         <input type="number" class="form-control" id="employee_count" name="employee_count" value="{{ company.employee_count if company else '' }}">
                     </div>
-                    <div class="col-md-4 mb-3">
+                    <div class="col-12 mb-3">
                         <label for="project_count_completed">已完成项目</label>
                         <input type="number" class="form-control" id="project_count_completed" name="project_count_completed" value="{{ company.project_count_completed if company else '' }}">
                     </div>
-                    <div class="col-md-4 mb-3">
-                        <label for="average_project_value">平均项目价值</label>
+                    <div class="col-12 mb-3">
+                        <label for="average_project_value">平均项目价值 (港币)</label>
                         <input type="number" step="0.01" class="form-control" id="average_project_value" name="average_project_value" value="{{ company.average_project_value if company else '' }}">
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <label for="main_service_type">主要服务类型</label>
-                        <input type="text" class="form-control" id="main_service_type" name="main_service_type" value="{{ company.main_service_type if company else '' }}">
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <label for="bank_account_years">银行账户年限</label>
-                        <input type="number" class="form-control" id="bank_account_years" name="bank_account_years" value="{{ company.bank_account_years if company else '' }}">
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <label for="existing_loans">现有贷款</label>
-                        <input type="number" step="0.01" class="form-control" id="existing_loans" name="existing_loans" value="{{ company.existing_loans if company else '' }}">
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <label for="loan_repayment_history">还款历史</label>
-                        <select class="form-control" id="loan_repayment_history" name="loan_repayment_history">
-                            {% set history = company.loan_repayment_history if company else '' %}
-                            <option value="excellent" {% if history == 'excellent' %}selected{% endif %}>优秀</option>
-                            <option value="good" {% if history in ['good', 'Good'] %}selected{% endif %}>良好</option>
-                            <option value="fair" {% if history in ['fair', 'Fair'] %}selected{% endif %}>一般</option>
-                            <option value="poor" {% if history in ['poor', 'Poor'] %}selected{% endif %}>较差</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4 mb-3 form-check mt-4">
-                        <input type="checkbox" class="form-check-input" id="has_license" name="has_license" {% if company and company.has_license %}checked{% endif %}>
-                        <label class="form-check-label" for="has_license">拥有执照</label>
-                    </div>
-                    <div class="col-md-4 mb-3 form-check mt-4">
-                        <input type="checkbox" class="form-check-input" id="iso_certified" name="iso_certified" {% if company and company.iso_certified %}checked{% endif %}>
-                        <label class="form-check-label" for="iso_certified">ISO 认证</label>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="card mb-4">
-            <div class="card-header"><h5>合规与验证</h5></div>
+            <div class="card-header"><h5>小型工程承建商注册</h5></div>
             <div class="card-body">
                 <div class="row">
-                    <div class="col-md-4 mb-3">
-                        <label for="license_type">执照类型</label>
-                        <input type="text" class="form-control" id="license_type" name="license_type" value="{{ company.license_type if company else '' }}">
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <label for="licence_number">执照号码</label>
-                        <input type="text" class="form-control" id="licence_number" name="licence_number" value="{{ company.licence_number if company else '' }}">
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <label for="licence_class">执照等级</label>
+                    <div class="col-12 mb-3">
+                        <label for="licence_class">牌照类别 (例如：Level 1/2/3)</label>
                         <input type="text" class="form-control" id="licence_class" name="licence_class" value="{{ company.licence_class if company else '' }}">
                     </div>
-                    <div class="col-md-4 mb-3">
-                        <label for="licence_categories">执照类别</label>
+                    <div class="col-12 mb-3">
+                        <label for="licence_categories">牌照分类 (例如：Cat A-G)</label>
                         <input type="text" class="form-control" id="licence_categories" name="licence_categories" value="{{ company.licence_categories if company else '' }}">
                     </div>
-                    <div class="col-md-4 mb-3">
-                        <label for="licence_expiry_date">执照到期日</label>
+                    <div class="col-12 mb-3">
+                        <label for="licence_expiry_date">牌照到期日</label>
                         <input type="date" class="form-control" id="licence_expiry_date" name="licence_expiry_date" value="{{ company.licence_expiry_date.isoformat() if company and company.licence_expiry_date else '' }}">
                     </div>
-                    <div class="col-md-4 mb-3">
-                        <label for="licence_verification_status">执照验证</label>
+                    <div class="col-12 mb-3">
+                        <label for="licence_verification_status">牌照验证</label>
                         <select class="form-control" id="licence_verification_status" name="licence_verification_status">
                             {% set licence_status = company.licence_verification_status if company else 'pending' %}
-                            <option value="pending" {% if licence_status == 'pending' %}selected{% endif %}>待验证</option>
+                            <option value="pending" {% if licence_status == 'pending' %}selected{% endif %}>待处理</option>
                             <option value="verified" {% if licence_status == 'verified' %}selected{% endif %}>已验证</option>
                             <option value="rejected" {% if licence_status == 'rejected' %}selected{% endif %}>已拒绝</option>
                         </select>
                     </div>
-                    <div class="col-md-4 mb-3">
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header"><h5>OSH 认可人员</h5></div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-12 mb-3">
+                        <label for="osh_officer_role">1. OSH 认可人员角色 (例如：安全顾问、安全审计员、安全主管（建筑）或其他)</label>
+                        <input type="text" class="form-control" id="osh_officer_role" name="osh_officer_role" value="{{ company.osh_officer_role if company else '' }}">
+                    </div>
+                    <div class="col-12 mb-3">
+                        <label for="osh_officer_license_number">OSH 认可人员牌照号码</label>
+                        <input type="text" class="form-control" id="osh_officer_license_number" name="osh_officer_license_number" value="{{ company.osh_officer_license_number if company else '' }}">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header"><h5>保险覆盖</h5></div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-12 mb-3">
                         <label for="insurance_provider">保险公司</label>
                         <input type="text" class="form-control" id="insurance_provider" name="insurance_provider" value="{{ company.insurance_provider if company else '' }}">
                     </div>
-                    <div class="col-md-4 mb-3">
-                        <label for="insurance_policy_number">保险单号</label>
+                    <div class="col-12 mb-3">
+                        <label for="insurance_policy_number">保险保单号码</label>
                         <input type="text" class="form-control" id="insurance_policy_number" name="insurance_policy_number" value="{{ company.insurance_policy_number if company else '' }}">
                     </div>
-                    <div class="col-md-4 mb-3">
+                    <div class="col-12 mb-3">
                         <label for="insurance_expiry_date">保险到期日</label>
                         <input type="date" class="form-control" id="insurance_expiry_date" name="insurance_expiry_date" value="{{ company.insurance_expiry_date.isoformat() if company and company.insurance_expiry_date else '' }}">
                     </div>
-                    <div class="col-md-4 mb-3">
+                    <div class="col-12 mb-3">
                         <label for="insurance_verification_status">保险验证</label>
                         <select class="form-control" id="insurance_verification_status" name="insurance_verification_status">
                             {% set insurance_status = company.insurance_verification_status if company else 'pending' %}
-                            <option value="pending" {% if insurance_status == 'pending' %}selected{% endif %}>待验证</option>
+                            <option value="pending" {% if insurance_status == 'pending' %}selected{% endif %}>待处理</option>
                             <option value="verified" {% if insurance_status == 'verified' %}selected{% endif %}>已验证</option>
                             <option value="rejected" {% if insurance_status == 'rejected' %}selected{% endif %}>已拒绝</option>
                         </select>
-                    </div>
-                    <div class="col-md-8 mb-3">
-                        <label for="professional_memberships">专业会员资格</label>
-                        <input type="text" class="form-control" id="professional_memberships" name="professional_memberships" value="{{ company.professional_memberships if company else '' }}">
                     </div>
                 </div>
             </div>
@@ -178,27 +164,15 @@
             <div class="card-header"><h5>职安健与ESG控制</h5></div>
             <div class="card-body">
                 <div class="row">
-                    <div class="col-md-4 mb-3 form-check mt-4">
-                        <input type="checkbox" class="form-check-input" id="osh_policy_in_place" name="osh_policy_in_place" {% if company and company.osh_policy_in_place %}checked{% endif %}>
-                        <label class="form-check-label" for="osh_policy_in_place">职安健政策已记录</label>
-                    </div>
-                    <div class="col-md-4 mb-3 form-check mt-4">
-                        <input type="checkbox" class="form-check-input" id="heavy_lifting_compliance" name="heavy_lifting_compliance" {% if company and company.heavy_lifting_compliance %}checked{% endif %}>
-                        <label class="form-check-label" for="heavy_lifting_compliance">16kg搬运控制已确认</label>
-                    </div>
-                    <div class="col-md-4 mb-3 form-check mt-4">
-                        <input type="checkbox" class="form-check-input" id="lifting_equipment_available" name="lifting_equipment_available" {% if company and company.lifting_equipment_available %}checked{% endif %}>
-                        <label class="form-check-label" for="lifting_equipment_available">搬运设备可用</label>
-                    </div>
-                    <div class="col-md-4 mb-3">
+                    <div class="col-6 mb-3">
                         <label for="safety_training_coverage">安全培训覆盖率 (%)</label>
                         <input type="number" min="0" max="100" class="form-control" id="safety_training_coverage" name="safety_training_coverage" value="{{ company.safety_training_coverage if company and company.safety_training_coverage is not none else '' }}">
                     </div>
-                    <div class="col-md-4 mb-3">
+                    <div class="col-6 mb-3">
                         <label for="safety_incident_count">安全事故数 (12个月)</label>
                         <input type="number" min="0" class="form-control" id="safety_incident_count" name="safety_incident_count" value="{{ company.safety_incident_count if company and company.safety_incident_count is not none else 0 }}">
                     </div>
-                    <div class="col-md-4 mb-3">
+                    <div class="col-6 mb-3">
                         <label for="esg_policy_level">ESG政策级别</label>
                         <select class="form-control" id="esg_policy_level" name="esg_policy_level">
                             {% set esg_level = company.esg_policy_level if company else 'none' %}
@@ -207,12 +181,12 @@
                             <option value="advanced" {% if esg_level == 'advanced' %}selected{% endif %}>高级</option>
                         </select>
                     </div>
-                    <div class="col-md-4 mb-3">
+                    <div class="col-6 mb-3">
                         <label for="green_material_ratio">绿色材料采用率 (%)</label>
                         <input type="number" min="0" max="100" class="form-control" id="green_material_ratio" name="green_material_ratio" value="{{ company.green_material_ratio if company and company.green_material_ratio is not none else '' }}">
                     </div>
-                    <div class="col-md-8 mb-3">
-                        <div class="mini-note mt-4">DecoFinance 使用这些字段计算包含职安健的信任信号、16kg搬运准备度和ESG准备度，用于预警审查。</div>
+                    <div class="col-12 mb-3">
+                        <div class="mini-note mt-2">DecoFinance 使用这些字段计算包含职安健的信任信号、16kg搬运准备度和ESG准备度，用于预警审查。</div>
                     </div>
                 </div>
             </div>

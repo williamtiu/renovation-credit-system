@@ -125,7 +125,6 @@ def build_credit_report_pdf(company, report):
         ['English name', _safe_text(subject.get('company_name_en'))],
         ['Contact', _safe_text(subject.get('contact_person'))],
         ['Role', _safe_text(subject.get('contact_position'))],
-        ['District', _safe_text(subject.get('district'))],
         ['Years in business', _safe_text(subject.get('years_in_business'))],
         ['Main service', _safe_text(subject.get('main_service_type'))],
     ], col_widths=[48 * mm, 122 * mm], body_background='#ffffff')
@@ -166,10 +165,7 @@ def build_credit_report_pdf(company, report):
     esg_profile = report.get('esg_profile', {})
     osh_table = _styled_table([
         ['Signal', 'Value'],
-        ['OSH policy documented', 'Yes' if osh_profile.get('policy_in_place') else 'No'],
         ['Safety training coverage', f"{osh_profile.get('training_coverage')}%" if osh_profile.get('training_coverage') is not None else '-'],
-        ['16kg handling control', 'Aligned' if osh_profile.get('heavy_lifting_compliance') else 'Review'],
-        ['Lifting equipment', 'Available' if osh_profile.get('lifting_equipment_available') else 'Unknown'],
         ['Safety incidents (12 months)', _safe_text(osh_profile.get('incident_count'), '0')],
         ['ESG policy level', _safe_text(esg_profile.get('policy_level'), 'none').replace('_', ' ').title()],
         ['Green material adoption', f"{esg_profile.get('green_material_ratio')}%" if esg_profile.get('green_material_ratio') is not None else '-'],

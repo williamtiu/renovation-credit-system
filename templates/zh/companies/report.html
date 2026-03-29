@@ -66,12 +66,13 @@
                     <p><strong>中文/商号：</strong> {{ report.subject.company_name }}</p>
                     <p><strong>英文名称：</strong> {{ report.subject.company_name_en or '-' }}</p>
                     <p><strong>商业登记：</strong> {{ report.subject.business_registration }}</p>
+                    <p><strong>公司注册号：</strong> {{ report.subject.company_registration_number or '-' }}</p>
                     <p><strong>主要服务：</strong> {{ report.subject.main_service_type or '-' }}</p>
                 </div>
                 <div>
                     <p><strong>联系人：</strong> {{ report.subject.contact_person or '-' }}</p>
                     <p><strong>职位：</strong> {{ report.subject.contact_position or '-' }}</p>
-                    <p><strong>地区：</strong> {{ report.subject.district or '-' }}</p>
+
                     <p><strong>经营年限：</strong> {{ report.subject.years_in_business if report.subject.years_in_business is not none else '-' }}</p>
                 </div>
             </div>
@@ -152,10 +153,7 @@
         <article class="card report-section-card">
             <div class="card-header"><h2>职安健与ESG信号</h2></div>
             <div class="card-body metric-grid">
-                <div class="metric-box"><span>职安健政策</span><strong>{{ '是' if report.osh_profile.policy_in_place else '否' }}</strong></div>
                 <div class="metric-box"><span>培训覆盖率</span><strong>{{ report.osh_profile.training_coverage if report.osh_profile.training_coverage is not none else '-' }}{% if report.osh_profile.training_coverage is not none %}%{% endif %}</strong></div>
-                <div class="metric-box"><span>16kg控制</span><strong>{{ '符合' if report.osh_profile.heavy_lifting_compliance else '需审查' }}</strong></div>
-                <div class="metric-box"><span>搬运设备</span><strong>{{ '可用' if report.osh_profile.lifting_equipment_available else '未知' }}</strong></div>
                 <div class="metric-box"><span>安全事故</span><strong>{{ report.osh_profile.incident_count }}</strong></div>
                 <div class="metric-box"><span>ESG级别</span><strong>{{ report.esg_profile.policy_level|replace('_', ' ')|title }}</strong></div>
                 <div class="metric-box"><span>绿色材料使用</span><strong>{{ report.esg_profile.green_material_ratio if report.esg_profile.green_material_ratio is not none else '-' }}{% if report.esg_profile.green_material_ratio is not none %}%{% endif %}</strong></div>
