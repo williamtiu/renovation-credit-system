@@ -1,0 +1,150 @@
+Here is the English translation of the "System Requirements Specification (SRS) Developer Edition". You can feed this directly into AI coding assistants (like Cursor, GitHub Copilot, or Claude) to accurately generate your database schemas, APIs, and frontend code.
+
+---
+
+# DecoFinance 裝融易 – System Requirements Specification (SRS) v2.0
+
+**Target Audience:** AI Coding Assistants / Backend & Frontend Developers
+**Architecture Focus:** RESTful API, Relational Database, Object Storage (S3), State Management.
+
+## 1. Core Database Entities (Data Structures)
+
+*AI Prompt: Please use the following entities to create the Relational Database (SQL) Schema and ORM models.*
+
+* 
+**`Users` Table:** Differentiate by `role` (CUSTOMER, COMPANY, ADMIN).
+
+
+* **`Company_Profiles` Table:** Linked to `User_ID`. Fields include Business Registration (BR) details , license information , positive rating rate (`positive_rating_rate`), composite score, and specialized flat categories.
+
+
+* **`Projects` (Project Requests) Table:**
+* Fields: `flat_category` (Enum: Standard Residential, Small Unit, Villa), `flat_size_sqft` (Int), `deco_category` (Enum: Whole House, Partial, Plumbing/Electrical, Waterproofing, Painting), `style` (Enum: Modern Minimalist, Light Luxury, Cream Style, Nordic, Japanese, New Chinese), `budget`, `expected_turnaround_days` (Int), `status` (Enum: OPEN, BIDDING, IN_PROGRESS, DISPUTED, COMPLETED).
+
+
+
+
+* **`Bids` Table:** Linked to `Project_ID` and `Company_ID`. Fields include `quotation_amount` (Decimal), `expected_turnaround` (String), `design_diagram_urls` (JSON array), and `status` (PENDING, ACCEPTED, REJECTED).
+* **`Milestones` Table:** Linked to `Project_ID`. Fields include `stage_name`, `payment_percentage` , `amount`, `status` (PENDING, AWAITING_APPROVAL, ACCEPTED, DISPUTED), and `evidence_urls` (JSON array).
+
+
+
+---
+
+## 2. Customer Module (C-End: Customer Application)
+
+### 2.1 Discovery & Search
+
+* 
+**Function:** View decoration company lists and detailed profiles.
+
+
+* **Development Logic (API):**
+* `GET /api/v1/companies` (Supports Query Params: `flat_category`, `rating_min`).
+* Response data structure must include: `due_diligence_report`, `positive_rating_rate`, `past_projects` (Array), and `specializations`.
+
+
+
+
+
+### 2.2 Project Creation & Bid Handling
+
+* 
+**Function:** Create precise decoration requests and manage quotations.
+
+
+* **Development Logic (API & UI):**
+* Project Wizard UI: Collect flat type, size, decoration category, style, and budget parameters (`POST /api/v1/projects`).
+* View bids (`GET /api/v1/projects/{id}/bids`), which includes loading PDF or image formats of the design diagrams.
+* Accept bid and sign contract (`POST /api/v1/bids/{id}/accept`), triggering the system to generate a digital contract.
+
+
+
+
+
+### 2.3 Progress & Escrow Control
+
+* 
+**Function:** Approve progress and control bank disbursements.
+
+
+* **State Machine Logic:**
+* **Accept:** Customer clicks "Accept Progress" (`POST /api/v1/milestones/{id}/accept`). **System Trigger:** Immediately calls the bank API to release funds for that specific stage.
+
+
+* 
+**Dispute:** Customer clicks "Raise Dispute" (`POST /api/v1/milestones/{id}/dispute`). Mandatory upload of photos (`Multipart/form-data`) and text comments is required. **System Trigger:** Freezes all subsequent pending payments in the segregated account  and sends notifications to the Admin and Company.
+
+
+
+
+
+### 2.4 Project Rating Engine
+
+* **Function:** Multi-dimensional scoring system.
+* **Development Logic:** `POST /api/v1/projects/{id}/rate`. Receives Payload: `{ quality: 5, pricing: 4, service: 5, comment: "..." }`, and instantly recalculates the company's overall positive rating percentage.
+
+
+
+---
+
+## 3. Decoration Company Module (B-End: Company Application)
+
+### 3.1 Profile & Verification
+
+* 
+**Function:** Create a business profile containing compliance data.
+
+
+* **Development Logic (API & Storage):**
+* File Upload (`POST /api/v1/company/upload-docs`): Upload Business Registration, licenses, and worker personal details to AWS S3, saving the generated URLs to the database.
+
+
+* **Specialization Authorization Workflow:** The company selects a specialization (e.g., Villa) and uploads past invoices/photos as proof. The status is set to `PENDING_ADMIN_APPROVAL`. They can only receive project requests for this specific category after the internal DecoFinance team approves it.
+
+
+
+### 3.2 Risk & Scoring Data Ingestion
+
+* 
+**Function:** Collect underlying data for the "Credibility Index" (可信度指數) and loan referral system.
+
+
+* **Development Logic:**
+* Upload Financial Reports (`POST /api/v1/company/financials`): Includes a crucial Boolean parameter `is_audited` (True/False). If True, the scoring algorithm applies extra credit weight.
+* Electronic Consent Collection (`POST /api/v1/company/consents`): Collect authorization records for TransUnion (TU) , Buildings Department (BD) , Company Registry, and IRD (to obtain annual revenue). The system must record the Timestamp and IP address to ensure strict PDPO compliance.
+
+
+
+
+
+### 3.3 Bidding & Execution
+
+* 
+**Function:** Find business opportunities and execute projects.
+
+
+* **Development Logic:**
+* Submit Bid (`POST /api/v1/projects/{id}/bid`): Payload must include the quotation amount, expected turnaround time, and decoration design diagrams (S3 URLs). Supports `Make Enquiry` (Project Q&A API).
+* Update Progress (`POST /api/v1/milestones/{id}/update`): Upload construction photos/videos and descriptions. Milestone status changes to `AWAITING_CUSTOMER_APPROVAL`.
+
+
+* **Chase Progress:** `POST /api/v1/milestones/{id}/chase`. System restricts cooldown (e.g., can only be clicked once per 24 hours), triggering an automated SMS/Email notification to chase the customer to accept the progress.
+* Respond to Dispute (`POST /api/v1/disputes/{id}/respond`): Allows the company to upload counter-evidence (photos, videos, communication logs) via the web portal.
+
+
+
+
+
+### 3.4 Loan Referral Application
+
+* 
+**Function:** System automatically packages company data to send to partner financial institutions.
+
+
+* **Development Logic:**
+* When a company initiates a loan application (`POST /api/v1/loans/apply`), the system requires the submission of consent to release documents.
+
+
+* 
+**System Trigger (Data Packager):** The backend compiles the company's Financial Strength, Operational Stability (based on BD/TU data), and past customer comments, generating an encrypted JSON or PDF report transmitted securely to partner financial institutions.

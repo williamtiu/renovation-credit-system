@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}Verification History - {{ company.company_name }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Verification History</h1>
+    <p>History for {{ company.company_name }}</p>
+</div>
+
+<div class="content-wrapper">
+    <div class="card">
+        <div class="card-header">
+            <h2><i class="fas fa-history me-2"></i>Verification Records</h2>
+        </div>
+        <div class="card-body">
+            {% if history %}
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Status</th>
+                            <th>Files</th>
+                            <th>Consent</th>
+                            <th>External</th>
+                            <th>Admin Review</th>
+                            <th>Final Status</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for v in history %}
+                        <tr>
+                            <td><strong>#{{ v.id }}</strong></td>
+                            <td>
+                                <span class="badge bg-{{ 
+                                    'success' if v.status == 'validated' else
+                                    'warning' if v.status == 'provisional' else
+                                    'danger' if v.status == 'rejected' else
+                                    'secondary'
+                                }}">
+                                    {{ v.status|replace('_', ' ')|title }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge bg-{{ 'success' if v.audited_financials_uploaded else 'secondary' }}">F</span>
+                                <span class="badge bg-{{ 'success' if v.business_registration_uploaded else 'secondary' }}">BR</span>
+                                <span class="badge bg-{{ 'success' if v.company_registration_uploaded else 'secondary' }}">CR</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-{{ 'success' if v.offline_consent_submitted else 'secondary' }}">
+                                    {{ '✓' if v.offline_consent_submitted else '✗' }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if v.bd_verification_status == 'verified' and v.insurance_verification_status == 'verified' and v.ird_verification_status == 'verified' and v.tu_verification_status == 'verified' %}
+                                <span class="badge bg-success">All Verified</span>
+                                {% else %}
+                                <span class="badge bg-warning">Pending</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge bg-{{ 
+                                    'success' if v.admin_review_status == 'approved' else
+                                    'warning' if v.admin_review_status == '补件' else
+                                    'secondary'
+                                }}">
+                                    {{ v.admin_review_status|replace('_', ' ')|title }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge bg-{{ 
+                                    'success' if v.final_status == 'validated' else
+                                    'danger' if v.final_status == 'rejected' else
+                                    'secondary'
+                                }}">
+                                    {{ v.final_status|replace('_', ' ')|title }}
+                                </span>
+                            </td>
+                            <td>{{ v.created_at.strftime('%Y-%m-%d') }}</td>
+                            <td>
+                                <a href="{{ url_for('verifications.view_verification', company_id=company.id) }}" class="btn btn-sm btn-secondary">
+                                    <i class="fas fa-eye me-1"></i>View
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-file-alt" style="font-size: 3rem; color: var(--secondary-color); margin-bottom: 1rem;"></i>
+                <p class="text-muted">No verification records found.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+
+{% block title %}贷款申请详情 - DecoFinance{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12 d-flex justify-content-between align-items-center">
+            <h2><i class="fas fa-file-invoice-dollar"></i> 贷款申请详情</h2>
+            <div>
+                <a href="{{ url_for('loans.list_loans') }}" class="btn btn-secondary">返回列表</a>
+                {% if g.user and g.user.role in ['admin', 'reviewer'] and application.application_status == 'pending' %}
+                <a href="{{ url_for('loans.review_application', id=application.id) }}" class="btn btn-warning"><i class="fas fa-gavel"></i> 批准/拒绝</a>
+                {% endif %}
+            </div>
+        </div>
+        <hr class="mt-2">
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <!-- 申请状态 -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-info-circle"></i> 申请状态</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>状态：</strong>
+                        {% if application.application_status == 'pending' %}
+                            <span class="badge bg-warning">待处理</span>
+                        {% elif application.application_status == 'approved' %}
+                            <span class="badge bg-success">已批准</span>
+                        {% elif application.application_status == 'rejected' %}
+                            <span class="badge bg-danger">已拒绝</span>
+                        {% endif %}
+                    </p>
+                    <p><strong>申请日期：</strong>{{ application.applied_at.strftime('%Y-%m-%d %H:%M') if application.applied_at else '-' }}</p>
+                    <p><strong>公司名称：</strong><a href="{{ url_for('companies.view_company', id=company.id) }}">{{ company.company_name }}</a></p>
+                    <p><strong>相关项目:</strong>
+                        {% if application.project %}
+                        <a href="{{ url_for('projects.view_project', id=application.project.id) }}">{{ application.project.title }}</a>
+                        {% else %}
+                        -
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+
+            <!-- 申请内容 -->
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-money-bill-wave"></i> 申请内容</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>申请金额：</strong>HK$ {{ "{:,.2f}".format(application.loan_amount) }}</p>
+                    <p><strong> 还款期数：</strong>{{ application.loan_term_months }} 个月</p>
+                    <p><strong>贷款用途：</strong>{{ application.loan_purpose or '-' }}</p>
+                </div>
+            </div>
+            
+            {% if application.application_status != 'pending' %}
+            <!-- 审批结果 -->
+            <div class="card mb-4">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0"><i class="fas fa-check-circle"></i> 审批结果</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>审批日期: </strong>{{ application.approval_date.strftime('%Y-%m-%d %H:%M') if application.approval_date else '-' }}</p>
+                    {% if application.application_status == 'approved' %}
+                        <p><strong>批准金额: </strong>HK$ {{ "{:,.2f}".format(application.approved_amount or 0) }}</p>
+                        <p><strong>批准利率: </strong>{{ application.approved_interest_rate }}%</p>
+                        <p><strong>附加条件：</strong>{{ application.approval_conditions or '无' }}</p>
+                        <p><strong>审批人ID:</strong> {{ application.reviewed_by_user_id or '-' }}</p>
+                    {% elif application.application_status == 'rejected' %}
+                        <p><strong>拒绝原因: </strong>{{ application.rejection_reason or '无' }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="col-md-6">
+            <!-- 申请人信用评分 -->
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-star"></i> 信任评分结果</h5>
+                </div>
+                <div class="card-body">
+                    {% if application.credit_score_at_application %}
+                        <!-- 假设application模型存储分数和等级用于显示 -->
+                        <div class="text-center mb-3">
+                            <h1 class="display-4 text-primary">{{ application.credit_score_at_application }}</h1>
+                            <h4>等级：<span class="badge bg-info">{{ application.credit_grade_at_application }}</span></h4>
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center">无信用评分记录</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if application.application_status == 'approved' %}
+            <!-- 状态详情 -->
+            <div class="card mb-4">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0"><i class="fas fa-hand-holding-usd"></i> 财务状态</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>放款日期:</strong> {{ application.disbursement_date.strftime('%Y-%m-%d') if application.disbursement_date else '未放款' }}</p>
+                    {% if application.disbursement_date %}
+                        <p><strong>放款金额:</strong>HK$ {{ "{:,.2f}".format(application.disbursement_amount or 0) }}</p>
+                        <p><strong>已还款总额:</strong>HK$ {{ "{:,.2f}".format(application.total_repaid or 0) }}</p>
+                        <p><strong>未结余额:</strong>HK$ {{ "{:,.2f}".format(application.outstanding_balance or 0) }}</p>
+                        <p><strong>首次还款日期:</strong>{{ application.first_repayment_date.strftime('%Y-%m-%d') if application.first_repayment_date else '-' }}</p>
+                        <p><strong>还款状态：</strong>
+                            {% if application.repayment_status == 'current' %}
+                                <span class="badge bg-success">按时</span>
+                            {% elif application.repayment_status == 'late' %}
+                                <span class="badge bg-warning">逾期</span>
+                            {% elif application.repayment_status == 'default' %}
+                                <span class="badge bg-danger">违约</span>
+                            {% elif application.repayment_status == 'completed' %}
+                                <span class="badge bg-primary">已结清</span>
+                            {% else %}
+                                - 
+                            {% endif %}
+                        </p>
+                    {% elif g.user and g.user.role in ['admin', 'reviewer'] %}
+                        <form action="{{ url_for('loans.disburse_loan', id=application.id) }}" method="POST">
+                            <button type="submit" class="btn btn-success" onclick="return confirm('确定吗？')">
+                                <i class="fas fa-money-check-alt"></i> 发放资金 
+                            </button>
+                        </form>
+                    {% else %}
+                        <p class="text-muted">等待管理员放款。</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if application.disbursement_date and application.repayment_status != 'completed' and g.user and g.user.role in ['company_user', 'admin', 'reviewer'] %}
+            <!-- 还款操作 -->
+            <div class="card mb-4">
+                <div class="card-header border-success">
+                    <h5 class="mb-0"><i class="fas fa-coins"></i> 还款</h5>
+                </div>
+                <div class="card-body">
+                    <form action="{{ url_for('loans.repay_loan', id=application.id) }}" method="POST">
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">HK$</span>
+                            <input type="number" step="0.01" min="0.01" max="{{ application.outstanding_balance }}" class="form-control" name="repayment_amount" required placeholder="输入金额">
+                            <button class="btn btn-primary" type="submit">提交</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

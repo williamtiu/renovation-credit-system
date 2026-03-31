@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Edit Project' if project else 'Create Project' }} - DecoFinance{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>{{ 'Edit Project' if project else 'Create Project' }}</h2>
+    <form method="POST" action="{{ url_for('projects.edit_project', id=project.id) if project else url_for('projects.add_project') }}">
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="title">Title</label>
+                        <input type="text" class="form-control" id="title" name="title" value="{{ project.title if project else '' }}" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="property_type">Property Type</label>
+                        <input type="text" class="form-control" id="property_type" name="property_type" value="{{ project.property_type if project else '' }}">
+                    </div>
+                    <div class="col-md-12 mb-3">
+                        <label for="description">Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="3">{{ project.description if project else '' }}</textarea>
+                    </div>
+                    <div class="col-md-8 mb-3">
+                        <label for="property_address">Property Address</label>
+                        <input type="text" class="form-control" id="property_address" name="property_address" value="{{ project.property_address if project else '' }}">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="district">District</label>
+                        <input type="text" class="form-control" id="district" name="district" value="{{ project.district if project else '' }}">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="budget_amount">Budget</label>
+                        <input type="number" step="0.01" class="form-control" id="budget_amount" name="budget_amount" value="{{ project.budget_amount if project else '' }}" required>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="target_start_date">Target Start</label>
+                        <input type="date" class="form-control" id="target_start_date" name="target_start_date" value="{{ project.target_start_date.isoformat() if project and project.target_start_date else '' }}">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="target_end_date">Target End</label>
+                        <input type="date" class="form-control" id="target_end_date" name="target_end_date" value="{{ project.target_end_date.isoformat() if project and project.target_end_date else '' }}">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">{{ 'Update Project' if project else 'Create Project' }}</button>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,250 @@
+DecoFinance 裝融易 – Full System Design & Regulatory Compliance Document (Integrated Version, Bullet Point Format)
+________________________________________
+1. Platform Overview
+•	DecoFinance 裝融易 is a Hong Kong–based web only fintech platform connecting: 
+o	Customers seeking renovation/decoration services.
+o	Decoration companies providing such services.
+•	Core objectives: 
+o	Reduce information asymmetry in the renovation industry.
+o	Ensure contractor qualification and regulatory compliance.
+o	Provide secure, milestone based payment escrow.
+o	Enable SME decoration companies to access financing.
+o	Build a transparent, trustworthy, data driven ecosystem.
+________________________________________
+2. High Level System Architecture
+2.1 Web Only Frontend
+•	Fully browser based interface (desktop/tablet).
+•	Customer functions: 
+o	Browse verified decoration companies.
+o	View ratings, due diligence reports, and compliance status.
+o	Create projects, review bids, sign digital contracts.
+o	Upload evidence (photos/videos) via web upload tools.
+o	Approve milestones and track payment releases.
+•	Decoration company functions: 
+o	Maintain company profile and upload licences.
+o	Submit bids and update project progress.
+o	Provide consent for TransUnion credit checks.
+o	Apply for financing.
+•	Admin console: 
+o	Compliance monitoring, AML/CFT review, dispute handling.
+2.2 Backend Services
+•	API Gateway
+o	Authentication, rate limiting, routing, logging.
+•	Identity & Access Service
+o	User registration, login, RBAC.
+o	Multi factor authentication for sensitive actions.
+•	Company Registry & Marketplace Service
+o	Company profiles, licences, insurance, ratings.
+o	Real time BD licence verification integration.
+•	Due Diligence & Risk Engine
+o	TransUnion credit scoring (with PDPO compliant consent).
+o	Licence verification (BD).
+o	Insurance verification.
+o	NLP based reputation analysis (media, forums).
+o	Composite “可信度指數” scoring.
+•	Project & Contract Service
+o	Project creation, bidding, contract generation.
+o	Milestone management and evidence uploads.
+•	Payment Escrow Orchestration Service
+o	Integration with licensed banks/MSO structure.
+o	Milestone based payment release.
+o	If in dispute on the project progress, payment will be freezed.
+•	Loan Referral Service
+o	Application packaging and transmission to lenders.
+o	Status tracking and document exchange.
+•	Audit, Logging & Monitoring
+o	AML/CFT monitoring.
+o	Transaction logs and audit trails.
+2.3 Data Storage
+•	Relational DB: 
+o	Users, companies, licences, projects, milestones, payments.
+•	Document storage: 
+o	Licences, contracts, evidence files.
+•	Analytics warehouse: 
+o	Risk scoring, compliance analytics, fraud detection.
+________________________________________
+3. Marketplace & Rating System
+•	Company profiles include: 
+o	Business registration details.
+o	Minor Works licence class (一級/二級/三級) and category (A–G).
+o	Licence validity and BD verification status.
+o	Insurance coverage.
+o	Historical project performance.
+•	Rating system: 
+o	Quantitative scores (quality, timeliness, communication).
+o	Qualitative reviews (moderated).
+•	Complaint records: 
+o	Categorized issues (delay, defects, misrepresentation).
+o	Resolution history.
+•	Search filters: 
+o	Budget, location, licence class/category, rating, risk score.
+________________________________________
+4. Due Diligence & Compliance Engine
+4.1 Real Time BD Licence Verification
+•	Integration with BD’s “註冊名單搜尋系統”: 
+o	Automatic lookup by company name or registration number.
+o	Verification of: 
+	Licence class (一級/二級/三級)
+	Categories (A–G)
+	Responsible person
+	Validity period
+o	Automated periodic re checks.
+•	Enforcement: 
+o	Only qualified companies may bid on regulated works. 
+o	System blocks non qualified companies automatically.
+4.2 TransUnion Credit Assessment (PDPO Compliant)
+•	User authorization workflow: 
+o	When applying for financing or bidding on certain projects, companies are shown: 
+	Purpose of credit assessment.
+	Types of data collected (e.g., credit score band, credit history length).
+	How the data improves their credibility and loan eligibility.
+•	Explicit consent: 
+o	Companies must provide written, explicit consent via web confirmation.
+o	Consent covers sharing necessary data with TransUnion.
+•	Data minimization: 
+o	Platform receives only encrypted, anonymized indicators, such as: 
+	Credit score band.
+	Credit history length.
+	Risk classification.
+o	No raw credit reports or detailed credit history.
+•	Integration into risk model: 
+o	TransUnion indicators feed into the “財務健康評分” model.
+o	Combined with project history, dispute history, and BD licence status.
+4.3 Multi Source Risk Assessment
+•	Data sources: 
+o	BD licence verification.
+o	TransUnion credit indicators.
+o	Company Registry (BR status, incorporation date).
+o	Court judgment records (civil disputes, construction claims).
+o	Media and social sentiment analysis (NLP).
+•	Output: 
+o	Composite “可信度指數” displayed to customers.
+o	Used to filter out high risk companies.
+________________________________________
+5. MSO Licensing & Regulatory Framework
+5.1 MSO Licence Requirement
+•	DecoFinance’s escrow model qualifies as money service business because: 
+o	Platform receives customer funds.
+o	Funds are transferred to third party decoration companies.
+•	Under Hong Kong law: 
+o	Money service operators must obtain an MSO licence.
+o	Operating without a licence is a criminal offence.
+5.2 MSO Compliance Obligations
+•	AML/CFT framework required under AMLO: 
+o	Customer Due Diligence (CDD): 
+	Verify identity of customers and decoration companies.
+	Understand nature and purpose of transactions.
+o	Enhanced Due Diligence (EDD): 
+	For high risk cases (PEPs, unusual transactions).
+o	Ongoing Monitoring: 
+	Detect unusual patterns (e.g., sudden large payments).
+o	Suspicious Transaction Reporting (STR): 
+	Mandatory reporting to JFIU.
+o	Record keeping: 
+	Retain transaction and identity records for 7 years.
+•	Fit and proper requirements: 
+o	Directors and shareholders must pass integrity checks.
+5.3 Escrow Legal Structure
+•	Recommended structure: 
+o	Three party agreement between customer, contractor, and platform.
+o	Funds held in bank managed segregated account.
+o	Platform acts as payment instruction agent, not trustee.
+•	Benefits: 
+o	Avoids trust law obligations.
+o	Reduces regulatory burden.
+o	Ensures transparency and fund safety.
+________________________________________
+6. Project & Contract Management
+•	Project creation: 
+o	Scope, property details, budget, timeline.
+•	Bidding: 
+o	Companies submit proposals.
+o	Customers compare risk scores, licences, and ratings.(Customer can send enquiry to the companies and decide which bid to accept))
+•	Contract: 
+o	Digital contract generation.
+o	Web based acceptance and signature.
+•	Milestones: 
+o	Defined stages with payment percentages.
+o	Evidence upload (photos/videos) via web interface.
+o	Customer approval or dispute initiation.
+________________________________________
+7. Milestone Based Payment Escrow
+7.1 Funding
+•	Customer deposits funds into bank managed segregated account.
+•	Platform never holds funds directly.
+7.2 Recommended Disbursement Logic
+Stage	%	Trigger
+Stage 1	30%	Contract signed + company passes BD/TransUnion checks
+Stage 2	30%	Structural/major works completed + evidence uploaded
+Stage 3	35%	Final completion + independent inspection or customer acceptance
+Retention	5%	Released after 6 month defect liability period
+7.3 Dispute Freeze Logic
+•	When dispute is filed: 
+o	All pending payments are frozen.
+o	Evidence collected via web uploads.
+o	Third party mediator or expert may be engaged.
+•	Platform remains neutral: 
+o	Does not act as arbitrator.
+o	Executes final decision per dispute resolution rules.
+________________________________________
+8. Dispute Resolution Framework
+•	Step 1: Dispute submission 
+o	Customer or contractor submits dispute via web portal.
+o	Uploads photos, videos, communication logs.
+•	Step 2: Evidence freeze 
+o	Pending payments frozen in segregated account.
+•	Step 3: Internal review 
+o	Platform compliance team reviews basic facts.
+•	Step 4: Third party involvement 
+o	For technical disputes: 
+	Independent inspector.
+	Mediation centre.
+•	Step 5: Final decision 
+o	Based on evidence + expert report.
+o	Platform issues payment instruction accordingly.
+•	Step 6: Record archiving 
+o	Dispute outcome stored permanently.
+o	Impacts company’s “可信度指數”.
+________________________________________
+9. Security, Privacy & Data Governance
+•	TLS encryption for all web traffic.
+•	AES 256 encryption for sensitive data.
+•	Strict PDPO compliance: 
+o	Purpose limitation.
+o	Explicit consent for TransUnion checks.
+o	Data minimization.
+•	Role based access control.
+•	Regular penetration testing.
+•	Centralized logging and anomaly detection.
+________________________________________
+10. Strategic Recommendations
+•	Adopt “監管先行，合規至上” strategy: 
+o	MSO licence application as top priority.
+o	Build AML/CFT framework early.
+•	Invest in: 
+o	Real time BD verification automation.
+o	PDPO compliant TransUnion consent workflow.
+o	Web based evidence upload tools.
+•	Maintain conservative legal posture: 
+o	Clear disclaimers.
+o	Transparent risk warnings.
+o	Strict role boundaries (platform ≠ contractor).
+•	Build long term competitive moat: 
+o	“可信度指數” as core differentiator.
+o	Data driven contractor vetting.
+o	Transparent escrow and dispute resolution.
+________________________________________
+11. Conclusion
+•	DecoFinance 裝融易 integrates: 
+o	MSO compliant escrow,
+o	Real time regulatory verification,
+o	PDPO compliant credit assessment,
+o	Data driven risk scoring,
+o	Transparent milestone based payments,
+o	Robust dispute resolution.
+•	With strict adherence to Hong Kong’s regulatory framework, the platform can: 
+o	Reduce fraud,
+o	Protect customers,
+o	Support SME contractors,
+o	Transform the renovation industry into a transparent, trustworthy ecosystem.
+

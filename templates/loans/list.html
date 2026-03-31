@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}List of Loan Applications - DecoFinance{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Loan Applications</h1>
+    <p>Manage and track your loan applications</p>
+</div>
+
+<div class="content-wrapper">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            {% if g.user and g.user.role == 'company_user' %}
+            <a href="{{ url_for('loans.add_application') }}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>New Application
+            </a>
+            {% endif %}
+        </div>
+        
+        <div>
+            <form method="GET" class="d-flex gap-2">
+                <select name="status" class="form-control" style="max-width: 200px;">
+                    <option value="">All Status</option>
+                    <option value="pending" {% if request.args.get('status') == 'pending' %}selected{% endif %}>Pending</option>
+                    <option value="under_review" {% if request.args.get('status') == 'under_review' %}selected{% endif %}>Under Review</option>
+                    <option value="approved" {% if request.args.get('status') == 'approved' %}selected{% endif %}>Approved</option>
+                    <option value="rejected" {% if request.args.get('status') == 'rejected' %}selected{% endif %}>Rejected</option>
+                </select>
+                <button type="submit" class="btn btn-outline-secondary">
+                    <i class="fas fa-filter"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h2>All Applications</h2>
+        </div>
+        <div class="card-body">
+            {% if applications %}
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Company</th>
+                            <th>Amount</th>
+                            <th>Purpose</th>
+                            <th>Term</th>
+                            <th>Status</th>
+                            <th>Applied</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for app in applications %}
+                        <tr>
+                            <td><strong>#{{ app.id }}</strong></td>
+                            <td>{{ app.company.company_name }}</td>
+                            <td>HK$ {{ "{:,.0f}".format(app.loan_amount) }}</td>
+                            <td>{{ app.loan_purpose[:30] if app.loan_purpose else '-' }}{% if app.loan_purpose and app.loan_purpose|length > 30 %}...{% endif %}</td>
+                            <td>{{ app.loan_term_months }}Months</td>
+                            <td>
+                                {% if app.application_status == 'pending' %}
+                                    <span class="badge badge-secondary">Pending</span>
+                                {% elif app.application_status == 'under_review' %}
+                                    <span class="badge badge-info">Under Review</span>
+                                {% elif app.application_status == 'approved' %}
+                                    <span class="badge badge-success">Approved</span>
+                                {% elif app.application_status == 'rejected' %}
+                                    <span class="badge badge-danger">Rejected</span>
+                                {% else %}
+                                    <span class="badge badge-warning">{{ app.application_status }}</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ app.applied_at.strftime('%Y-%m-%d') }}</td>
+                            <td>
+                                <a href="{{ url_for('loans.view_application', id=app.id) }}" class="btn btn-sm btn-info">
+                                    <i class="fas fa-eye me-1"></i>View
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-file-invoice-dollar" style="font-size: 3rem; color: var(--secondary-color); margin-bottom: 1rem;"></i>
+                <p class="text-muted">No Loan Applications found.</p>
+                {% if g.user and g.user.role == 'company_user' %}
+                <a href="{{ url_for('loans.add_application') }}" class="btn btn-primary mt-3">
+                    <i class="fas fa-plus me-2"></i>Apply for Loan
+                </a>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
