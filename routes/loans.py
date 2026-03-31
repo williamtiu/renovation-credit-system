@@ -2,6 +2,7 @@ from datetime import datetime, timezone
 
 from flask import Blueprint, flash, g, redirect, render_template, request, url_for
 from werkzeug.exceptions import HTTPException
+from utils.template_helper import render_template_with_lang_fallback
 
 from models.company import Company
 from models.credit_score import CreditScore
@@ -47,7 +48,7 @@ def list_loans():
     
     applications = query.order_by(LoanApplication.applied_at.desc()).all()
     
-    return render_template('loans/list.html',
+    return render_template_with_lang_fallback('loans/list.html',
                          applications=applications,
                          status=status)
 
@@ -109,7 +110,7 @@ def add_application():
     
     companies = Company.query.filter_by(id=g.user.company_id, status='active').all()
     projects = _visible_projects_for_company(g.user.company_id)
-    return render_template('loans/form.html', companies=companies, projects=projects, application=None)
+    return render_template_with_lang_fallback('loans/form.html', companies=companies, projects=projects, application=None)
 
 @loans_bp.route('/<int:id>')
 @role_required('company_user', 'admin', 'reviewer')
@@ -118,7 +119,7 @@ def view_application(id):
     require_ownership(_can_access_loan(application))
     company = db.session.get(Company, application.company_id)
     
-    return render_template('loans/detail.html',
+    return render_template_with_lang_fallback('loans/detail.html',
                          application=application,
                          company=company)
 
@@ -159,7 +160,7 @@ def review_application(id):
             db.session.rollback()
             flash(f'Approval failed: {str(e)}', 'error')
     
-    return render_template('loans/review.html', application=application)
+    return render_template_with_lang_fallback('loans/review.html', application=application)
 
 @loans_bp.route('/<int:id>/disburse', methods=['POST'])
 @role_required('reviewer', 'admin')

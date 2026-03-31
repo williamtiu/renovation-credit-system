@@ -9,34 +9,21 @@ def utc_now():
     return datetime.now(timezone.utc)
 
 class CreditScore(db.Model):
-    """Documnetation translated"""
+    """新的4大维度评分模型"""
     
     __tablename__ = 'credit_scores'
     
     id = db.Column(db.Integer, primary_key=True)
     company_id = db.Column(db.Integer, db.ForeignKey('companies.id'), nullable=False)
     
-    credit_score = db.Column(db.Integer)
-    credit_grade = db.Column(db.String(5))
+    # 新的4大维度评分
+    financial_score = db.Column(db.Integer)  # 财务实力 (0-600)
+    operational_score = db.Column(db.Integer)  # 运营稳定 (0-250)
+    qualification_score = db.Column(db.Integer)  # 资质认证 (0-200)
+    customer_review_score = db.Column(db.Integer)  # 客户评价 (0-300)
     
-    financial_strength_score = db.Column(db.Integer)
-    registered_capital_score = db.Column(db.Integer)
-    revenue_score = db.Column(db.Integer)
-    
-    operational_stability_score = db.Column(db.Integer)
-    years_in_business_score = db.Column(db.Integer)
-    project_completion_score = db.Column(db.Integer)
-    
-    credit_history_score = db.Column(db.Integer)
-    repayment_history_score = db.Column(db.Integer)
-    existing_debt_score = db.Column(db.Integer)
-    
-    qualification_score = db.Column(db.Integer)
-    license_score = db.Column(db.Integer)
-    certification_score = db.Column(db.Integer)
-    
-    industry_risk_score = db.Column(db.Integer)
-    district_risk_score = db.Column(db.Integer)
+    credit_score = db.Column(db.Integer)  # 总分 (0-1000)
+    credit_grade = db.Column(db.String(5))  # AAA, AA, A, BBB, BB, B, C
     
     risk_level = db.Column(db.String(20))  # low, medium, high
     risk_factors = db.Column(db.Text)
@@ -44,7 +31,7 @@ class CreditScore(db.Model):
     recommended_loan_limit = db.Column(db.Float)
     recommended_interest_rate = db.Column(db.Float)
     
-    scoring_model_version = db.Column(db.String(20), default='v1.0')
+    scoring_model_version = db.Column(db.String(20), default='v2.0')
     
     scored_at = db.Column(db.DateTime, default=utc_now)
     expires_at = db.Column(db.DateTime)
@@ -61,15 +48,15 @@ class CreditScore(db.Model):
             'credit_score': self.credit_score,
             'trust_score': self.credit_score,
             'credit_grade': self.credit_grade,
-            'financial_strength_score': self.financial_strength_score,
-            'operational_stability_score': self.operational_stability_score,
-            'credit_history_score': self.credit_history_score,
+            'financial_score': self.financial_score,
+            'operational_score': self.operational_score,
             'qualification_score': self.qualification_score,
-            'industry_risk_score': self.industry_risk_score,
+            'customer_review_score': self.customer_review_score,
             'risk_level': self.risk_level,
             'risk_factors': self.risk_factors,
             'recommended_loan_limit': self.recommended_loan_limit,
             'recommended_interest_rate': self.recommended_interest_rate,
+            'scoring_model_version': self.scoring_model_version,
             'scored_at': self.scored_at.isoformat() if self.scored_at else None,
             'expires_at': self.expires_at.isoformat() if self.expires_at else None
         }

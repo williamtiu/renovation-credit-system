@@ -33,6 +33,7 @@
                     <div class="row">
                         <div class="col-md-6">
                             <p><strong>Business Registration:</strong> {{ company.business_registration }}</p>
+                            <p><strong>Company Registration Number:</strong> {{ company.company_registration_number or '-' }}</p>
                             <p><strong>Contact Person:</strong> {{ company.contact_person or '-' }}</p>
                             <p><strong>Position:</strong> {{ company.contact_position or '-' }}</p>
                             <p><strong>Phone:</strong> {{ company.phone or '-' }}</p>
@@ -40,7 +41,6 @@
                         </div>
                         <div class="col-md-6">
                             <p><strong>Address:</strong> {{ company.address or '-' }}</p>
-                            <p><strong>District:</strong> {{ company.district or '-' }}</p>
                             <p><strong>Annual Revenue:</strong> HK$ {{ "{:,.0f}".format(company.annual_revenue or 0) }}</p>
                             <p><strong>Completed Projects:</strong> {{ company.project_count_completed or 0 }}</p>
                             <p><strong>Status:</strong> {{ company.status }}</p>
@@ -50,22 +50,46 @@
             </div>
 
             <div class="card mb-4">
-                <div class="card-header"><h5>Compliance</h5></div>
+                <div class="card-header"><h5>Minor Works Contractor Registration</h5></div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
-                            <p><strong>Licence Number:</strong> {{ company.licence_number or '-' }}</p>
-                            <p><strong>Licence Class:</strong> {{ company.licence_class or '-' }}</p>
-                            <p><strong>Licence Categories:</strong> {{ company.licence_categories or '-' }}</p>
+                            <p><strong>License Class:</strong> {{ company.licence_class or '-' }}</p>
+                            <p><strong>License Category:</strong> {{ company.licence_categories or '-' }}</p>
+                        </div>
+                        <div class="col-md-6">
                             <p><strong>Licence Verification:</strong> {{ company.licence_verification_status or 'pending' }}</p>
                             <p><strong>Licence Expiry:</strong> {{ company.licence_expiry_date or '-' }}</p>
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header"><h5>OSH Accredited Officers</h5></div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>OSH Officer Role:</strong> {{ company.osh_officer_role or '-' }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>OSH Officer License Number:</strong> {{ company.osh_officer_license_number or '-' }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header"><h5>Insurance Coverage</h5></div>
+                <div class="card-body">
+                    <div class="row">
                         <div class="col-md-6">
                             <p><strong>Insurance Provider:</strong> {{ company.insurance_provider or '-' }}</p>
                             <p><strong>Policy Number:</strong> {{ company.insurance_policy_number or '-' }}</p>
+                        </div>
+                        <div class="col-md-6">
                             <p><strong>Insurance Verification:</strong> {{ company.insurance_verification_status or 'pending' }}</p>
                             <p><strong>Insurance Expiry:</strong> {{ company.insurance_expiry_date or '-' }}</p>
-                            <p><strong>Eligible For Bidding:</strong> {{ 'Yes' if company.is_verified_for_bidding else 'No' }}</p>
                         </div>
                     </div>
                 </div>
@@ -76,16 +100,12 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
-                            <p><strong>OSH Policy:</strong> {{ 'Yes' if company.osh_policy_in_place else 'No' }}</p>
                             <p><strong>Safety Training Coverage:</strong> {{ company.safety_training_coverage if company.safety_training_coverage is not none else '-' }}{% if company.safety_training_coverage is not none %}%{% endif %}</p>
-                            <p><strong>16kg Handling Control:</strong> {{ 'Confirmed' if company.heavy_lifting_compliance else 'Pending review' }}</p>
-                            <p><strong>Lifting Equipment:</strong> {{ 'Available' if company.lifting_equipment_available else 'Not confirmed' }}</p>
                         </div>
                         <div class="col-md-6">
                             <p><strong>Safety Incidents (12 months):</strong> {{ company.safety_incident_count or 0 }}</p>
                             <p><strong>ESG Policy Level:</strong> {{ (company.esg_policy_level or 'none')|replace('_', ' ')|title }}</p>
                             <p><strong>Green Material Adoption:</strong> {{ company.green_material_ratio if company.green_material_ratio is not none else '-' }}{% if company.green_material_ratio is not none %}%{% endif %}</p>
-                            <p><strong>ISO Certified:</strong> {{ 'Yes' if company.iso_certified else 'No' }}</p>
                         </div>
                     </div>
                 </div>

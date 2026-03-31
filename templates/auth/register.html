@@ -3,42 +3,131 @@
 {% block title %}Register - DecoFinance{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center mt-5">
-    <div class="col-md-6 col-lg-5">
-        <div class="card shadow-sm border-0">
-            <div class="card-header bg-white text-center border-0 pt-4">
-                <h3 class="mb-0">Create an Account</h3>
-                <p class="text-muted small">Join us to manage renovation credit.</p>
+<div class="hero">
+    <h1>Create Your Account</h1>
+    <p class="hero-subtitle">Join DecoFinance to manage renovation trust</p>
+</div>
+
+<div class="content-wrapper">
+    <div class="dashboard-grid">
+        <div class="card">
+            <div class="card-header">
+                <h2>Choose Your Role</h2>
             </div>
-            <div class="card-body p-4">
+            <div class="card-body">
                 <form method="POST" action="{{ url_for('auth.register') }}">
-                    <div class="mb-3">
-                        <label for="username" class="form-label">Username</label>
-                        <input type="text" class="form-control" id="username" name="username" required autofocus>
-                    </div>
-                    <div class="mb-3">
-                        <label for="email" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="email" name="email" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="role" class="form-label">Role</label>
-                        <select class="form-control" id="role" name="role" required>
-                            <option value="customer">Customer</option>
-                            <option value="company_user">Company User</option>
-                        </select>
-                    </div>
                     <div class="mb-4">
-                        <label for="password" class="form-label">Password</label>
-                        <input type="password" class="form-control" id="password" name="password" required>
+                        <label class="form-label">Select Your Role</label>
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <div class="d-flex align-items-start p-3 border rounded" style="background: #f8fafc; border-color: #cbd5e1;">
+                                    <div class="flex-shrink-0" style="width: 48px; height: 48px; background: #eff6ff; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="fas fa-building" style="color: #2563eb; font-size: 1.5rem;"></i>
+                                    </div>
+                                    <div class="flex-grow-1 ms-3">
+                                        <h5 class="mb-1" style="color: var(--text-color);">Renovation Company</h5>
+                                        <p class="mb-2 small text-muted">Manage your company, bid on projects, track trust score</p>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="role" id="roleCompany" value="company_user" checked>
+                                            <label class="form-check-label" for="roleCompany">Select this role</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-12">
+                                <div class="d-flex align-items-start p-3 border rounded" style="background: #f8fafc; border-color: #cbd5e1;">
+                                    <div class="flex-shrink-0" style="width: 48px; height: 48px; background: #f0fdf4; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="fas fa-user" style="color: #16a34a; font-size: 1.5rem;"></i>
+                                    </div>
+                                    <div class="flex-grow-1 ms-3">
+                                        <h5 class="mb-1" style="color: var(--text-color);">Customer</h5>
+                                        <p class="mb-2 small text-muted">Create renovation projects, manage milestones, hire contractors</p>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="role" id="roleCustomer" value="customer">
+                                            <label class="form-check-label" for="roleCustomer">Select this role</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="d-grid mb-3">
-                        <button type="submit" class="btn btn-primary">Sign Up</button>
+                    
+                    <div class="row g-3 mb-3">
+                        <div class="col-12">
+                            <label for="username" class="form-label">User Name</label>
+                            <input type="text" class="form-control" id="username" name="username" required>
+                        </div>
                     </div>
-                    <div class="text-center">
-                        <span class="text-muted">Already have an account?</span> 
-                        <a href="{{ url_for('auth.login') }}" class="text-decoration-none">Sign In</a>
+                    
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label for="email" class="form-label">Email Address</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="password" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                        </div>
                     </div>
+                    
+                    <div class="row g-3 mb-4">
+                        <div class="col-12">
+                            <label for="confirm_password" class="form-label">Confirm Password</label>
+                            <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary w-100">Create Account</button>
                 </form>
+                
+                <div class="mt-4 text-center">
+                    <span class="text-muted">Already have an account? </span>
+                    <a href="{{ url_for('auth.login') }}" class="text-decoration-none" style="color: var(--primary-color); font-weight: 500;">Sign in</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none;">
+            <div class="card-body">
+                <div style="text-align: center;">
+                    <i class="fas fa-rocket" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.8;"></i>
+                    <h2 style="margin-bottom: 1rem;">Why Join DecoFinance?</h2>
+                    <p style="opacity: 0.9; margin-bottom: 2rem;">
+                        Build trust, secure financing, and manage renovation projects with our comprehensive platform
+                    </p>
+                    
+                    <div class="space-y-3">
+                        <div class="d-flex align-items-start">
+                            <i class="fas fa-check-circle me-3" style="opacity: 0.8;"></i>
+                            <div>
+                                <h6 style="font-weight: 600; margin-bottom: 0.25rem;">Trust Scoring</h6>
+                                <p class="small mb-0 opacity-90">Renovation-specific credit scoring covering payment history, compliance, OSH, ESG and more</p>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-start">
+                            <i class="fas fa-check-circle me-3" style="opacity: 0.8;"></i>
+                            <div>
+                                <h6 style="font-weight: 600; margin-bottom: 0.25rem;">Loan Financing</h6>
+                                <p class="small mb-0 opacity-90">Apply for renovation loans with competitive rates based on your trust score</p>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-start">
+                            <i class="fas fa-check-circle me-3" style="opacity: 0.8;"></i>
+                            <div>
+                                <h6 style="font-weight: 600; margin-bottom: 0.25rem;">Project Marketplace</h6>
+                                <p class="small mb-0 opacity-90">Post renovation projects or browse and bid on available work</p>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-start">
+                            <i class="fas fa-check-circle me-3" style="opacity: 0.8;"></i>
+                            <div>
+                                <h6 style="font-weight: 600; margin-bottom: 0.25rem;">Dispute Resolution</h6>
+                                <p class="small mb-0 opacity-90">Fair and transparent dispute resolution with expert reviewer oversight</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

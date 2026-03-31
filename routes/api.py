@@ -168,8 +168,6 @@ def get_companies():
                 phone=data.get('phone'),
                 email=data.get('email'),
                 address=data.get('address'),
-                district=data.get('district'),
-                has_license=data.get('has_license', False),
                 iso_certified=data.get('iso_certified', False),
                 bank_account_years=data.get('bank_account_years'),
                 existing_loans=data.get('existing_loans', 0),

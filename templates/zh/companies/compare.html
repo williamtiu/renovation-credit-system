@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block title %}比较报告 - DecoFinance{% endblock %}
+
+{% block content %}
+<section class="report-page compare-page">
+    <div class="report-header-card">
+        <div>
+            <p class="eyebrow">比较工作区</p>
+            <h1>比较公司报告</h1>
+            <p class="text-muted">按地区、风险、等级和验证状态筛选公司，然后并排比较最多三个报告快照。</p>
+        </div>
+        <div class="page-actions">
+            <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary">返回仪表板</a>
+        </div>
+    </div>
+
+    <article class="card report-section-card">
+        <div class="card-header"><h2>筛选器</h2></div>
+        <div class="card-body">
+            <form method="GET" action="{{ url_for('companies.compare_reports') }}" class="filter-form-grid">
+
+                <div class="form-group">
+                    <label for="risk_level">风险等级</label>
+                    <select id="risk_level" name="risk_level" class="form-control">
+                        <option value="">全部</option>
+                        <option value="low" {% if filters.risk_level == 'low' %}selected{% endif %}>低</option>
+                        <option value="medium" {% if filters.risk_level == 'medium' %}selected{% endif %}>中</option>
+                        <option value="high" {% if filters.risk_level == 'high' %}selected{% endif %}>高</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="grade">等级</label>
+                    <select id="grade" name="grade" class="form-control">
+                        <option value="">所有等级</option>
+                        {% for option in grade_options %}
+                        <option value="{{ option }}" {% if filters.grade == option %}selected{% endif %}>{{ option }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="verification">验证状态</label>
+                    <select id="verification" name="verification" class="form-control">
+                        <option value="">任意</option>
+                        <option value="verified" {% if filters.verification == 'verified' %}selected{% endif %}>已验证</option>
+                        <option value="review" {% if filters.verification == 'review' %}selected{% endif %}>需审查</option>
+                    </select>
+                </div>
+                <div class="form-group filter-submit-wrap">
+                    <button type="submit" class="btn btn-primary">应用筛选器</button>
+                </div>
+            </form>
+        </div>
+    </article>
+
+    <article class="card report-section-card">
+        <div class="card-header"><h2>选择公司</h2></div>
+        <div class="card-body">
+            <form method="GET" action="{{ url_for('companies.compare_reports') }}">
+
+                <input type="hidden" name="risk_level" value="{{ filters.risk_level }}">
+                <input type="hidden" name="grade" value="{{ filters.grade }}">
+                <input type="hidden" name="verification" value="{{ filters.verification }}">
+                <div class="compare-candidate-grid">
+                    {% for company in candidate_companies %}
+                    <label class="compare-candidate-card">
+                        <input type="checkbox" name="company_ids" value="{{ company.id }}" {% if company.id in selected_company_ids %}checked{% endif %}>
+                        <div>
+                            <strong>{{ company.company_name }}</strong>
+                            <p class="text-muted">{{ company.business_registration }} · {{ company.company_registration_number or '-' }}</p>
+                            <p>
+                                <span class="status-chip status-{{ (company.risk_level or 'unknown')|lower }}">{{ (company.risk_level or 'unknown')|replace('_', ' ')|title }}</span>
+                                {% if latest_scores.get(company.id) %}
+                                <span class="badge badge-{{ latest_scores[company.id].credit_grade|lower }}">{{ latest_scores[company.id].credit_grade }}</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </label>
+                    {% else %}
+                    <p class="text-muted">没有公司符合所选筛选条件。</p>
+                    {% endfor %}
+                </div>
+                <div class="page-actions mt-3">
+                    <button type="submit" class="btn btn-primary">比较选定公司</button>
+                </div>
+            </form>
+        </div>
+    </article>
+
+    {% if compare_reports %}
+    <article class="card report-section-card">
+        <div class="card-header"><h2>并排摘要</h2></div>
+        <div class="card-body compare-report-grid">
+            {% for entry in compare_reports %}
+            <section class="compare-report-card">
+                <div class="report-score-card">
+                    <div>
+                        <div class="report-score-number">{{ entry.report.summary.score or 'N/A' }}</div>
+                        <div class="report-grade-pill">{{ entry.report.summary.grade or '未评级' }}</div>
+                    </div>
+                    <div class="report-score-meta">
+                        <p><strong>{{ entry.company.company_name }}</strong></p>
+                        <p>{{ entry.company.business_registration }}</p>
+                        <p>{{ entry.company.company_registration_number or '-' }}</p>
+                    </div>
+                </div>
+                <div class="metric-grid mt-3">
+                    <div class="metric-box"><span>风险</span><strong>{{ entry.report.summary.risk_level|replace('_', ' ')|title }}</strong></div>
+                    <div class="metric-box"><span>验证</span><strong>{{ '已验证' if entry.company.is_verified_for_bidding else '需审查' }}</strong></div>
+                    <div class="metric-box"><span>贷款批准</span><strong>{{ entry.report.exposure.approved_application_count }}</strong></div>
+                    <div class="metric-box"><span>未解决纠纷</span><strong>{{ entry.report.project_behaviour.open_dispute_count }}</strong></div>
+                </div>
+                <ul class="alert-list mt-3">
+                    {% for factor in entry.report.risk_factors[:3] %}
+                    <li>{{ factor }}</li>
+                    {% endfor %}
+                </ul>
+                <div class="page-actions mt-3">
+                    <a href="{{ url_for('companies.view_credit_report', id=entry.company.id) }}" class="btn btn-secondary">打开报告</a>
+                    <a href="{{ url_for('companies.download_credit_report', id=entry.company.id) }}" class="btn btn-primary">PDF</a>
+                </div>
+            </section>
+            {% endfor %}
+        </div>
+    </article>
+    {% endif %}
+</section>
+{% endblock %}

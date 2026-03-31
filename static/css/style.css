@@ -897,6 +897,55 @@ body {
     padding-bottom: 0.55rem;
 }
 
+/* 操作按钮样式 */
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.btn-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 0.375rem;
+    text-decoration: none;
+    transition: all 0.2s;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-action i {
+    font-size: 14px;
+    color: white;
+}
+
+.btn-view {
+    background: #3b82f6;
+}
+
+.btn-view:hover {
+    background: #2563eb;
+}
+
+.btn-edit {
+    background: #f59e0b;
+}
+
+.btn-edit:hover {
+    background: #d97706;
+}
+
+.btn-score {
+    background: #10b981;
+}
+
+.btn-score:hover {
+    background: #059669;
+}
+
 /* 響應式 */
 @media (max-width: 768px) {
     .navbar {

@@ -1,4 +1,5 @@
 from flask import Blueprint, flash, g, redirect, render_template, request, url_for
+from utils.template_helper import render_template_with_lang_fallback
 
 from models.database import db, get_or_404
 from models.dispute_case import DisputeCase
@@ -36,7 +37,7 @@ def list_disputes():
             item for item in disputes
             if item.against_company_id == company_id or item.opened_by_user_id == g.user.id
         ]
-    return render_template('disputes/list.html', disputes=disputes)
+    return render_template_with_lang_fallback('disputes/list.html', disputes=disputes)
 
 
 @disputes_bp.route('/add', methods=['POST'])
