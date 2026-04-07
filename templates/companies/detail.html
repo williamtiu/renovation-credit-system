@@ -110,6 +110,43 @@
                     </div>
                 </div>
             </div>
+
+            <div class="card mb-4">
+                <div class="card-header"><h5>Financial Analytics</h5></div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Current Assets:</strong> HK$ {{ "{:,.2f}".format(company.current_assets or 0) }}</p>
+                            <p><strong>Current Liabilities:</strong> HK$ {{ "{:,.2f}".format(company.current_liabilities or 0) }}</p>
+                            <p><strong>Total Cash:</strong> HK$ {{ "{:,.2f}".format(company.total_cash or 0) }}</p>
+                            <p><strong>Total Liabilities:</strong> HK$ {{ "{:,.2f}".format(company.total_liabilities or 0) }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Current Ratio:</strong> 
+                                {% if company.manual_current_ratio is not none %} 
+                                    <u>{{ "%.2f"|format(company.manual_current_ratio) }}</u> (Manual)
+                                {% elif company.current_liabilities %}
+                                    {{ "%.2f"|format(company.current_assets / company.current_liabilities) }}
+                                {% else %} N/A {% endif %}
+                            </p>
+                            <p><strong>Cash Ratio:</strong> 
+                                {% if company.manual_cash_ratio is not none %} 
+                                    <u>{{ "%.2f"|format(company.manual_cash_ratio) }}</u> (Manual)
+                                {% elif company.total_liabilities %}
+                                    {{ "%.2f"|format(company.total_cash / company.total_liabilities) }}
+                                {% else %} N/A {% endif %}
+                            </p>
+                            <p><strong>Debt-to-Equity Ratio:</strong> 
+                                {% if company.manual_debt_to_equity_ratio is not none %} 
+                                    <u>{{ "%.2f"|format(company.manual_debt_to_equity_ratio) }}</u> (Manual)
+                                {% elif company.shareholders_equity %}
+                                    {{ "%.2f"|format(company.total_liabilities / company.shareholders_equity) }}
+                                {% else %} N/A {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div class="col-md-4">

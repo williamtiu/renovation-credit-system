@@ -1,0 +1,223 @@
+DecoFinance System Design Documentation
+________________________________________
+Executive Summary
+DecoFinance is an entrusted FinTech web platform that connects Hong Kong homeowners with verified decoration companies and produces an auditable assessment report for loan referral to partner financial institutions. The platform focuses on company onboarding, audited document validation, deterministic scoring, public company profiles with validated badges, and secure loan referral with explicit company consent. The platform does not support project requests, bidding, milestone acceptance, disputes, or payments.
+________________________________________
+Scope and Key Changes
+•	Marketplace features removed: project requests, bidding, milestones, disputes, and payments are excluded.
+•	Audited financials only: only audited financial statements are accepted for any financial scoring inputs. Companies without validated audited financials will be marked Not fully validated and will not receive a final Financial Strength score or a published grade.
+•	Small market tiers applied: registered capital and annual revenue bands adjusted for Hong Kong SME realities.
+•	Operational mappings updated: years of operation and employee count mappings revised per instructions.
+•	Visibility rule: only validated inputs contribute to published scores and grades; provisional items are shown as Pending verification.
+________________________________________
+Functional Specification
+Customer Features
+•	Account management: view and edit profile.
+•	Discovery and filtering: search companies by flat category, decoration category, style, rating, validated badges, and location.
+•	Company profile view: public summary, DecoFinance grade and composite score, validated badges (Insurance, OSH, BD registration), past projects gallery, 好評率, and a redacted due diligence summary.
+•	Ratings: customers may rate completed projects on Product quality, Pricing, and Customer service (1–5). Ratings feed the Customer Reputation dimension.
+Decoration Company Features
+•	Onboarding and profile: upload company registration, license information, worker details, photos, social media links, address, and contact information.
+•	Document uploads for scoring: only audited financial reports accepted for financial scoring; insurance cover note; OSH officer license; proof of past projects (photos and invoices). Audited financials are mandatory for Financial Strength scoring.
+•	Offline consent capture: record offline consent metadata for DecoFinance to perform IRD, TU, BD, and insurer checks. Consent status is visible to admins and recorded in the consent ledger.
+•	Loan referral: opt in to allow DecoFinance to release the assessment package to partner financial institutions; consent recorded offline and digitally flagged.
+Admin and Compliance Features
+•	Document validation console: manual review tasks and external verification triggers executed only after consent.
+•	Scoring engine management: configure weights and thresholds, run re scoring, and publish grades when mandatory validations pass.
+•	Partner report delivery: generate secure assessment packages for partner banks only with company consent.
+•	Audit logs and consent records: immutable logs for regulatory compliance.
+________________________________________
+Scoring Engine Design
+Overview
+•	Composite score range: 0–1000.
+•	Dimension weights: Financial Strength 40% (0–400); Operational Stability 25% (0–250); Qualifications and Compliance 20% (0–200); Customer and Social Reputation 15% (0–150).
+•	Validation rule: audited financial statements are required for all financial metrics. If audited financials are missing or rejected, the Financial Strength dimension is Incomplete and the company will not receive a final published grade.
+Financial Strength 0–400
+•	Registered Capital S_cap (0–100) derived from company registration:
+o	cap < HKD 500,000 → 40
+o	HKD 500,000 ≤ cap < HKD 2,500,000 → 60
+o	HKD 2,500,000 ≤ cap < HKD 5,000,000 → 80
+o	cap ≥ HKD 5,000,000 → 100
+•	Annual Revenue S_rev (0–100) computed from audited financials using the updated bands:
+o	rev < HKD 10,000 → 10
+o	HKD 10,000 ≤ rev < HKD 100,000 → 20
+o	HKD 100,000 ≤ rev < HKD 500,000 → 30
+o	HKD 500,000 ≤ rev < HKD 1,000,000 → 40
+o	HKD 1,000,000 ≤ rev < HKD 2,500,000 → 60
+o	HKD 2,500,000 ≤ rev < HKD 5,000,000 → 80
+o	rev ≥ HKD 5,000,000 → 100
+•	Current Ratio S_cr (0–100) from audited balance sheet: >1.6 → 100; 1.1–1.6 → 70; <1.1 → 40.
+•	Cash Ratio S_cash (0–100) from audited balance sheet: >1.6 → 100; 1.1–1.6 → 70; <1.1 → 40.
+•	Debt to Equity S_de (0–100) from audited balance sheet: <1 → 100; 1–2 → 70; >2 → 40.
+Computation
+•	(F_{raw} = S_{cap} + S_{rev} + S_{cr} + S_{cash} + S_{de}) (0–500).
+•	(F = \dfrac{F_{raw}}{500} \times 400).
+•	If audited financials are missing or rejected, S_rev, S_cr, S_cash, and S_de cannot be computed and F remains Incomplete.
+Operational Stability 0–250
+•	Years of operation S_yrs (0–100): ≥10 → 100; 5–9 → 60; 1–4 → 40; <1 → 0.
+•	Completed projects S_proj (0–100): ≥100 → 100; 50–99 → 80; 10–49 → 60; <10 → 30.
+•	Employee count S_emp (0–50): ≥50 → 50; 20–49 → 30; 5–19 → 20; <5 → 0.
+•	(O = S_{yrs} + S_{proj} + S_{emp}) (0–250).
+Qualifications and Compliance 0–200
+•	Mandatory checks: Business Registration, Company Registration, Minor Works Contractor registration with Buildings Department. Failure prevents public listing.
+•	Scored items: Insurance verified → 80; OSH officer license verified → 80; Additional certifications → 40.
+•	(Q =) sum of verified scored items (0–200).
+Customer and Social Reputation 0–150
+•	Customer average rating S_cust (0–100) mapping from 1–5 scale: 
+o	4.5–5.0 → 100
+o	4.0–4.49 → 80
+o	3.0–3.99 → 60
+o	1.0–2.99 → 30
+o	<1.0 → 0
+•	DecoFinance subjective assessment S_df (0–50) structured analyst score.
+•	(R = S_{cust} + S_{df}) (0–150).
+Final Composite and Grade
+•	Total = F + O + Q + R (0–1000).
+•	Grade mapping: 900–1000 → AAA; 800–899 → AA; 700–799 → A; 600–699 → BBB; 500–599 → BB; 400–499 → B; <400 → C.
+•	Publication rule: final grade published only when all mandatory validations and audited financial validations are complete. Otherwise profile shows Not fully validated with missing items listed.
+________________________________________
+Data Model Workflows and API Summary
+Primary Entities
+•	User user_id, email, phone, role, profile_data, created_at.
+•	Company company_id, owner_user_id, name, business_reg_no, company_reg_no, bd_registration_no, address, contact_info, status.
+•	Document document_id, company_id, doc_type (audited_financials/insurance/osh/proof), filename, storage_path, hash, upload_status (Provisional/UnderReview/Validated/Rejected), uploaded_at, validated_at.
+•	Consent consent_id, company_id, consent_type (IRD/TU/BD/Insurer/ReportRelease), consent_method (offline), consent_date, expiry_date, revoked_flag.
+•	ScoringInput scoring_input_id, company_id, input_type, value, source_document_id, validated_flag.
+•	Score score_id, company_id, total_score, grade, breakdown_json, computed_at.
+•	Rating rating_id, company_id, customer_id, product_quality, pricing, service, comment, created_at.
+•	AuditLog log_id, entity_type, entity_id, action, actor_id, timestamp, details.
+Workflows
+•	Company Onboarding and Validation: company uploads audited financials and other documents → documents marked Provisional → admin reviews → external verification triggered only after offline consent → documents Validated or Rejected → when mandatory checks and audited financials validated, scoring engine computes final score and grade → profile published with validated badges.
+•	Loan Referral: company opts in and submits offline consent → DecoFinance generates assessment package (score breakdown, validated documents summary, consent record) → partner bank requests or receives package via secure channel → DecoFinance logs delivery and bank access.
+API Summary
+•	Remove endpoints for projects, bids, milestones, payments, and disputes.
+•	Retain endpoints for: company profile retrieval, audited document upload and status, consent recording, score retrieval, rating submission, and partner report delivery.
+•	Admin endpoints for validation tasks, external verification triggers, and score recomputation.
+UI Summary
+•	Customer UI: discovery, company profile, rating submission, account management.
+•	Company UI: audited financial upload wizard, validation status dashboard, score history, loan referral consent page.
+•	Admin UI: validation queue, external verification controls, scoring management, partner report generation.
+________________________________________
+Security Privacy Compliance and Next Steps
+Consent Management
+•	Offline consent must be recorded with metadata and a signed reference before any IRD, TU, BD, or insurer queries. Consent records include consent_date, consent_method, signed_document_ref, and expiry_date.
+Data Protection
+•	Audited financial documents encrypted at rest and access controlled. Public profiles show only validated badges and redacted summaries. Implement PDPO aligned retention and deletion policies.
+Auditability
+•	Immutable audit logs for document uploads, validation events, scoring inputs and outputs, and partner report deliveries. Store scoring_input records and ScoreAudit entries with timestamps and formula version.
+Next Deliverables Available
+Choose one deliverable to generate next:
+1.	Updated scoring engine pseudocode with the audited only rule and a worked example.
+2.	ERD diagram and SQL DDL for the revised schema.
+3.	Vertical swimlane diagrams for Onboarding and Loan Referral.
+4.	API specification in OpenAPI style for retained endpoints.
+5.	Admin console wireframe showing audited financial upload, validation workflow, and consent capture.
+ 
+DecoFinance 系統設計文件
+________________________________________
+執行摘要
+DecoFinance 為一個受託的金融科技網站平台，連接香港住戶與經驗證的裝修公司，並產出可供合作金融機構作貸款轉介之可稽核評估報告。平台核心功能為 公司上線、僅接受經審計財務文件之驗證、確定性評分引擎、公開公司檔案與驗證徽章，以及在公司明確同意下之安全貸款轉介。平台不支援專案刊登、招標、進度驗收、爭議處理或付款功能。
+________________________________________
+範圍與主要變更
+•	移除市場交易功能：不包含專案刊登、招標、進度驗收、爭議與付款流程。
+•	僅接受經審計財務報表：所有財務評分指標僅以經審計且驗證通過之財務報表為依據；未提供或未通過審核者，將顯示為 未完全驗證，且無法取得最終財務實力分數或公開等級。
+•	小型市場分級：註冊資本與年營收分級調整以反映香港中小型市場實況。
+•	營運與人力映射更新：依指示調整營運年資與員工人數對應分數。
+•	可見性規則：僅有已驗證之輸入會納入公開分數；未驗證項目顯示為 待驗證。
+________________________________________
+功能規格
+客戶功能
+•	帳戶管理：檢視與編輯個人資料。
+•	搜尋與篩選：依樓型分類、裝修類別、風格、評分、驗證徽章與地區搜尋公司。
+•	公司檔案檢視：公開摘要、DecoFinance 等級與綜合分數、驗證徽章（保險、職安健、建築署註冊）、過往工程圖庫、好評率，以及經過必要遮蔽的盡職調查摘要。
+•	評分功能：客戶可對已完成工程就 產品質素、價格、客戶服務 三項以 1–5 分評分；評分納入客戶聲譽維度計算。
+裝修公司功能
+•	上線與公司檔案：上傳公司註冊資料、牌照資訊、工人資料、相片、社交媒體連結、地址與聯絡資訊。
+•	文件上傳以供評分：僅接受經審計之財務報表 作為財務評分依據；另需上傳保險封面單、職安健負責人執照、過往工程之相片與發票證明。經審計財務為財務實力評分之必要條件。
+•	離線同意紀錄：記錄公司以離線方式提供之同意，用於 DecoFinance 向 IRD、TU、建築署或保險公司查核。該同意狀態對管理員可見並記錄於同意帳本。
+•	貸款轉介：公司可選擇同意讓 DecoFinance 將評估包釋出給合作金融機構；同意以離線方式取得並在系統中標記。
+管理與合規功能
+•	文件驗證控制台：管理員執行人工審核與在取得同意後觸發外部驗證（建築署、保險公司、IRD/TU）。
+•	評分引擎管理：設定權重與門檻、執行重新計分、在必要驗證完成後發布等級。
+•	合作夥伴報告交付：僅在公司同意下產生並安全傳遞評估包給合作銀行。
+•	稽核日誌與同意紀錄：不可變更之稽核紀錄以符合法規要求。
+________________________________________
+評分引擎設計
+總覽
+•	綜合分數範圍：0–1000。
+•	維度權重：財務實力 40%（0–400）；營運穩定性 25%（0–250）；資質與合規 20%（0–200）；客戶與社會聲譽 15%（0–150）。
+•	驗證規則：所有財務指標必須以經審計且驗證通過之財務報表計算；若審計報表缺失或被拒，財務維度視為 未完成，公司無法取得最終公開等級。
+財務實力 0–400
+•	註冊資本 S_cap（0–100）：由公司註冊資料取得
+o	cap < HKD 500,000 → 40
+o	HKD 500,000 ≤ cap < HKD 2,500,000 → 60
+o	HKD 2,500,000 ≤ cap < HKD 5,000,000 → 80
+o	cap ≥ HKD 5,000,000 → 100
+•	年營收 S_rev（0–100） 由經審計財務計算，分級如下：
+o	rev < HKD 10,000 → 10
+o	HKD 10,000 ≤ rev < HKD 100,000 → 20
+o	HKD 100,000 ≤ rev < HKD 500,000 → 30
+o	HKD 500,000 ≤ rev < HKD 1,000,000 → 40
+o	HKD 1,000,000 ≤ rev < HKD 2,500,000 → 60
+o	HKD 2,500,000 ≤ rev < HKD 5,000,000 → 80
+o	rev ≥ HKD 5,000,000 → 100
+•	流動比率 S_cr（0–100） 由審計資產負債表計算：>1.6 → 100；1.1–1.6 → 70；<1.1 → 40。
+•	現金比率 S_cash（0–100） 由審計資產負債表計算：>1.6 → 100；1.1–1.6 → 70；<1.1 → 40。
+•	負債對權益比 S_de（0–100） 由審計資產負債表計算：<1 → 100；1–2 → 70；>2 → 40。
+計算方式
+•	(F_{raw} = S_{cap} + S_{rev} + S_{cr} + S_{cash} + S_{de})（範圍 0–500）。
+•	(F = \dfrac{F_{raw}}{500} \times 400)。
+•	若審計財務缺失或被拒，S_rev、S_cr、S_cash、S_de 無法計算，F 為未完成。
+營運穩定性 0–250
+•	營運年資 S_yrs（0–100）：≥10 年 → 100；5–9 年 → 60；1–4 年 → 40；<1 年 → 0。
+•	完成專案數 S_proj（0–100）：≥100 → 100；50–99 → 80；10–49 → 60；<10 → 30。
+•	員工人數 S_emp（0–50）：≥50 → 50；20–49 → 30；5–19 → 20；<5 → 0。
+•	(O = S_{yrs} + S_{proj} + S_{emp})（範圍 0–250）。
+資質與合規 0–200
+•	強制檢查（通過或不通過）：商業登記、公司註冊、建築署小型工程承建商註冊。未通過者不得公開上架。
+•	計分項目：保險驗證 → 80；職安健負責人執照驗證 → 80；其他專業認證 → 40。
+•	(Q =) 已驗證項目之總和（0–200）。
+客戶與社會聲譽 0–150
+•	客戶平均評分 S_cust（0–100） 由 1–5 分映射： 
+o	4.5–5.0 → 100
+o	4.0–4.49 → 80
+o	3.0–3.99 → 60
+o	1.0–2.99 → 30
+o	<1.0 → 0
+•	DecoFinance 主觀評估 S_df（0–50）：分析師結構化評分（網路聲量、投訴紀錄、社群情緒、溝通專業度）。
+•	(R = S_{cust} + S_{df})（範圍 0–150）。
+最終綜合分數與等級
+•	Total = F + O + Q + R（範圍 0–1000）。
+•	等級對應：900–1000 AAA；800–899 AA；700–799 A；600–699 BBB；500–599 BB；400–499 B；<400 C。
+•	發布規則：僅在所有強制驗證與經審計財務驗證完成後發布最終等級；否則顯示 未完全驗證 並列出缺失項目。
+________________________________________
+資料模型、工作流程與 API 摘要
+主要實體
+•	User user_id、email、phone、role、profile_data、created_at。
+•	Company company_id、owner_user_id、name、business_reg_no、company_reg_no、bd_registration_no、address、contact_info、status。
+•	Document document_id、company_id、doc_type（audited_financials/insurance/osh/proof）、filename、storage_path、hash、upload_status（Provisional/UnderReview/Validated/Rejected）、uploaded_at、validated_at。
+•	Consent consent_id、company_id、consent_type（IRD/TU/BD/Insurer/ReportRelease）、consent_method（offline）、consent_date、expiry_date、revoked_flag。
+•	ScoringInput scoring_input_id、company_id、input_type、value、source_document_id、validated_flag。
+•	Score score_id、company_id、total_score、grade、breakdown_json、computed_at。
+•	Rating rating_id、company_id、customer_id、product_quality、pricing、service、comment、created_at。
+•	AuditLog log_id、entity_type、entity_id、action、actor_id、timestamp、details。
+工作流程
+•	公司上線與驗證：公司上傳經審計財務報表與其他文件 → 系統標記為 Provisional → 管理員審核 → 在取得離線同意後觸發外部驗證（建築署、保險、IRD/TU）→ 外部驗證回覆後標記 Validated 或 Rejected → 當強制檢查與審計財務驗證完成，評分引擎計算最終分數與等級 → 檔案發布並顯示驗證徽章。
+•	貸款轉介：公司選擇同意並提交離線同意 → DecoFinance 產生評估包（分數拆解、已驗證文件摘要、同意紀錄）→ 合作銀行透過安全通道請求或接收該包 → DecoFinance 記錄交付與銀行存取以供稽核。
+API 摘要
+•	移除與專案、招標、進度、付款、爭議相關之 API。
+•	保留公司檔案檢索、經審計文件上傳與狀態查詢、同意紀錄、分數檢索、評分提交、合作夥伴報告交付等 API。
+•	管理端 API 包括驗證任務列表、外部驗證觸發、分數重算等。
+使用者介面摘要
+•	客戶端：搜尋、公司檔案、評分提交、帳戶管理。
+•	公司端：經審計財務上傳導引、驗證狀態儀表板、分數歷史、貸款轉介同意頁面。
+•	管理端：驗證佇列、外部驗證控制、評分管理、合作報告產生。
+________________________________________
+安全 隱私 合規 與後續步驟
+同意管理
+•	在向 IRD、TU、建築署或保險公司查核前，必須先取得並記錄離線同意之元資料。該同意紀錄包含 consent_date、consent_method、signed_document_ref 與 expiry_date。
+資料保護
+•	經審計財務文件於靜態時加密並受存取控制。公開檔案僅顯示驗證徽章與遮蔽摘要。依據個人資料（私隱）條例設計保留與刪除政策。
+稽核能力
+•	對文件上傳、驗證事件、評分輸入與輸出、合作報告交付等皆保留不可變更之稽核日誌。保存 scoring_input 與 ScoreAudit 條目，含時間戳與公式版本。
+

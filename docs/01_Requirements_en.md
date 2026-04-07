@@ -1,4 +1,4 @@
-# DecoFinance User Requirements Specification
+﻿# DecoFinance User Requirements Specification
 
 ## 1. Project Overview
 
@@ -155,3 +155,4 @@ DecoFinance provides a renovation-specific trust and finance platform that combi
 |------|------|------|
 | v1.0 | 2026-03-03 | Initial course requirement draft |
 | v1.1 | 2026-03-09 | Updated to match implemented DecoFinance workflows |
+

@@ -1,4 +1,4 @@
-# DecoFinance Presentation Script
+﻿# DecoFinance Presentation Script
 
 ## Opening
 "Today we are presenting DecoFinance, a renovation trust and project finance platform designed for Hong Kong's renovation sector. The platform helps companies prove credibility, helps customers control delivery risk, and helps reviewers make financing decisions with better operational data."
@@ -54,4 +54,5 @@ Suggested visual:
 
 Suggested visual:
 - return to a single summary slide with problem, solution, and validation points.
+
 

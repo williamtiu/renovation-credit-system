@@ -1,4 +1,4 @@
-# DecoFinance Database Design
+﻿# DecoFinance Database Design
 
 ## 1. Database Overview
 
@@ -140,3 +140,4 @@ text map:
 | v1.0 | 2026-03-03 | Initial simplified schema draft |
 | v1.1 | 2026-03-09 | Project-finance and smart-contract model alignment |
 | v1.2 | 2026-03-16 | Synced to current codebase, startup schema patch behavior, and full entity list |
+

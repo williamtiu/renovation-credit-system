@@ -21,7 +21,7 @@ def client():
             db.drop_all()
             db.create_all()
 
-            customer = User(username='customer', email='customer@test.com', role='customer')
+            customer = User(usercompany_name='customer', email='customer@test.com', role='customer')
             customer.set_password('password123')
             db.session.add(customer)
             db.session.commit()
@@ -65,7 +65,7 @@ def test_api_auth_register_rejects_privileged_roles(client):
     assert payload['success'] is False
 
     with client.application.app_context():
-        user = User.query.filter_by(username='admin2').first()
+        user = User.query.filter_by(usercompany_name='admin2').first()
         assert user is None
 
 
@@ -76,7 +76,7 @@ def test_developer_summary_requires_login(client):
 
 def test_developer_summary_returns_counts_when_logged_in(client):
     with client.application.app_context():
-        user = User.query.filter_by(username='customer').first()
+        user = User.query.filter_by(usercompany_name='customer').first()
         user_id = user.id
 
     with client.session_transaction() as session:

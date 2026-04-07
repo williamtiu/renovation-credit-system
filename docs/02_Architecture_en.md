@@ -1,4 +1,4 @@
-# DecoFinance System Architecture
+﻿# DecoFinance System Architecture
 
 ## 1. Architecture Summary
 
@@ -136,3 +136,4 @@ The smart contract feature is implemented as an application-layer state machine 
 | v1.0 | 2026-03-03 | Initial target-state architecture draft |
 | v1.1 | 2026-03-09 | Rewritten to match implemented Flask/Jinja architecture |
 | v1.2 | 2026-03-16 | Synced with dual-UI (/new-ui), auth JSON endpoints, and developer diagnostics integration |
+

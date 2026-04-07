@@ -100,6 +100,21 @@ def _apply_company_form(company):
     company.address = request.form.get('address') or None
     company.employee_count = _parse_int_value(request.form.get('employee_count'), 0) or 0
     company.annual_revenue = _parse_float_value(request.form.get('annual_revenue'), 0.0) or 0.0
+    company.current_assets = _parse_float_value(request.form.get('current_assets'), 0.0) or 0.0
+    company.current_liabilities = _parse_float_value(request.form.get('current_liabilities'), 0.0) or 0.0
+    company.total_cash = _parse_float_value(request.form.get('total_cash'), 0.0) or 0.0
+    company.total_liabilities = _parse_float_value(request.form.get('total_liabilities'), 0.0) or 0.0
+    company.shareholders_equity = _parse_float_value(request.form.get('shareholders_equity'), 0.0) or 0.0
+    
+    # Financial Ratios override
+    def _parse_optional_float(val):
+        parsed = _parse_float_value(val, None)
+        return parsed if parsed is not None else None
+        
+    company.manual_current_ratio = _parse_optional_float(request.form.get('manual_current_ratio'))
+    company.manual_cash_ratio = _parse_optional_float(request.form.get('manual_cash_ratio'))
+    company.manual_debt_to_equity_ratio = _parse_optional_float(request.form.get('manual_debt_to_equity_ratio'))
+
     company.project_count_completed = _parse_int_value(request.form.get('project_count_completed'), 0) or 0
     company.average_project_value = _parse_float_value(request.form.get('average_project_value'), 0.0) or 0.0
     company.main_service_type = request.form.get('main_service_type') or None
@@ -363,6 +378,7 @@ def _build_credit_report(company, latest_score, credit_scores, loan_applications
             'company_name': company.company_name,
             'company_name_en': company.company_name_en,
             'business_registration': company.business_registration,
+            'company_registration_number': company.company_registration_number,
             'contact_person': company.contact_person,
             'contact_position': company.contact_position,
             'phone': company.phone,
@@ -370,6 +386,16 @@ def _build_credit_report(company, latest_score, credit_scores, loan_applications
             'address': company.address,
             'main_service_type': company.main_service_type,
             'years_in_business': years_in_business,
+        },
+        'financials': {
+            'current_assets': company.current_assets,
+            'current_liabilities': company.current_liabilities,
+            'total_cash': company.total_cash,
+            'total_liabilities': company.total_liabilities,
+            'shareholders_equity': company.shareholders_equity,
+            'manual_current_ratio': company.manual_current_ratio,
+            'manual_cash_ratio': company.manual_cash_ratio,
+            'manual_debt_to_equity_ratio': company.manual_debt_to_equity_ratio,
         },
         'summary': {
             'score': latest_score.credit_score if latest_score else company.trust_score_cached,
@@ -642,21 +668,20 @@ def edit_company(id):
     
     return render_template_with_lang_fallback('companies/form.html', company=company)
 
-@companies_bp.route('/<int:id>/score', methods=['POST'])
+@companies_bp.route('/<int:id>/score', methods=['GET', 'POST'])
 @login_required
 def calculate_score(id):
     company = get_or_404(Company, id)
     require_ownership(can_manage_company(g.user, company) or g.user.role == 'customer')
-    
+
+    if request.method == 'GET':
+        return redirect(url_for('companies.view_company', id=company.id))
+
     try:
         scorer = CreditScorer()
         result = scorer.calculate_score(company)
         
         credit_score = scorer.save_score(company, result, notes=' Text Score Text ')
-        db.session.add(credit_score)
-        company.risk_level = result['risk_level']
-        company.trust_score_cached = result['total_score']
-        company.is_verified_for_bidding = _derive_bid_eligibility(company)
         log_action('trust_score_calculated', 'Company', company.id, {'score': result['total_score']})
         db.session.commit()
         

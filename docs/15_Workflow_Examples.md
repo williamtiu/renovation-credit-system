@@ -1,4 +1,4 @@
-# DecoFinance Workflow Examples
+﻿# DecoFinance Workflow Examples
 
 ## 1. Purpose
 
@@ -287,3 +287,4 @@ These routes are useful for testing, demo verification, and review support.
 | v1.0 | 2026-03-09 | Initial workflow examples covering major form and JSON flows |
 | v1.1 | 2026-03-12 | Added current edit flow and enforced authorization/state guard rules |
 | v1.2 | 2026-03-16 | Synced with /api/auth endpoints, /api/developer/summary, and full two-role E2E journey |
+

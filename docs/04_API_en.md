@@ -1,4 +1,4 @@
-# DecoFinance API Interface Document
+﻿# DecoFinance API Interface Document
 
 ## 1. Overview
 
@@ -141,3 +141,4 @@ Current enforced guards include:
 | v1.0 | 2026-03-03 | Initial target-state API draft |
 | v1.1 | 2026-03-09 | Current /api routes and contract endpoint documented |
 | v1.2 | 2026-03-16 | Added auth JSON endpoints, developer summary endpoint, and dual-UI notes |
+

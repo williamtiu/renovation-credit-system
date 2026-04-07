@@ -104,14 +104,14 @@ def create_companies(base_count):
             total_cash=random.uniform(10000.0, 200000.0),
             total_liabilities=random.uniform(20000.0, 800000.0),
             shareholders_equity=random.uniform(30000.0, 500000.0),
-            audited_financials_uploaded=random.choice([True, False]),
-            tax_returns_uploaded=random.choice([True, False]),
+            audited_financials_uploaded=True,
+            tax_returns_uploaded=True,
             minor_works_contractor_registration=f'MWC-{random.randint(1000, 9999)}',
-            minor_works_registration_verified=random.choice([True, False]),
-            insurance_documents_uploaded=random.choice([True, False]),
-            insurance_verified=random.choice([True, False]),
-            osh_safety_officer_license=f'OSH-{random.randint(1000, 9999)}',
-            osh_safety_officer_verified=random.choice([True, False])
+            minor_works_registration_verified=True,
+            insurance_documents_uploaded=True,
+            insurance_verified=True,
+            osh_safety_officer_license=f'OSH-{random.randint(1000, 9999)}',     
+            osh_safety_officer_verified=True
         )
         company.is_verified_for_bidding = (
             company.status == 'active' and

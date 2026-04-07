@@ -55,6 +55,9 @@ class Company(db.Model):
     total_cash = db.Column(db.Float, default=0.0)  # 现金总额
     total_liabilities = db.Column(db.Float, default=0.0)  # 总负债
     shareholders_equity = db.Column(db.Float, default=0.0)  # 股东权益
+    manual_current_ratio = db.Column(db.Float, nullable=True)
+    manual_cash_ratio = db.Column(db.Float, nullable=True)
+    manual_debt_to_equity_ratio = db.Column(db.Float, nullable=True)
     audited_financials_uploaded = db.Column(db.Boolean, default=False)  # 是否上传经审计的财务报表
     tax_returns_uploaded = db.Column(db.Boolean, default=False)  # 是否上传纳税申报表
     
@@ -120,6 +123,9 @@ class Company(db.Model):
             'total_cash': self.total_cash,
             'total_liabilities': self.total_liabilities,
             'shareholders_equity': self.shareholders_equity,
+            'manual_current_ratio': self.manual_current_ratio,
+            'manual_cash_ratio': self.manual_cash_ratio,
+            'manual_debt_to_equity_ratio': self.manual_debt_to_equity_ratio,
             'audited_financials_uploaded': self.audited_financials_uploaded,
             'tax_returns_uploaded': self.tax_returns_uploaded,
             # 新增资质认证

@@ -83,13 +83,13 @@ def build_credit_report_pdf(company, report):
     ]
     cover_table = Table(cover_rows, colWidths=[66 * mm, 56 * mm, 48 * mm])
     cover_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#0f172a')),
+        ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor("#96aee4")),
         ('TEXTCOLOR', (0, 0), (-1, -1), colors.white),
         ('SPAN', (0, 0), (-1, 0)),
         ('SPAN', (0, 1), (-1, 1)),
         ('SPAN', (0, 2), (-1, 2)),
-        ('BOX', (0, 0), (-1, -1), 0.75, colors.HexColor('#0f172a')),
-        ('INNERGRID', (0, 3), (-1, 3), 0.5, colors.HexColor('#334155')),
+        ('BOX', (0, 0), (-1, -1), 0.75, colors.HexColor("#96aee4")),
+        ('INNERGRID', (0, 3), (-1, 3), 0.5, colors.HexColor("#96aee4")),
         ('PADDING', (0, 0), (-1, -1), 8),
     ]))
     story.append(cover_table)

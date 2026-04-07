@@ -25,17 +25,17 @@ def client():
             db.drop_all()
             db.create_all()
 
-            admin = User(username='admin', email='admin@test.com', role='admin')
+            admin = User(usercompany_name='admin', email='admin@test.com', role='admin')
             admin.set_password('password123')
-            customer = User(username='customer', email='customer@test.com', role='customer')
+            customer = User(usercompany_name='customer', email='customer@test.com', role='customer')
             customer.set_password('password123')
-            company_user = User(username='builder', email='builder@test.com', role='company_user')
+            company_user = User(usercompany_name='builder', email='builder@test.com', role='company_user')
             company_user.set_password('password123')
             db.session.add_all([admin, customer, company_user])
             db.session.flush()
 
             company = Company(
-                company_name='Test Company',
+                company_company_name='Test Company',
                 business_registration='12345678',
                 established_date=date(2020, 1, 1),
                 contact_person='Tester',
@@ -45,9 +45,9 @@ def client():
                 owner_user_id=company_user.id,
                 licence_verification_status='verified',
                 insurance_verification_status='verified',
-                osh_policy_in_place=True,
+                
                 safety_training_coverage=85,
-                heavy_lifting_compliance=True,
+                
                 lifting_equipment_available=True,
                 esg_policy_level='basic',
                 is_verified_for_bidding=True,
@@ -118,17 +118,17 @@ def run_tests():
             db.drop_all()
             db.create_all()
 
-            admin = User(username='admin', email='admin@test.com', role='admin')
+            admin = User(usercompany_name='admin', email='admin@test.com', role='admin')
             admin.set_password('password123')
-            customer = User(username='customer', email='customer@test.com', role='customer')
+            customer = User(usercompany_name='customer', email='customer@test.com', role='customer')
             customer.set_password('password123')
-            company_user = User(username='builder', email='builder@test.com', role='company_user')
+            company_user = User(usercompany_name='builder', email='builder@test.com', role='company_user')
             company_user.set_password('password123')
             db.session.add_all([admin, customer, company_user])
             db.session.flush()
 
             company = Company(
-                company_name='Test Company',
+                company_company_name='Test Company',
                 business_registration='12345678',
                 established_date=date(2020, 1, 1),
                 contact_person='Tester',
@@ -138,9 +138,9 @@ def run_tests():
                 owner_user_id=company_user.id,
                 licence_verification_status='verified',
                 insurance_verification_status='verified',
-                osh_policy_in_place=True,
+                
                 safety_training_coverage=85,
-                heavy_lifting_compliance=True,
+                
                 lifting_equipment_available=True,
                 esg_policy_level='basic',
                 is_verified_for_bidding=True,

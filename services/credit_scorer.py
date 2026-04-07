@@ -4,21 +4,21 @@ import json
 
 class CreditScorer:
     """
-    新的4大维度信托评分体系
-    - 财务实力 (Financial Strength) - 最高 600 分
-    - 运营稳定性 (Operational Stability) - 最高 250 分
-    - 资质与认证 (Qualifications) - 最高 200 分
-    - 客户评价 (Customer Reviews) - 最高 300 分
+    Scoring Engine Design
+    - Financial Strength - Max 400 (40%)
+    - Operational Stability - Max 250 (25%)
+    - Qualifications and Compliance - Max 200 (20%)
+    - Customer and Social Reputation - Max 150 (15%)
     """
     
     CREDIT_GRADES = {
-        (751, 1000): 'AAA',
-        (701, 750): 'AA',
-        (651, 700): 'A',
-        (601, 650): 'BBB',
-        (551, 600): 'BB',
-        (501, 550): 'B',
-        (0, 500): 'C'
+        (900, 1000): 'AAA',
+        (800, 899): 'AA',
+        (700, 799): 'A',
+        (600, 699): 'BBB',
+        (500, 599): 'BB',
+        (400, 499): 'B',
+        (0, 399): 'C'
     }
     
     INTEREST_RATES = {
@@ -30,7 +30,7 @@ class CreditScorer:
         'B': 8.0,
         'C': 10.0
     }
-    
+
     LOAN_MULTIPLIERS = {
         'AAA': 2.0,
         'AA': 1.8,
@@ -40,52 +40,94 @@ class CreditScorer:
         'B': 0.5,
         'C': 0.2
     }
-    
+
     def __init__(self):
         pass
-    
+
+    def save_score(self, company, score_data, notes=None):
+        if score_data.get('status') != 'Validated':
+            raise Exception(f"Cannot save unvalidated score: {score_data.get('missing_items')}")
+        cs = CreditScore(
+            company_id=company.id,
+            financial_score=score_data.get('financial_score', 0),
+            operational_score=score_data.get('operational_score', 0),
+            qualification_score=score_data.get('qualification_score', 0),
+            customer_review_score=score_data.get('customer_review_score', 0),
+            credit_score=score_data.get('total_score', 0),
+            credit_grade=score_data.get('credit_grade', ''),
+            risk_level=score_data.get('risk_level', ''),
+            risk_factors=json.dumps(score_data.get('risk_factors', [])),
+            recommended_loan_limit=score_data.get('recommended_loan_limit', 0),
+            recommended_interest_rate=score_data.get('recommended_interest_rate', 0),
+            notes=notes
+        )
+        return cs
+
     def calculate_score(self, company):
         """
-        计算新的4大维度评分
+        Calculate score based on the 4 dimensions.
         """
-        # 1. 财务实力评分 (最高 600 分)
-        financial_score = self._score_financial_strength(company)
-        
-        # 2. 运营稳定性评分 (最高 250 分)
+        missing_items = []
+
+        # Check mandatory qualifications
+        if not company.business_registration:
+            missing_items.append('Business Registration is required')
+        if not company.minor_works_contractor_registration or not getattr(company, 'minor_works_registration_verified', False):
+            missing_items.append('Minor Works Contractor Registration is required and must be verified')
+
+        # 1. Financial Strength (Max 400)
+        # If financials are missing, it cannot be computed
+        if not company.audited_financials_uploaded:
+            fin_missing = ['Audited Financials are required for Financial Strength dimension']
+            financial_score = 'Incomplete'
+        else:
+            fin_missing = []
+            financial_score = self._score_financial_strength(company)
+            
+        if fin_missing:
+            missing_items.extend(fin_missing)
+
+        # 2. Operational Stability (Max 250)
         operational_score = self._score_operational_stability(company)
-        
-        # 3. 资质与认证评分 (最高 200 分)
+
+        # 3. Qualifications and Compliance (Max 200)
         qualification_score = self._score_qualifications(company)
-        
-        # 4. 客户评价评分 (最高 300 分)
+
+        # 4. Customer and Social Reputation (Max 150)
         customer_review_score = self._score_customer_reviews(company)
-        
-        # 计算总分
+
+        if missing_items:
+            # If audited financials are missing or mandatory checks fail
+            return {
+                'total_score': None,
+                'credit_grade': 'Incomplete',
+                'risk_level': 'High',
+                'financial_score': 'Incomplete' if fin_missing else financial_score,
+                'operational_score': operational_score,
+                'qualification_score': qualification_score,
+                'customer_review_score': customer_review_score,
+                'recommended_loan_limit': 0,
+                'recommended_interest_rate': None,
+                'status': 'Not fully validated',
+                'missing_items': missing_items,
+                'risk_factors': self._identify_risk_factors(company)
+            }
+
+        # Compute total score
         total_score = (
             financial_score +
             operational_score +
             qualification_score +
             customer_review_score
         )
-        
-        # 限制在 0-1000 之间
         total_score = max(0, min(1000, total_score))
-        
-        # 获取信用等级
+
         credit_grade = self._get_credit_grade(total_score)
-        
-        # 获取风险等级
         risk_level = self._get_risk_level(total_score)
-        
-        # 计算推荐贷款额度
-        recommended_limit = self._calculate_loan_limit(company, credit_grade)
-        
-        # 获取推荐利率
+        recommended_limit = self._calculate_loan_limit(company, credit_grade)   
         recommended_rate = self.INTEREST_RATES.get(credit_grade, 8.0)
-        
-        # 识别风险因素
         risk_factors = self._identify_risk_factors(company)
-        
+
         return {
             'total_score': total_score,
             'credit_grade': credit_grade,
@@ -96,101 +138,103 @@ class CreditScorer:
             'customer_review_score': customer_review_score,
             'recommended_loan_limit': recommended_limit,
             'recommended_interest_rate': recommended_rate,
-            'risk_factors': risk_factors
+            'risk_factors': risk_factors,
+            'status': 'Validated',
+            'missing_items': []
         }
-    
+
     def _score_financial_strength(self, company):
         """
-        财务实力评分 (最高 600 分)
-        
-        包含5个指标：
-        1. 注册资本 (30-150 分)
-        2. 年营收 (30-150 分)
-        3. 流动比率 (30-150 分)
-        4. 现金比率 (30-150 分)
-        5. 债务权益比 (30-150 分)
+        Financial Strength (0-400)
+        F_raw = (0-500)
+        F = (F_raw / 500) * 400
         """
-        score = 0
-        
-        # 1. 注册资本 (30-150 分)
-        if company.registered_capital:
-            if company.registered_capital >= 10000000:
-                score += 150
-            elif company.registered_capital >= 5000000:
-                score += 120
-            elif company.registered_capital >= 1000000:
-                score += 90
-            elif company.registered_capital >= 500000:
-                score += 60
-            else:
-                score += 30
+        raw_score = 0
+
+        # 1. Registered Capital (0-100)
+        cap = company.registered_capital or 0
+        if cap >= 5000000:
+            raw_score += 100
+        elif cap >= 2500000:
+            raw_score += 80
+        elif cap >= 500000:
+            raw_score += 60
         else:
-            score += 30
-        
-        # 2. 年营收 (30-150 分)
-        if company.annual_revenue:
-            if company.annual_revenue >= 50000000:
-                score += 150
-            elif company.annual_revenue >= 20000000:
-                score += 120
-            elif company.annual_revenue >= 10000000:
-                score += 90
-            elif company.annual_revenue >= 5000000:
-                score += 60
-            else:
-                score += 30
+            raw_score += 40
+
+        # 2. Annual Revenue (0-100)
+        rev = company.annual_revenue or 0
+        if rev >= 5000000:
+            raw_score += 100
+        elif rev >= 2500000:
+            raw_score += 80
+        elif rev >= 1000000:
+            raw_score += 60
+        elif rev >= 500000:
+            raw_score += 40
+        elif rev >= 100000:
+            raw_score += 30
+        elif rev >= 10000:
+            raw_score += 20
         else:
-            score += 30
-        
-        # 3. 流动比率 (30-150 分)
-        if company.current_assets and company.current_liabilities and company.current_liabilities > 0:
+            raw_score += 10
+
+        # 3. Current Ratio (0-100)
+        current_ratio = getattr(company, "manual_current_ratio", None)
+        if current_ratio is None and getattr(company, "current_assets", None) and getattr(company, "current_liabilities", None) and company.current_liabilities > 0:
             current_ratio = company.current_assets / company.current_liabilities
+
+        if current_ratio is not None:
             if current_ratio > 1.6:
-                score += 150
+                raw_score += 100
             elif current_ratio >= 1.1:
-                score += 100
+                raw_score += 70
             else:
-                score += 50
+                raw_score += 40
         else:
-            score += 50
-        
-        # 4. 现金比率 (30-150 分)
-        if company.total_cash and company.total_liabilities and company.total_liabilities > 0:
+            raw_score += 40
+
+        # 4. Cash Ratio (0-100)
+        cash_ratio = getattr(company, "manual_cash_ratio", None)
+        if cash_ratio is None and getattr(company, "total_cash", None) and getattr(company, "total_liabilities", None) and company.total_liabilities > 0:
             cash_ratio = company.total_cash / company.total_liabilities
+
+        if cash_ratio is not None:
             if cash_ratio > 1.6:
-                score += 150
+                raw_score += 100
             elif cash_ratio >= 1.1:
-                score += 100
+                raw_score += 70
             else:
-                score += 50
+                raw_score += 40
         else:
-            score += 50
-        
-        # 5. 债务权益比 (30-150 分)
-        if company.total_liabilities and company.shareholders_equity and company.shareholders_equity > 0:
-            debt_to_equity = company.total_liabilities / company.shareholders_equity
-            if debt_to_equity < 1:
-                score += 150
-            elif debt_to_equity <= 2:
-                score += 100
+            raw_score += 40
+
+        # 5. Debt to Equity (0-100)
+        de_ratio = getattr(company, "manual_debt_to_equity_ratio", None)
+        if de_ratio is None and getattr(company, "total_liabilities", None) and getattr(company, "shareholders_equity", None) and company.shareholders_equity > 0:
+            de_ratio = company.total_liabilities / company.shareholders_equity
+
+        if de_ratio is not None:
+            if de_ratio < 1:
+                raw_score += 100
+            elif de_ratio <= 2:
+                raw_score += 70
             else:
-                score += 50
+                raw_score += 40
         else:
-            score += 50
-        
-        return score
-    
+            raw_score += 40
+
+        # Final mapped score (0-400 scale)
+        final_score = int((raw_score / 500.0) * 400)
+        return final_score
+
     def _score_operational_stability(self, company):
         """
-        运营稳定性评分 (最高 250 分)
-        
-        包含3个指标：
-        1. 成立年限 (20-100 分)
-        2. 完成项目数 (20-100 分)
-        3. 员工人数 (20-50 分)
+        Operational Stability (0-250)
         """
         score = 0
-        
+
+        # Years of operation (0-100)
         if company.established_date:
             established = company.established_date
             if isinstance(established, datetime):
@@ -200,246 +244,126 @@ class CreditScorer:
             if years >= 10:
                 score += 100
             elif years >= 5:
-                score += 80
-            elif years >= 3:
                 score += 60
             elif years >= 1:
                 score += 40
             else:
-                score += 20
-        else:
-            score += 20
+                score += 0
         
-        if company.project_count_completed:
-            if company.project_count_completed >= 100:
-                score += 100
-            elif company.project_count_completed >= 50:
-                score += 80
-            elif company.project_count_completed >= 20:
-                score += 60
-            elif company.project_count_completed >= 10:
-                score += 40
-            else:
-                score += 20
-        else:
-            score += 20
-        
-        if company.employee_count:
-            if company.employee_count >= 50:
-                score += 50
-            elif company.employee_count >= 20:
-                score += 40
-            elif company.employee_count >= 10:
-                score += 30
-            else:
-                score += 20
-        else:
-            score += 20
-        
-        return score
-    
-    def _score_qualifications(self, company):
-        """
-        资质与认证评分 (最高 200 分)
-        
-        包含3个必须项和2个加分项：
-        1. Business Registration and Company Registration (必须) - 50 分
-        2. Minor Works Contractor Registration (必须) - 50 分
-        3. Insurance Status (上传+验证) - 50 分
-        4. OSH Safety Officer (有合格人员) - 50 分
-        5. ISO Certification (加分) - 0-50 分
-        """
-        score = 0
-        
-        if company.business_registration:
-            score += 50
-        
-        if company.minor_works_contractor_registration and company.minor_works_registration_verified:
-            score += 50
-        elif company.minor_works_contractor_registration:
-            score += 25
-        
-        if company.insurance_documents_uploaded and company.insurance_verified:
-            score += 50
-        elif company.insurance_documents_uploaded:
-            score += 25
-        
-        if company.osh_safety_officer_license and company.osh_safety_officer_verified:
-            score += 50
-        elif company.osh_safety_officer_license:
-            score += 25
-        
-        # Use ESG policy level as a proxy for ISO certification
-        if company.esg_policy_level in ['basic', 'advanced']:
-            score += 50
-        
-        return score
-    
-    def _score_customer_reviews(self, company):
-        """
-        客户评价评分 (最高 300 分)
-        
-        包含2个部分：
-        1. 客户评分平均值 (1-5分) - 30-150 分
-        2. DecoFinance 主观评估 - 0-150 分
-        """
-        score = 0
-        
-        avg_rating = getattr(company, 'average_rating', None)
-        if avg_rating is not None:
-            rating_score = 30 + (avg_rating - 1) * 30
-            score += rating_score
+        # Completed projects (0-100)
+        proj = company.project_count_completed or 0
+        if proj >= 100:
+            score += 100
+        elif proj >= 50:
+            score += 80
+        elif proj >= 10:
+            score += 60
         else:
             score += 30
-        
-        subjective_score = self._subjective_assessment(company)
-        score += subjective_score
-        
+
+        # Employee count (0-50)
+        emp = company.employee_count or 0
+        if emp >= 50:
+            score += 50
+        elif emp >= 20:
+            score += 30
+        elif emp >= 5:
+            score += 20
+        else:
+            score += 0
+
         return score
-    
+
+    def _score_qualifications(self, company):
+        """
+        Qualifications and Compliance (0-200)
+        """
+        score = 0
+
+        if company.insurance_documents_uploaded and getattr(company, 'insurance_verified', False): 
+            score += 80
+
+        if company.osh_safety_officer_license and getattr(company, 'osh_safety_officer_verified', False):
+            score += 80
+
+        # Additional certifications proxy
+        if company.esg_policy_level in ['basic', 'advanced']:
+            score += 40
+
+        return score
+
+    def _score_customer_reviews(self, company):
+        """
+        Customer and Social Reputation (0-150)
+        """
+        rating_score = 0
+
+        avg_rating = getattr(company, 'average_rating', None) or 0
+        if avg_rating >= 4.5:
+            rating_score = 100
+        elif avg_rating >= 4.0:
+            rating_score = 80
+        elif avg_rating >= 3.0:
+            rating_score = 60
+        elif avg_rating >= 1.0:
+            rating_score = 30
+        else:
+            rating_score = 0
+
+        sub_score = self._subjective_assessment(company)
+
+        return min(150, rating_score + sub_score)
+
     def _subjective_assessment(self, company):
         """
-        DecoFinance 主观评估 (0-150 分)
+        DecoFinance subjective assessment (0-50)
         """
-        score = 50
-        
+        score = 25
+
         if company.status == 'active':
-            score += 20
-        elif company.status == 'suspended':
-            score -= 30
-        elif company.status == 'blacklisted':
-            score -= 50
-        
-        if company.main_service_type in ['Commercial Renovation', 'Large Scale Projects']:
-            score += 15
-        else:
             score += 10
-        
-        if company.audited_financials_uploaded:
-            score += 20
-        
-        if company.tax_returns_uploaded:
-            score += 20
-        
+        elif company.status == 'suspended':
+            score -= 15
+        elif company.status == 'blacklisted':
+            score -= 25
+
+        if company.main_service_type in ['Commercial Renovation', 'Large Scale Projects']:
+            score += 10
+
         green_ratio = getattr(company, 'green_material_ratio', None)
         if green_ratio is not None:
             if green_ratio >= 40:
-                score += 20
-            elif green_ratio >= 20:
-                score += 10
-        
-        return max(0, min(150, score))
-    
+                score += 5
+
+        return max(0, min(50, score))
+
     def _get_credit_grade(self, score):
-        for (min_score, max_score), grade in self.CREDIT_GRADES.items():
-            if min_score <= score <= max_score:
+        for score_range, grade in self.CREDIT_GRADES.items():
+            if score_range[0] <= score <= score_range[1]:
                 return grade
         return 'C'
-    
+
     def _get_risk_level(self, score):
-        if score >= 700:
-            return 'low'
-        elif score >= 550:
-            return 'medium'
+        if score >= 800:
+            return 'Low'
+        elif score >= 600:
+            return 'Medium'
         else:
-            return 'high'
-    
-    def _calculate_loan_limit(self, company, credit_grade):
-        multiplier = self.LOAN_MULTIPLIERS.get(credit_grade, 0.5)
-        
-        if company.annual_revenue:
-            return company.annual_revenue * multiplier
-        elif company.registered_capital:
-            return company.registered_capital * multiplier * 0.5
-        else:
+            return 'High'
+
+    def _calculate_loan_limit(self, company, grade):
+        if grade in ['C', 'Incomplete']:
             return 0
-    
+        base_limit = 1000000
+        if company.registered_capital:
+            base_limit = max(base_limit, company.registered_capital * 0.5)
+        multiplier = self.LOAN_MULTIPLIERS.get(grade, 0)
+        return int(base_limit * multiplier)
+        
     def _identify_risk_factors(self, company):
-        risk_factors = []
-        
-        if not company.registered_capital:
-            risk_factors.append('Missing registered capital information')
-        
-        if not company.annual_revenue:
-            risk_factors.append('Missing annual revenue information')
-        
-        if company.current_assets and company.current_liabilities and company.current_liabilities > 0:
-            current_ratio = company.current_assets / company.current_liabilities
-            if current_ratio < 1.1:
-                risk_factors.append(f'Current ratio too low ({current_ratio:.2f})')
-        
-        if company.total_cash and company.total_liabilities and company.total_liabilities > 0:
-            cash_ratio = company.total_cash / company.total_liabilities
-            if cash_ratio < 1.1:
-                risk_factors.append(f'Cash ratio too low ({cash_ratio:.2f})')
-        
-        if company.total_liabilities and company.shareholders_equity and company.shareholders_equity > 0:
-            debt_to_equity = company.total_liabilities / company.shareholders_equity
-            if debt_to_equity > 2:
-                risk_factors.append(f'Debt to equity ratio too high ({debt_to_equity:.2f})')
-        
-        if company.established_date:
-            established = company.established_date
-            if isinstance(established, datetime):
-                established = established.date()
-            today = datetime.now(timezone.utc).date()
-            years = (today - established).days / 365
-            if years < 2:
-                risk_factors.append('Short operating history')
-        
-        if not company.project_count_completed or company.project_count_completed < 10:
-            risk_factors.append('Limited project completion history')
-        
-        if not company.employee_count or company.employee_count < 10:
-            risk_factors.append('Small employee base')
-        
-        if not company.business_registration:
-            risk_factors.append('Missing business registration')
-        
-        if not company.minor_works_contractor_registration:
-            risk_factors.append('Missing minor works contractor registration')
-        elif not company.minor_works_registration_verified:
-            risk_factors.append('Minor works registration not verified')
-        
-        if not company.insurance_documents_uploaded:
-            risk_factors.append('Insurance documents not uploaded')
-        elif not company.insurance_verified:
-            risk_factors.append('Insurance not verified')
-        
-        if not company.osh_safety_officer_license:
-            risk_factors.append('Missing OSH safety officer information')
-        elif not company.osh_safety_officer_verified:
-            risk_factors.append('OSH safety officer not verified')
-        
-        avg_rating = getattr(company, 'average_rating', None)
-        if avg_rating is not None and avg_rating < 3:
-            risk_factors.append(f'Low average customer rating ({avg_rating:.1f}/5)')
-        
-        subjective_score = self._subjective_assessment(company)
-        if subjective_score < 50:
-            risk_factors.append('Low subjective assessment score')
-        
-        if company.status != 'active':
-            risk_factors.append(f'Company status is {company.status}')
-        
-        return risk_factors
-    
-    def save_score(self, company, scoring_result, notes=None):
-        credit_score = CreditScore(
-            company_id=company.id,
-            credit_score=scoring_result['total_score'],
-            credit_grade=scoring_result['credit_grade'],
-            financial_score=scoring_result['financial_score'],
-            operational_score=scoring_result['operational_score'],
-            qualification_score=scoring_result['qualification_score'],
-            customer_review_score=scoring_result['customer_review_score'],
-            risk_level=scoring_result['risk_level'],
-            risk_factors=json.dumps(scoring_result['risk_factors'], ensure_ascii=False),
-            recommended_loan_limit=scoring_result['recommended_loan_limit'],
-            recommended_interest_rate=scoring_result['recommended_interest_rate'],
-            scoring_model_version='v2.0-new-4-dimensions',
-            expires_at=datetime.now(timezone.utc) + timedelta(days=180),
-            notes=notes
-        )
-        
-        return credit_score
+        factors = []
+        if company.status in ['suspended', 'blacklisted']:
+            factors.append('Company status is not active')
+        if not company.audited_financials_uploaded:
+            factors.append('Missing audited financials')
+        return factors

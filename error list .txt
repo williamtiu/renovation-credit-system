@@ -1,0 +1,33 @@
+http://localhost:5001/companies/1
+
+"Calculate Trucst socre"
+
+Failed to calculate score: 'CreditScorer' object has no attribute 'save_score' 
+
+
+
+
+http://localhost:5001/loans/1
+
+jinja2.exceptions.TemplateSyntaxError: Encountered unknown tag 'endif'. Jinja was looking for the following tags: 'endblock'. The innermost block that needs to be closed is 'block'.
+
+
+http://localhost:5001/companies/1/score
+
+Method Not Allowed
+
+The method is not allowed for the requested URL.
+
+
+
+http://localhost:5001/projects/1/milestones/add
+Not Found
+
+The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.
+
+
+http://localhost:5001/disputes/add
+
+Not Found
+
+The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.

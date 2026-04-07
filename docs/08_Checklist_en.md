@@ -1,4 +1,4 @@
-# DecoFinance Documentation Review Checklist
+﻿# DecoFinance Documentation Review Checklist
 
 ## Core Docs
 - [x] `01_Requirements_en.md` reflects the implemented user roles and workflows.
@@ -28,3 +28,4 @@
 ## Remaining Optional Follow-Up
 - [x] Add screenshot guidance to the presentation materials.
 - [x] Add request and response samples for more form-based workflows.
+

@@ -1,4 +1,4 @@
-# DecoFinance Smart Contract System
+﻿# DecoFinance Smart Contract System
 
 ## 1. Scope
 

@@ -125,6 +125,47 @@
         </article>
 
         <article class="card report-section-card">
+            <div class="card-header"><h2>Financial Analytics for Trust Score</h2></div>
+            <div class="card-body">
+                <div class="mini-note mb-3">Instant calculation variables for DecoFinance grading. Direct ratio overrides bypass the raw calculation.</div>
+                <div class="data-grid-two">
+                    <div>
+                        <strong>Raw Fundamentals</strong>
+                        <p><strong>Current Assets:</strong> HK$ {{ "{:,.2f}".format(report.financials.current_assets or 0) }}</p>
+                        <p><strong>Current Liabilities:</strong> HK$ {{ "{:,.2f}".format(report.financials.current_liabilities or 0) }}</p>
+                        <p><strong>Total Cash:</strong> HK$ {{ "{:,.2f}".format(report.financials.total_cash or 0) }}</p>
+                        <p><strong>Total Liabilities:</strong> HK$ {{ "{:,.2f}".format(report.financials.total_liabilities or 0) }}</p>
+                        <p><strong>Shareholders' Equity:</strong> HK$ {{ "{:,.2f}".format(report.financials.shareholders_equity or 0) }}</p>
+                    </div>
+                    <div>
+                        <strong>Calculated vs Override Ratios</strong>
+                        <p><strong>Current Ratio:</strong> 
+                            {% if report.financials.manual_current_ratio is not none %} 
+                                <u>{{ "%.2f"|format(report.financials.manual_current_ratio) }}</u> (Manual Override)
+                            {% elif report.financials.current_liabilities %}
+                                {{ "%.2f"|format(report.financials.current_assets / report.financials.current_liabilities) }} (Calculated)
+                            {% else %} N/A {% endif %}
+                        </p>
+                        <p><strong>Cash Ratio:</strong> 
+                            {% if report.financials.manual_cash_ratio is not none %} 
+                                <u>{{ "%.2f"|format(report.financials.manual_cash_ratio) }}</u> (Manual Override)
+                            {% elif report.financials.total_liabilities %}
+                                {{ "%.2f"|format(report.financials.total_cash / report.financials.total_liabilities) }} (Calculated)
+                            {% else %} N/A {% endif %}
+                        </p>
+                        <p><strong>Debt-to-Equity Ratio:</strong> 
+                            {% if report.financials.manual_debt_to_equity_ratio is not none %} 
+                                <u>{{ "%.2f"|format(report.financials.manual_debt_to_equity_ratio) }}</u> (Manual Override)
+                            {% elif report.financials.shareholders_equity %}
+                                {{ "%.2f"|format(report.financials.total_liabilities / report.financials.shareholders_equity) }} (Calculated)
+                            {% else %} N/A {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <article class="card report-section-card">
             <div class="card-header"><h2>Credit Exposure</h2></div>
             <div class="card-body metric-grid">
                 <div class="metric-box"><span>Applications</span><strong>{{ report.exposure.loan_application_count }}</strong></div>

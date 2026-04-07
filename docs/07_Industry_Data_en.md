@@ -1,4 +1,4 @@
-# DecoFinance Industry Data and Market Context
+﻿# DecoFinance Industry Data and Market Context
 
 ## 1. Purpose of This Document
 
@@ -161,3 +161,4 @@ The figures in this document are directional planning figures synthesized from c
 |------|------|------|
 | v1.0 | 2026-03-03 | Initial market context draft |
 | v1.1 | 2026-03-09 | Reframed to support DecoFinance trust, OSH, dispute, and project-finance positioning |
+

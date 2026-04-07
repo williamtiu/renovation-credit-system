@@ -1,4 +1,4 @@
-# DecoFinance Executive Summary
+﻿# DecoFinance Executive Summary
 
 ## 1. What DecoFinance Is
 
@@ -100,3 +100,4 @@ DecoFinance is no longer just a scoring demo. It is now a more complete renovati
 |------|------|------|
 | v1.0 | 2026-03-09 | Initial executive summary for updated DecoFinance project |
 | v1.1 | 2026-03-16 | Synced with dual-UI architecture and latest validated regression outcomes |
+

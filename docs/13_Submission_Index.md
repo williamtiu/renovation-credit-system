@@ -1,4 +1,4 @@
-# DecoFinance Submission Index
+﻿# DecoFinance Submission Index
 
 ## 1. Purpose
 
@@ -88,3 +88,4 @@ The documentation set is now aligned to the real repository state rather than an
 | Version | Date | Summary |
 |------|------|------|
 | v1.0 | 2026-03-09 | Initial submission index for the updated DecoFinance document set |
+

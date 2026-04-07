@@ -87,6 +87,43 @@
         </div>
 
         <div class="card mb-4">
+            <div class="card-header"><h5>Financial Data (For Immediate Scoring)</h5></div>
+            <div class="card-body">
+                <p class="text-muted"><small>Enter raw financial numbers to calculate ratios automatically, OR enter ratios manually to override.</small></p>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <h6>Raw Financial Statistics</h6>
+                        <label for="current_assets">Current Assets</label>
+                        <input type="number" step="0.01" class="form-control mb-2" id="current_assets" name="current_assets" value="{{ company.current_assets if company else '' }}">
+                        
+                        <label for="current_liabilities">Current Liabilities</label>
+                        <input type="number" step="0.01" class="form-control mb-2" id="current_liabilities" name="current_liabilities" value="{{ company.current_liabilities if company else '' }}">
+                        
+                        <label for="total_cash">Total Cash</label>
+                        <input type="number" step="0.01" class="form-control mb-2" id="total_cash" name="total_cash" value="{{ company.total_cash if company else '' }}">
+                        
+                        <label for="total_liabilities">Total Liabilities</label>
+                        <input type="number" step="0.01" class="form-control mb-2" id="total_liabilities" name="total_liabilities" value="{{ company.total_liabilities if company else '' }}">
+
+                        <label for="shareholders_equity">Shareholders' Equity</label>
+                        <input type="number" step="0.01" class="form-control mb-2" id="shareholders_equity" name="shareholders_equity" value="{{ company.shareholders_equity if company else '' }}">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <h6>Direct Ratio Override</h6>
+                        <label for="manual_current_ratio">Manual Current Ratio (Assets / Liabilities)</label>
+                        <input type="number" step="0.001" class="form-control mb-2" id="manual_current_ratio" name="manual_current_ratio" value="{{ company.manual_current_ratio if company and company.manual_current_ratio is not none else '' }}">
+                        
+                        <label for="manual_cash_ratio">Manual Cash Ratio (Cash / Liabilities)</label>
+                        <input type="number" step="0.001" class="form-control mb-2" id="manual_cash_ratio" name="manual_cash_ratio" value="{{ company.manual_cash_ratio if company and company.manual_cash_ratio is not none else '' }}">
+
+                        <label for="manual_debt_to_equity_ratio">Manual Debt-to-Equity Ratio</label>
+                        <input type="number" step="0.001" class="form-control mb-2" id="manual_debt_to_equity_ratio" name="manual_debt_to_equity_ratio" value="{{ company.manual_debt_to_equity_ratio if company and company.manual_debt_to_equity_ratio is not none else '' }}">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
             <div class="card-header"><h5>Minor Works Contractor Registration</h5></div>
             <div class="card-body">
                 <div class="row">

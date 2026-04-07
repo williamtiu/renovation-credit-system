@@ -29,17 +29,17 @@ def _run_workflow_assertions():
         db.drop_all()
         db.create_all()
 
-        admin = User(username='admin', email='admin@test.com', role='admin')
+        admin = User(usercompany_name='admin', email='admin@test.com', role='admin')
         admin.set_password('password123')
-        customer = User(username='customer', email='customer@test.com', role='customer')
+        customer = User(usercompany_name='customer', email='customer@test.com', role='customer')
         customer.set_password('password123')
-        company_user = User(username='builder', email='builder@test.com', role='company_user')
+        company_user = User(usercompany_name='builder', email='builder@test.com', role='company_user')
         company_user.set_password('password123')
         db.session.add_all([admin, customer, company_user])
         db.session.flush()
 
         company = Company(
-            company_name='Quality Renovation',
+            company_company_name='Quality Renovation',
             business_registration='BR12345678',
             established_date=datetime(2015, 1, 15).date(),
             registered_capital=5000000,
@@ -47,13 +47,13 @@ def _run_workflow_assertions():
             phone='21234567',
             email='info@qualityreno.com.hk',
             address='123 Queen Road Central',
-            district='Hong Kong Island',
+            
             employee_count=35,
             annual_revenue=25000000,
             project_count_completed=85,
             average_project_value=300000,
             main_service_type='Residential Renovation',
-            has_license=True,
+            
             license_type='Minor Works Contractor',
             licence_number='LIC-001',
             licence_class='Class I',
@@ -63,7 +63,7 @@ def _run_workflow_assertions():
             insurance_policy_number='POL-001',
             insurance_verification_status='verified',
             bank_account_years=8,
-            existing_loans=2000000,
+            
             loan_repayment_history='Good',
             status='active',
             is_verified_for_bidding=True,
@@ -104,7 +104,7 @@ def _run_workflow_assertions():
         milestone = ProjectMilestone(
             project_id=project.id,
             sequence_no=1,
-            name='Demolition',
+            company_name='Demolition',
             planned_percentage=20,
             planned_amount=80000,
             status='planned',

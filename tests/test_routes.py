@@ -28,17 +28,17 @@ def client():
             db.drop_all()
             db.create_all()
 
-            admin = User(username='admin', email='admin@test.com', role='admin')
+            admin = User(usercompany_name='admin', email='admin@test.com', role='admin')
             admin.set_password('password123')
-            customer = User(username='customer', email='customer@test.com', role='customer')
+            customer = User(usercompany_name='customer', email='customer@test.com', role='customer')
             customer.set_password('password123')
-            company_user = User(username='builder', email='builder@test.com', role='company_user')
+            company_user = User(usercompany_name='builder', email='builder@test.com', role='company_user')
             company_user.set_password('password123')
             db.session.add_all([admin, customer, company_user])
             db.session.flush()
 
             company = Company(
-                company_name='Test Company',
+                company_company_name='Test Company',
                 company_name_en='Test Company Limited',
                 business_registration='12345678',
                 established_date=date(2020, 1, 1),
@@ -47,16 +47,16 @@ def client():
                 email='test@test.com',
                 address='Test Address',
                 annual_revenue=2500000,
-                existing_loans=200000,
+                
                 loan_repayment_history='Good',
                 trust_score_cached=742,
                 risk_level='low',
                 owner_user_id=company_user.id,
                 licence_verification_status='verified',
                 insurance_verification_status='verified',
-                osh_policy_in_place=True,
+                
                 safety_training_coverage=72,
-                heavy_lifting_compliance=False,
+                
                 lifting_equipment_available=False,
                 safety_incident_count=1,
                 esg_policy_level='basic',
@@ -69,11 +69,11 @@ def client():
             company_user.company_id = company.id
 
             peer_company = Company(
-                company_name='Peer Builder',
+                company_company_name='Peer Builder',
                 company_name_en='Peer Builder Limited',
                 business_registration='87654321',
                 established_date=date(2018, 6, 1),
-                district='Hong Kong Island',
+                
                 annual_revenue=4300000,
                 trust_score_cached=680,
                 risk_level='medium',

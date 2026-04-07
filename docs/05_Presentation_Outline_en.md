@@ -1,4 +1,4 @@
-# DecoFinance Presentation Outline
+﻿# DecoFinance Presentation Outline
 
 ## Slide 1: Title
 - DecoFinance
@@ -87,3 +87,4 @@
 - milestone-linked control
 - stronger auditability
 - future bank integrations
+

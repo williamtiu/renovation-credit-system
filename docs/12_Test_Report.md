@@ -1,4 +1,4 @@
-# DecoFinance Test Report
+﻿# DecoFinance Test Report
 
 ## 1. Purpose
 
@@ -150,3 +150,4 @@ For production use, additional work would still be needed in the areas of migrat
 |------|------|------|
 | v1.0 | 2026-03-09 | Initial consolidated automated test report |
 | v1.1 | 2026-03-16 | Synced with latest full-suite and Selenium results plus new E2E and integration coverage |
+

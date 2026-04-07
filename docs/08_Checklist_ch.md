@@ -1,30 +1,10 @@
-# DecoFinance 文档审查清单
+﻿# DecoFinance ?﹝摰⊥皜?
 
-## 核心文档
-- [x] `01_Requirements_ch.md` 反映已实现的用户角色和工作流。
-- [x] `02_Architecture_ch.md` 反映 Flask、Jinja、SQLAlchemy 和会话身份验证。
-- [x] `03_Database_ch.md` 包括项目融资和智能合约表。
-- [x] `04_API_ch.md` 匹配实际的 `/api` 路由。
-- [x] `11_Smart_Contract_System.md` 解释合约状态设计。
-
-## 演示文稿文档
-- [x] `05_Presentation_Outline_ch.md` 反映当前演示范围。
-- [x] `06_Presentation_Script_ch.md` 反映已实现的架构和功能。
-
-## 提交文档
-- [x] `12_Test_Report.md` 总结当前自动化验证和最新结果。
-- [x] `13_Submission_Index.md` 为审查组织完整文档集。
-- [x] `14_Executive_Summary.md` 提供简短的评估者项目摘要。
-- [x] `15_Workflow_Examples.md` 提供具体的表单和 API 工作流示例。
-
-## 实现对齐检查
-- [x] 公司信用报告和 PDF 导出已记录。
-- [x] 仪表板监控和图表已记录。
-- [x] 项目、投标、里程碑、纠纷和托管工作流已记录。
-- [x] 智能合约生命周期已记录。
-- [x] 随机数据生成器和种子选项已记录。
-- [x] 自动化 pytest 和 Selenium 覆盖已记录。
-
-## 剩余可选后续
-- [x] 在演示文稿材料中添加截图指导。
-- [x] 为更多基于表单的工作流添加请求和响应示例。
+## ?詨??﹝
+- [x] `01_Requirements_ch.md` ??撌脣??啁??冽閫?極雿???- [x] `02_Architecture_ch.md` ?? Flask?inja?QLAlchemy ??霂澈隞賡?霂?- [x] `03_Database_ch.md` ?憿寧????賢?蝥西”??- [x] `04_API_ch.md` ?寥?摰???`/api` 頝舐??- [x] `11_Smart_Contract_System.md` 閫???漲?嗆挽霈～?
+## 瞍內?阮?﹝
+- [x] `05_Presentation_Outline_ch.md` ??敶?瞍內???- [x] `06_Presentation_Script_ch.md` ??撌脣??啁??嗆????賬?
+## ?漱?﹝
+- [x] `12_Test_Report.md` ?餌?敶??芸??霂???啁???- [x] `13_Submission_Index.md` 銝箏恣?亦?蝏??湔?獢????- [x] `14_Executive_Summary.md` ??蝞?剔?霂摯?★?格?閬?- [x] `15_Workflow_Examples.md` ???瑚??”?? API 撌乩?瘚內靘?
+## 摰撖寥?璉??- [x] ?砍靽∠?亙???PDF 撖澆撌脰扇敶?- [x] 隞芾”?輻??批??曇”撌脰扇敶?- [x] 憿寧????蝔???蝥瑕??恣撌乩?瘚歇霈啣???- [x] ?箄?漲??冽?撌脰扇敶?- [x] ??唳???典?蝘??★撌脰扇敶?- [x] ?芸??pytest ??Selenium 閬?撌脰扇敶?
+## ?拐??舫?蝏?- [x] ?冽?蝷箸?蝔踵??葉瘛餃??芸?紡??- [x] 銝箸憭鈭”??撌乩?瘚溶?窈瘙???蝷箔???
