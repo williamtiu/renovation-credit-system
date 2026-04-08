@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% block title %}Loan Application Details - DecoFinance{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12 d-flex justify-content-between align-items-center">
+            <h2><i class="fas fa-file-invoice-dollar"></i> Loan Application Details</h2>
+            <div>
+                <a href="{{ url_for('loans.list_loans') }}" class="btn btn-secondary">Back to List</a>
+                {% if g.user and g.user.role in ['admin', 'reviewer'] and application.application_status == 'pending' %}
+                <a href="{{ url_for('loans.review_application', id=application.id) }}" class="btn btn-warning"><i class="fas fa-gavel"></i> Approve/Reject</a>
+                {% endif %}
+            </div>
+        </div>
+        <hr class="mt-2">
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <!-- Application Status -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-info-circle"></i> Application Status</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Status：</strong>
+                        {% if application.application_status == 'pending' %}
+                            <span class="badge bg-warning">Pending</span>
+                        {% elif application.application_status == 'approved' %}
+                            <span class="badge bg-success">Approved</span>
+                        {% elif application.application_status == 'rejected' %}
+                            <span class="badge bg-danger">Rejected</span>
+                        {% endif %}
+                    </p>
+                    <p><strong>Application Date：</strong>{{ application.applied_at.strftime('%Y-%m-%d %H:%M') if application.applied_at else '-' }}</p>
+                    <p><strong>Company Name：</strong><a href="{{ url_for('companies.view_company', id=company.id) }}">{{ company.company_name }}</a></p>
+                    <p><strong>Related Project:</strong>
+                        {% if application.project %}
+                        <a href="{{ url_for('projects.view_project', id=application.project.id) }}">{{ application.project.title }}</a>
+                        {% else %}
+                        -
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+
+            <!-- Application Content -->
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-money-bill-wave"></i> Application Content</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Requested Amount：</strong>HK$ {{ "{:,.2f}".format(application.loan_amount) }}</p>
+                    <p><strong> Instalments：</strong>{{ application.loan_term_months }} Months</p>
+                    <p><strong>Loan Purpose：</strong>{{ application.loan_purpose or '-' }}</p>
+                </div>
+            </div>
+            {% if application.application_status != 'pending' %}
+            <!-- Application Result -->
+            <div class="card mb-4">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0"><i class="fas fa-check-circle"></i> Application Result</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Financial Institution Name: </strong>{{ application.bank_name or '-' }}</p>
+                    <p><strong>Status: </strong>
+                        {% if application.application_status == 'approved' %}
+                            <span class="badge bg-success">Accepted</span>
+                        {% elif application.application_status == 'rejected' %}
+                            <span class="badge bg-danger">Rejected</span>
+                        {% else %}
+                            <span class="badge bg-secondary">{{ application.application_status | capitalize }}</span>
+                        {% endif %}
+                    </p>
+                    <p><strong>Approval Date: </strong>{{ application.approval_date.strftime('%Y-%m-%d %H:%M') if application.approval_date else '-' }}</p>
+                    {% if application.application_status == 'approved' %}
+                        <p><strong>Approved Amount: </strong>HK$ {{ "{:,.2f}".format(application.approved_amount or 0) }}</p>
+                        <p><strong>Approved Interest Rate: </strong>{{ application.approved_interest_rate }}%</p>
+                        <p><strong>Additional Conditions: </strong>{{ application.approval_conditions or 'None' }}</p>
+                        <p><strong>Reviewed By User ID:</strong> {{ application.reviewed_by_user_id or '-' }}</p>
+                    {% elif application.application_status == 'rejected' %}
+                        <p><strong>Rejection Reason: </strong>{{ application.rejection_reason or 'None' }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="col-md-6">
+            <!-- Applicant Credit Score -->
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-star"></i> Trust Scoring Result</h5>
+                </div>
+                <div class="card-body">
+                    {% if application.credit_score_at_application %}
+                        <!-- Assuming application model stores score and grade for display -->
+                        <div class="text-center mb-3">
+                            <h1 class="display-4 text-primary">{{ application.credit_score_at_application }}</h1>
+                            <h4>Grade：<span class="badge bg-info">{{ application.credit_grade_at_application }}</span></h4>
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center">No Credit Score Records</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if application.disbursement_date and application.repayment_status != 'completed' and g.user and g.user.role in ['company_user', 'admin', 'reviewer'] %}
+            <!-- Repayment Actions -->
+            <div class="card mb-4">
+                <div class="card-header border-success">
+                    <h5 class="mb-0"><i class="fas fa-coins"></i> Make Repayment</h5>
+                </div>
+                <div class="card-body">
+                    <form action="{{ url_for('loans.repay_loan', id=application.id) }}" method="POST">
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">HK$</span>
+                            <input type="number" step="0.01" min="0.01" max="{{ application.outstanding_balance }}" class="form-control" name="repayment_amount" required placeholder="Enter Amount">
+                            <button class="btn btn-primary" type="submit">Submit</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

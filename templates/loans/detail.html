@@ -57,28 +57,19 @@
                     <p><strong>Loan Purpose：</strong>{{ application.loan_purpose or '-' }}</p>
                 </div>
             </div>
+            
             {% if application.application_status != 'pending' %}
-            <!-- Application Result -->
+            <!-- Approval Result -->
             <div class="card mb-4">
                 <div class="card-header bg-dark text-white">
-                    <h5 class="mb-0"><i class="fas fa-check-circle"></i> Application Result</h5>
+                    <h5 class="mb-0"><i class="fas fa-check-circle"></i> Approval Result</h5>
                 </div>
                 <div class="card-body">
-                    <p><strong>Financial Institution Name: </strong>{{ application.bank_name or '-' }}</p>
-                    <p><strong>Status: </strong>
-                        {% if application.application_status == 'approved' %}
-                            <span class="badge bg-success">Accepted</span>
-                        {% elif application.application_status == 'rejected' %}
-                            <span class="badge bg-danger">Rejected</span>
-                        {% else %}
-                            <span class="badge bg-secondary">{{ application.application_status | capitalize }}</span>
-                        {% endif %}
-                    </p>
                     <p><strong>Approval Date: </strong>{{ application.approval_date.strftime('%Y-%m-%d %H:%M') if application.approval_date else '-' }}</p>
                     {% if application.application_status == 'approved' %}
                         <p><strong>Approved Amount: </strong>HK$ {{ "{:,.2f}".format(application.approved_amount or 0) }}</p>
                         <p><strong>Approved Interest Rate: </strong>{{ application.approved_interest_rate }}%</p>
-                        <p><strong>Additional Conditions: </strong>{{ application.approval_conditions or 'None' }}</p>
+                        <p><strong>Additional Conditions：</strong>{{ application.approval_conditions or 'None' }}</p>
                         <p><strong>Reviewed By User ID:</strong> {{ application.reviewed_by_user_id or '-' }}</p>
                     {% elif application.application_status == 'rejected' %}
                         <p><strong>Rejection Reason: </strong>{{ application.rejection_reason or 'None' }}</p>
@@ -107,6 +98,44 @@
                 </div>
             </div>
 
+            {% if application.application_status == 'approved' %}
+            <!-- Status Details -->
+            <div class="card mb-4">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0"><i class="fas fa-hand-holding-usd"></i> Financial Status</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Disbursement Date:</strong> {{ application.disbursement_date.strftime('%Y-%m-%d') if application.disbursement_date else 'Not disbursed' }}</p>
+                    {% if application.disbursement_date %}
+                        <p><strong>Disbursement Amount:</strong>HK$ {{ "{:,.2f}".format(application.disbursement_amount or 0) }}</p>
+                        <p><strong>Total Repaid:</strong>HK$ {{ "{:,.2f}".format(application.total_repaid or 0) }}</p>
+                        <p><strong>Outstanding Balance:</strong>HK$ {{ "{:,.2f}".format(application.outstanding_balance or 0) }}</p>
+                        <p><strong>First Repayment Date:</strong>{{ application.first_repayment_date.strftime('%Y-%m-%d') if application.first_repayment_date else '-' }}</p>
+                        <p><strong>Repayment Status：</strong>
+                            {% if application.repayment_status == 'current' %}
+                                <span class="badge bg-success">On Time</span>
+                            {% elif application.repayment_status == 'late' %}
+                                <span class="badge bg-warning">Late</span>
+                            {% elif application.repayment_status == 'default' %}
+                                <span class="badge bg-danger">Defaulted</span>
+                            {% elif application.repayment_status == 'completed' %}
+                                <span class="badge bg-primary">Settled</span>
+                            {% else %}
+                                - 
+                            {% endif %}
+                        </p>
+                    {% elif g.user and g.user.role in ['admin', 'reviewer'] %}
+                        <form action="{{ url_for('loans.disburse_loan', id=application.id) }}" method="POST">
+                            <button type="submit" class="btn btn-success" onclick="return confirm('Are you sure?')">
+                                <i class="fas fa-money-check-alt"></i> Disburse Funds 
+                            </button>
+                        </form>
+                    {% else %}
+                        <p class="text-muted">Awaiting administrative disbursement.</p>
+                    {% endif %}
+                </div>
+            </div>
+
             {% if application.disbursement_date and application.repayment_status != 'completed' and g.user and g.user.role in ['company_user', 'admin', 'reviewer'] %}
             <!-- Repayment Actions -->
             <div class="card mb-4">
@@ -123,6 +152,8 @@
                     </form>
                 </div>
             </div>
+            {% endif %}
+            
             {% endif %}
         </div>
     </div>

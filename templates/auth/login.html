@@ -15,79 +15,67 @@
                 <h2>Welcome Back</h2>
             </div>
             <div class="card-body">
-                <form method="POST" action="{{ url_for('auth.login') }}" class="space-y-4">
-                    <div>
-                        <label for="username" class="form-label">Username</label>
-                        <input type="text" class="form-control" id="username" name="username" required autofocus>
+                <div
+                    style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem;">
+                    <div style="width: 100%; max-width: 450px;">
+                        <form method="POST" action="{{ url_for('auth.login') }}"
+                            style="display: flex; flex-direction: column; gap: 1.5rem;">
+                            <div>
+                                <label for="username" class="form-label"
+                                    style="font-size: 1rem; font-weight: 500;">Username</label>
+                                <input type="text" class="form-control" id="username" name="username" required autofocus
+                                    style="padding: 0.75rem; font-size: 1rem; height: 48px;">
+                            </div>
+                            <div>
+                                <label for="password" class="form-label"
+                                    style="font-size: 1rem; font-weight: 500;">Password</label>
+                                <input type="password" class="form-control" id="password" name="password" required
+                                    style="padding: 0.75rem; font-size: 1rem; height: 48px;">
+                            </div>
+                            <div style="margin-top: 0.5rem;">
+                                <button type="submit" class="btn btn-primary w-100"
+                                    style="padding: 0.75rem; font-size: 1rem; height: 48px;">Sign In</button>
+                            </div>
+                        </form>
+
+                        <div class="mt-4 text-center">
+                            <span class="text-muted" style="font-size: 0.9rem;">Don't have an account? </span>
+                            <a href="{{ url_for('auth.register') }}" class="text-decoration-none"
+                                style="color: var(--primary-color); font-weight: 500; font-size: 0.9rem;">Sign up</a>
+                        </div>
                     </div>
-                    <div>
-                        <label for="password" class="form-label">Password</label>
-                        <input type="password" class="form-control" id="password" name="password" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100">Sign In</button>
-                </form>
-                
-                <div class="mt-4 text-center">
-                    <span class="text-muted">Don't have an account? </span>
-                    <a href="{{ url_for('auth.register') }}" class="text-decoration-none" style="color: var(--primary-color); font-weight: 500;">Sign up</a>
                 </div>
 
-                <!--
-                <div class="mt-4">
-                    <div class="d-flex justify-content-center align-items-center mb-3">
-                        <div class="flex-grow-1" style="height: 1px; background: var(--border-color);"></div>
-                        <span class="px-3 text-muted" style="font-size: 0.75rem;">Quick Demo Access</span>
-                        <div class="flex-grow-1" style="height: 1px; background: var(--border-color);"></div>
-                    </div>
-                    
-                    <div class="row g-2">
-                        <div class="col-6">
-                            <button type="button" class="btn btn-outline-primary w-100" onclick="loginAs('company@demo.com')">
-                                <i class="fas fa-building me-2"></i>Company
-                            </button>
-                        </div>
-                        <div class="col-6">
-                            <button type="button" class="btn btn-outline-success w-100" onclick="loginAs('customer@demo.com')">
-                                <i class="fas fa-user me-2"></i>Customer
-                            </button>
-                        </div>
-                        <div class="col-6">
-                            <button type="button" class="btn btn-outline-purple w-100" onclick="loginAs('reviewer@demo.com')">
-                                <i class="fas fa-clipboard-list me-2"></i>Reviewer
-                            </button>
-                        </div>
-                        <div class="col-6">
-                            <button type="button" class="btn btn-outline-danger w-100" onclick="loginAs('admin@demo.com')">
-                                <i class="fas fa-cog me-2"></i>Admin
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                -->
+
             </div>
         </div>
-        
-        <div class="card" style="background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: white; border: none;">
+
+        <div class="card"
+            style="background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: white; border: none;">
             <div class="card-body">
                 <div style="text-align: center;">
                     <i class="fas fa-shield-alt" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.8;"></i>
                     <h2 style="margin-bottom: 1rem;">Trust-Based Financing</h2>
                     <p style="opacity: 0.9; margin-bottom: 2rem;">
-                        The renovation industry's first comprehensive trust and credit scoring platform. Build credibility, secure financing, and manage projects transparently.
+                        The renovation industry's first comprehensive trust and credit scoring platform. Build
+                        credibility, secure financing, and manage projects transparently.
                     </p>
-                    
+
                     <div class="stats-grid">
-                        <div class="stat-card" style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2);">
+                        <div class="stat-card"
+                            style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2);">
                             <div class="stat-value" style="color: white;">10K+</div>
-                            <div class="stat-label">Companies</div>
+                            <div class="stat-label" style="color: white;">Companies</div>
                         </div>
-                        <div class="stat-card" style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2);">
+                        <div class="stat-card"
+                            style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2);">
                             <div class="stat-value" style="color: white;">$500M+</div>
-                            <div class="stat-label">Loans</div>
+                            <div class="stat-label" style="color: white;">Loans</div>
                         </div>
-                        <div class="stat-card" style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2);">
+                        <div class="stat-card"
+                            style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2);">
                             <div class="stat-value" style="color: white;">98%</div>
-                            <div class="stat-label">Satisfaction</div>
+                            <div class="stat-label" style="color: white;">Satisfaction</div>
                         </div>
                     </div>
                 </div>
@@ -96,20 +84,5 @@
     </div>
 </div>
 
-<script>
-function loginAs(email) {
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = '{{ url_for("auth.login") }}';
-    
-    const input = document.createElement('input');
-    input.type = 'hidden';
-    input.name = 'username';
-    input.value = email;
-    
-    form.appendChild(input);
-    document.body.appendChild(form);
-    form.submit();
-}
-</script>
+
 {% endblock %}

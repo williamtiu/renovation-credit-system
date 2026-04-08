@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Disputes - DecoFinance{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Disputes</h2>
+    <div class="card">
+        <div class="card-body">
+            {% if disputes %}
+            <table class="table">
+                <thead>
+                    <tr><th>ID</th><th>Project</th><th>Type</th><th>Status</th><th>Opened</th><th></th></tr>
+                </thead>
+                <tbody>
+                    {% for dispute in disputes %}
+                    <tr>
+                        <td>#{{ dispute.id }}</td>
+                        <td>{{ dispute.project.title if dispute.project else '-' }}</td>
+                        <td>{{ dispute.dispute_type }}</td>
+                        <td>{{ dispute.status }}</td>
+                        <td>{{ dispute.opened_at.strftime('%Y-%m-%d') if dispute.opened_at else '-' }}</td>
+                        <td>
+                            {% if g.user and g.user.role in ['reviewer', 'admin'] and dispute.status != 'resolved' %}
+                            <form method="POST" action="{{ url_for('disputes.mark_resolved', id=dispute.id) }}">
+                                <input type="hidden" name="resolution_summary" value="Resolved after reviewer assessment.">
+                                <button type="submit" class="btn btn-sm btn-success">Resolve</button>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="6"><strong>Description:</strong> {{ dispute.description }}{% if dispute.resolution_summary %}<br><strong>Resolution:</strong> {{ dispute.resolution_summary }}{% endif %}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="text-muted">No disputes yet.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

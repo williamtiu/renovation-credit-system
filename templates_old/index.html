@@ -1,0 +1,228 @@
+{% extends "base.html" %}
+
+{% block title %}DecoFinance - Trust & Financing Platform{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <div class="hero-content">
+        <h1>Renovation Trust Platform</h1>
+        <p class="hero-subtitle">Industry-specific trust scoring, project-based financing, milestone escrow, and active risk monitoring for renovation work.</p>
+        <div class="hero-actions">
+            <a href="{{ url_for('projects.add_project') }}" class="btn btn-primary btn-lg">Create Project</a>
+            <a href="{{ url_for('main.dashboard') }}" class="btn btn-outline-primary btn-lg">View Dashboard</a>
+        </div>
+    </div>
+</div>
+
+<div class="content-wrapper">
+    <div class="dashboard-grid">
+        <!-- Stats Section -->
+        <div class="card">
+            <div class="card-header">
+                <h2>Platform Statistics</h2>
+            </div>
+            <div class="card-body">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-building"></i>
+                        </div>
+                        <div class="stat-value">{{ total_companies }}</div>
+                        <div class="stat-label">Companies</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-value">{{ active_companies }}</div>
+                        <div class="stat-label">Active</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-file-invoice-dollar"></i>
+                        </div>
+                        <div class="stat-value">{{ total_loans }}</div>
+                        <div class="stat-label">Loan Apps</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-check-double"></i>
+                        </div>
+                        <div class="stat-value">{{ approved_loans }}</div>
+                        <div class="stat-label">Approved</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-hammer"></i>
+                        </div>
+                        <div class="stat-value">{{ total_projects }}</div>
+                        <div class="stat-label">Projects</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-bullhorn"></i>
+                        </div>
+                        <div class="stat-value">{{ open_projects }}</div>
+                        <div class="stat-label">Open Bids</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Credit Scores -->
+        <div class="card">
+            <div class="card-header">
+                <h2><i class="fas fa-chart-line me-2"></i>Recent Credit Scores</h2>
+                <a href="{{ url_for('main.dashboard') }}" class="btn btn-sm btn-secondary">View All</a>
+            </div>
+            <div class="card-body">
+                {% if recent_scores %}
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Company</th>
+                                    <th>Score</th>
+                                    <th>Grade</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for score in recent_scores %}
+                                <tr>
+                                    <td><strong>{{ score.company.company_name }}</strong></td>
+                                    <td><span class="badge badge-success">{{ score.credit_score }}</span></td>
+                                    <td>
+                                        <span class="badge badge-{{ score.credit_grade|lower }}">
+                                            {{ score.credit_grade }}
+                                        </span>
+                                    </td>
+                                    <td>{{ score.scored_at.strftime('%Y-%m-%d') }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted text-center py-3">No Credit Score Records Found</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Recent Loan Applications -->
+        <div class="card">
+            <div class="card-header">
+                <h2><i class="fas fa-money-bill-wave me-2"></i>Recent Loan Applications</h2>
+                <a href="{{ url_for('loans.list_loans') }}" class="btn btn-sm btn-secondary">View All</a>
+            </div>
+            <div class="card-body">
+                {% if recent_applications %}
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Company</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for app in recent_applications %}
+                                <tr>
+                                    <td><strong>{{ app.company.company_name }}</strong></td>
+                                    <td>HK$ {{ "{:,.0f}".format(app.loan_amount) }}</td>
+                                    <td>
+                                        <span class="badge badge-{{ app.application_status|replace(' ', '_')|lower }}">
+                                            {{ app.application_status }}
+                                        </span>
+                                    </td>
+                                    <td>{{ app.applied_at.strftime('%Y-%m-%d') }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted text-center py-3">No Loan Applications</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Recent Projects -->
+        <div class="card">
+            <div class="card-header">
+                <h2><i class="fas fa-hammer me-2"></i>Recent Projects</h2>
+                <a href="{{ url_for('projects.list_projects') }}" class="btn btn-sm btn-secondary">View All</a>
+            </div>
+            <div class="card-body">
+                {% if recent_projects %}
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Project</th>
+                                    <th>Budget</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for project in recent_projects %}
+                                <tr>
+                                    <td><strong>{{ project.title }}</strong></td>
+                                    <td>HK$ {{ "{:,.0f}".format(project.budget_amount) }}</td>
+                                    <td>
+                                        <span class="badge badge-{{ project.status|replace(' ', '_')|lower }}">
+                                            {{ project.status }}
+                                        </span>
+                                    </td>
+                                    <td>{{ project.created_at.strftime('%Y-%m-%d') }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted text-center py-3">No projects yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- System Features -->
+    <div class="features-section">
+        <h2 class="mb-4">DecoFinance Core Modules</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-chart-pie"></i>
+                </div>
+                <h3>Renovation Credit Scoring</h3>
+                <p>Five-dimension scoring tailored to licensing, project delivery, payment behaviour, disputes, and compliance.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-bank"></i>
+                </div>
+                <h3>Loan Matching Workspace</h3>
+                <p>Help lenders review verified firms, recommended limits, and live exposure before approving working-capital or project loans.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h3>Risk Monitoring</h3>
+                <p>Track milestone releases, watchlist movements, score changes, and disputes to surface early warning signals.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-mobile-alt"></i>
+                </div>
+                <h3>Trust And Compliance</h3>
+                <p>Bring together verification, consent, OSH-aligned governance, and audit trails in one operating view.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

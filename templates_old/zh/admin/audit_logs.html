@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}审计日志 - DecoFinance{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>审计日志</h2>
+    <div class="card">
+        <div class="card-body">
+            {% if logs %}
+            <table class="table table-sm">
+                <thead>
+                    <tr><th>时间</th><th>操作</th><th>目标</th><th>操作者</th><th>详情</th></tr>
+                </thead>
+                <tbody>
+                    {% for log in logs %}
+                    <tr>
+                        <td>{{ log.created_at.strftime('%Y-%m-%d %H:%M') if log.created_at else '-' }}</td>
+                        <td>{{ log.action }}</td>
+                        <td>{{ log.target_type }}{% if log.target_id %} #{{ log.target_id }}{% endif %}</td>
+                        <td>{{ log.actor.username if log.actor else '-' }}</td>
+                        <td>{{ log.details_json or '-' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="text-muted">暂无审计日志。</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

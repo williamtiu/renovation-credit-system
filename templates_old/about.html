@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}About - DecoFinance{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <h1 class="text-center mb-4"><i class="fas fa-info-circle"></i> About DecoFinance</h1>
+            
+            <div class="card">
+                <div class="card-body">
+                    <h3>🏠 Platform Introduction</h3>
+                    <p>
+                        DecoFinance is a renovation-finance platform built for lenders, suppliers, and customers who need a clearer way to verify contractors, score risk, and release funding against real project progress.
+                    </p>
+                    
+                    <hr>
+                    
+                    <h3>🎯 Core Modules</h3>
+                    <ul>
+                        <li><strong>Decorator Trust Registry:</strong> Maintain verified company profiles, licences, references, insurance, and operational credentials.</li>
+                        <li><strong>Renovation Credit Scoring:</strong> Evaluate firms across financial strength, operational stability, qualifications, and customer reviews.</li>
+                        <li><strong>Project-Backed Financing:</strong> Connect verified projects, bids, milestones, escrow logic, and underwriting decisions.</li>
+                        <li><strong>Risk Management Dashboard:</strong> Monitor score drift, exposure, disputes, overdue balances, and portfolio watchlists.</li>
+                        <li><strong>Audit And Compliance:</strong> Preserve consent, verification history, and reviewer actions for controlled lending workflows.</li>
+                    </ul>
+                    
+                    <hr>
+                    
+                    <h3>📊 Scoring Model (v2.0)</h3>
+                    <p>The DecoFinance score uses four dimensions tuned for the renovation sector:</p>
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Dimension</th>
+                                <th>Max Points</th>
+                                <th>Key Metrics</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Financial Strength</strong></td>
+                                <td>400 Points</td>
+                                <td>Registered Capital, Annual Revenue, Current Ratio, Cash Ratio, Debt-to-Equity</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Operational Stability</strong></td>
+                                <td>250 Points</td>
+                                <td>Years in Business, Completed Projects, Employee Count</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Qualifications and Compliance</strong></td>
+                                <td>200 Points</td>
+                                <td>Business Registration, Minor Works Contractor Registration, Insurance, OSH Safety Officer, ISO Certification</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Customer and Social Reputation</strong></td>
+                                <td>150 Points</td>
+                                <td>Average Customer Rating, DecoFinance Subjective Assessment</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <div class="alert alert-info mt-3">
+                        <strong>Total Score Range:</strong> 0 - 1000 Points<br>
+                        <strong>Score Validity:</strong> 180 days<br>
+                        <strong>Credit Grades:</strong> AAA (900-1000), AA (800-899), A (700-799), BBB (600-699), BB (500-599), B (400-499), C (0-399)
+                    </div>
+                    
+                    <hr>
+                    
+                    <h3>🔒 Security And Privacy</h3>
+                    <p>
+                        The platform records consent, reviewer decisions, and operational checkpoints so financing teams can work with stronger controls and traceability.
+                    </p>
+                    
+                    <hr>
+                    
+                    <h3>📞 Market Focus</h3>
+                    <p>
+                        DecoFinance is designed around Hong Kong renovation market pain points: fragmented contractor quality, uneven cashflow, milestone disputes, and limited lender visibility into live project risk.
+                    </p>
+                    
+                    <div class="text-center mt-4">
+                        <a href="{{ url_for('main.index') }}" class="btn btn-primary">
+                            <i class="fas fa-home"></i> Back to Home
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -28,7 +28,9 @@
             {% endif %}
 
             <div class="card mb-4">
-                <div class="card-header"><h5>公司资料</h5></div>
+                <div class="card-header">
+                    <h5>公司资料</h5>
+                </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
@@ -50,12 +52,15 @@
             </div>
 
             <div class="card mb-4">
-                <div class="card-header"><h5>小型工程承建商注册</h5></div>
+                <div class="card-header">
+                    <h5>小型工程承建商注册</h5>
+                </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
                             <p><strong>执照等级：</strong> {{ company.licence_class or '-' }}</p>
                             <p><strong>执照类别：</strong> {{ company.licence_categories or '-' }}</p>
+                            <p><strong>执照号码：</strong> {{ company.licence_number or '-' }}</p>
                         </div>
                         <div class="col-md-6">
                             <p><strong>执照验证：</strong> {{ company.licence_verification_status or 'pending' }}</p>
@@ -66,7 +71,9 @@
             </div>
 
             <div class="card mb-4">
-                <div class="card-header"><h5>OSH 认可人员</h5></div>
+                <div class="card-header">
+                    <h5>OSH 认可人员</h5>
+                </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
@@ -80,7 +87,9 @@
             </div>
 
             <div class="card mb-4">
-                <div class="card-header"><h5>保险覆盖</h5></div>
+                <div class="card-header">
+                    <h5>保险覆盖</h5>
+                </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
@@ -97,16 +106,22 @@
             </div>
 
             <div class="card mb-4">
-                <div class="card-header"><h5>职安健与ESG资料</h5></div>
+                <div class="card-header">
+                    <h5>职安健与ESG资料</h5>
+                </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
-                            <p><strong>安全培训覆盖率：</strong> {{ company.safety_training_coverage if company.safety_training_coverage is not none else '-' }}{% if company.safety_training_coverage is not none %}%{% endif %}</p>
+                            <p><strong>安全培训覆盖率：</strong> {{ company.safety_training_coverage if
+                                company.safety_training_coverage is not none else '-' }}{% if
+                                company.safety_training_coverage is not none %}%{% endif %}</p>
                         </div>
                         <div class="col-md-6">
                             <p><strong>安全事故 (12个月)：</strong> {{ company.safety_incident_count or 0 }}</p>
-                            <p><strong>ESG政策级别：</strong> {{ (company.esg_policy_level or 'none')|replace('_', ' ')|title }}</p>
-                            <p><strong>绿色材料采用：</strong> {{ company.green_material_ratio if company.green_material_ratio is not none else '-' }}{% if company.green_material_ratio is not none %}%{% endif %}</p>
+                            <p><strong>ESG政策级别：</strong> {{ (company.esg_policy_level or 'none')|replace('_', ' ')|title
+                                }}</p>
+                            <p><strong>绿色材料采用：</strong> {{ company.green_material_ratio if company.green_material_ratio
+                                is not none else '-' }}{% if company.green_material_ratio is not none %}%{% endif %}</p>
                             <p><strong>ISO认证：</strong> {{ '是' if company.iso_certified else '否' }}</p>
                         </div>
                     </div>
@@ -116,7 +131,9 @@
 
         <div class="col-md-4">
             <div class="card mb-4">
-                <div class="card-header"><h5>信任分数</h5></div>
+                <div class="card-header">
+                    <h5>信任分数</h5>
+                </div>
                 <div class="card-body">
                     {% if latest_score %}
                     <div class="report-score-card">
@@ -126,7 +143,8 @@
                         </div>
                         <div class="report-score-meta">
                             <p><strong>风险：</strong> {{ latest_score.risk_level }}</p>
-                            <p><strong>建议额度：</strong> HK$ {{ "{:,.0f}".format(latest_score.recommended_loan_limit or 0) }}</p>
+                            <p><strong>建议额度：</strong> HK$ {{ "{:,.0f}".format(latest_score.recommended_loan_limit or 0)
+                                }}</p>
                             <p><strong>利率：</strong> {{ latest_score.recommended_interest_rate or 0 }}%</p>
                         </div>
                     </div>
@@ -136,13 +154,17 @@
                     <form method="POST" action="{{ url_for('companies.calculate_score', id=company.id) }}">
                         <button type="submit" class="btn btn-success w-100">计算信任分数</button>
                     </form>
-                    <a href="{{ url_for('companies.view_credit_report', id=company.id) }}" class="btn btn-secondary w-100 mt-3">打开完整信贷报告</a>
-                    <a href="{{ url_for('companies.download_credit_report', id=company.id) }}" class="btn btn-primary w-100 mt-3">下载PDF版本</a>
+                    <a href="{{ url_for('companies.view_credit_report', id=company.id) }}"
+                        class="btn btn-secondary w-100 mt-3">打开完整信贷报告</a>
+                    <a href="{{ url_for('companies.download_credit_report', id=company.id) }}"
+                        class="btn btn-primary w-100 mt-3">下载PDF版本</a>
                 </div>
             </div>
 
             <div class="card">
-                <div class="card-header"><h5>最近贷款申请</h5></div>
+                <div class="card-header">
+                    <h5>最近贷款申请</h5>
+                </div>
                 <div class="card-body">
                     {% if loan_applications %}
                     <ul class="list-group list-group-flush">
