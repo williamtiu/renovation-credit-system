@@ -7,7 +7,7 @@
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2>{{ company.company_name }}</h2>
         <div class="page-actions">
-            <a href="{{ url_for('companies.view_credit_report', id=company.id) }}" class="btn btn-secondary">View 信貸報告</a>
+            <a href="{{ url_for('companies.view_credit_report', id=company.id) }}" class="btn btn-secondary">View Credit Report</a>
             <a href="{{ url_for('companies.download_credit_report', id=company.id) }}" class="btn btn-primary">Download PDF</a>
             <a href="{{ url_for('companies.edit_company', id=company.id) }}" class="btn btn-warning">Edit</a>
             <a href="{{ url_for('loans.add_application') }}" class="btn btn-primary">New Loan</a>

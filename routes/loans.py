@@ -53,7 +53,7 @@ def list_loans():
                          status=status)
 
 @loans_bp.route('/add', methods=['GET', 'POST'])
-@role_required('company_user')
+@role_required('company_user', 'admin')
 def add_application():
     if request.method == 'POST':
         try:
@@ -108,8 +108,13 @@ def add_application():
             db.session.rollback()
             flash(f'Failed to submit application: {str(e)}', 'error')
     
-    companies = Company.query.filter_by(id=g.user.company_id, status='active').all()
-    projects = _visible_projects_for_company(g.user.company_id)
+    if g.user.role == 'admin':
+        companies = Company.query.filter_by(status='active').all()
+        projects = Project.query.filter(Project.accepted_bid_id.isnot(None)).all()
+    else:
+        companies = Company.query.filter_by(id=g.user.company_id, status='active').all()
+        projects = _visible_projects_for_company(g.user.company_id)
+        
     return render_template_with_lang_fallback('loans/form.html', companies=companies, projects=projects, application=None)
 
 @loans_bp.route('/<int:id>')
