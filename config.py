@@ -36,9 +36,13 @@ class Config:
     RATELIMIT_STORAGE_URL = 'memory://'
     
     # File Upload
-    MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB max upload
-    UPLOAD_FOLDER = 'uploads'
+    MAX_CONTENT_LENGTH = 50 * 1024 * 1024  # 50MB max upload (increased from 16MB)
+    UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'uploads')
     ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg', 'doc', 'docx'}
+    
+    # 确保上传目录存在
+    if not os.path.exists(UPLOAD_FOLDER):
+        os.makedirs(UPLOAD_FOLDER, exist_ok=True)
     
     # Email (for notifications)
     MAIL_SERVER = os.environ.get('MAIL_SERVER') or 'smtp.gmail.com'

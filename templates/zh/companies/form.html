@@ -6,7 +6,8 @@
 <div class="container mt-4">
     <h2>{% if company %}编辑公司{% else %}公司注册{% endif %}</h2>
     <form method="POST"
-        action="{% if company %}{{ url_for('companies.edit_company', id=company.id) }}{% else %}{{ url_for('companies.add_company') }}{% endif %}">
+        action="{% if company %}{{ url_for('companies.edit_company', id=company.id) }}{% else %}{{ url_for('companies.add_company') }}{% endif %}"
+        enctype="multipart/form-data">
         <div class="card mb-4">
             <div class="card-header">
                 <h5>基本信息</h5>
@@ -294,6 +295,114 @@
                 </div>
             </div>
 
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5><i class="fas fa-upload me-2"></i>公司文档（可选）</h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        您可以上传多个文档。每个文件需要指定文档类型。
+                    </div>
+                    
+                    <!-- 已上传文档部分 -->
+                    {% if existing_documents and existing_documents|length > 0 %}
+                    <div class="mb-4">
+                        <h6 class="mb-3">
+                            <i class="fas fa-folder-open me-2 text-primary"></i>已上传文档 ({{ existing_documents|length }})
+                        </h6>
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>类型</th>
+                                        <th>文件名</th>
+                                        <th>大小</th>
+                                        <th>上传日期</th>
+                                        <th>状态</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for doc in existing_documents %}
+                                    <tr id="document-row-{{ doc.id }}">
+                                        <td>
+                                            <small class="fw-bold">
+                                                <i class="fas fa-file-alt me-1 text-primary"></i>
+                                                {{ doc.document_type }}
+                                            </small>
+                                        </td>
+                                        <td>
+                                            <small class="text-truncate d-inline-block" style="max-width:200px;" title="{{ doc.file_name }}">
+                                                {{ doc.file_name }}
+                                            </small>
+                                        </td>
+                                        <td><small>{{ doc.file_size | format_file_size }}</small></td>
+                                        <td><small>{{ doc.uploaded_at.strftime('%Y-%m-%d') }}</small></td>
+                                        <td>
+                                            {% if doc.verified %}
+                                            <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>已验证</span>
+                                            {% else %}
+                                            <span class="badge bg-warning"><i class="fas fa-clock me-1"></i>待审核</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <a href="{{ url_for('companies.view_document', id=company.id, doc_id=doc.id) }}" 
+                                               target="_blank" class="btn btn-sm btn-info" title="查看">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="{{ url_for('companies.download_document', id=company.id, doc_id=doc.id) }}" 
+                                               class="btn btn-sm btn-secondary" title="下载">
+                                                <i class="fas fa-download"></i>
+                                            </a>
+                                            <button type="button" class="btn btn-sm btn-danger" 
+                                                    onclick="deleteDocument({{ doc.id }}, '{{ doc.file_name }}')"
+                                                    title="删除">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- 上传新文档部分 -->
+                    <div class="mb-3">
+                        <label for="doc_upload" class="form-label fw-bold">
+                            <i class="fas fa-paperclip me-2 text-primary"></i>上传新文件
+                        </label>
+                        <input type="file" class="form-control" id="doc_upload" 
+                               name="documents" multiple accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+                        <div class="form-text mt-2">
+                            <strong>支持的格式：</strong>PDF, JPG, PNG, DOC, DOCX | 
+                            <strong>最大文件大小：</strong>每个文件16MB，总共50MB
+                        </div>
+                    </div>
+                    
+                    <div id="document-upload-section" style="display:none;">
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-list-check me-2 text-success"></i>已选择的文件
+                                </h6>
+                                <span id="file-count-badge" class="badge bg-primary"></span>
+                            </div>
+                            <div id="files-preview-list" class="list-group list-group-flush"></div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <h6 class="mb-3">
+                                <i class="fas fa-tags me-2 text-warning"></i>指定文档类型
+                            </h6>
+                            <div id="document-type-fields" class="row g-3"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <button type="submit" class="btn btn-primary">保存公司</button>
             <a href="{{ url_for('companies.list_companies') }}" class="btn btn-secondary">取消</a>
     </form>
@@ -334,6 +443,204 @@
         });
 
         updateRemoveButtons();
+        
+        // 文档上传处理
+        const docUpload = document.getElementById('doc_upload');
+        const uploadSection = document.getElementById('document-upload-section');
+        const filesPreviewList = document.getElementById('files-preview-list');
+        const documentTypeFields = document.getElementById('document-type-fields');
+        const fileCountBadge = document.getElementById('file-count-badge');
+        
+        const documentTypes = [
+            { value: 'business_registration', label: '商业登记证' },
+            { value: 'licence_certificate', label: '牌照证书' },
+            { value: 'insurance_certificate', label: '保险证书' },
+            { value: 'audited_financials', label: '审计财务报表' },
+            { value: 'tax_returns', label: '报税表' },
+            { value: 'osh_license', label: '职安健牌照' },
+            { value: 'project_photos', label: '项目照片' },
+            { value: 'invoices', label: '发票' },
+            { value: 'other', label: '其他' }
+        ];
+        
+        const MAX_FILE_SIZE = 16 * 1024 * 1024; // 每个文件16MB
+        const MAX_TOTAL_SIZE = 50 * 1024 * 1024; // 总共50MB
+        
+        if (docUpload) {
+            docUpload.addEventListener('change', function(e) {
+                const files = e.target.files;
+                
+                if (files.length === 0) {
+                    uploadSection.style.display = 'none';
+                    return;
+                }
+                
+                // 检查单个文件大小
+                let oversizedFiles = [];
+                let totalSize = 0;
+                
+                for (let i = 0; i < files.length; i++) {
+                    totalSize += files[i].size;
+                    if (files[i].size > MAX_FILE_SIZE) {
+                        oversizedFiles.push({
+                            name: files[i].name,
+                            size: files[i].size
+                        });
+                    }
+                }
+                
+                // 检查总大小
+                if (totalSize > MAX_TOTAL_SIZE) {
+                    alert(`文件总大小 (${formatFileSize(totalSize)}) 超过最大限制 ${formatFileSize(MAX_TOTAL_SIZE)}。请选择较小的文件。`);
+                    docUpload.value = '';
+                    uploadSection.style.display = 'none';
+                    return;
+                }
+                
+                // 显示过大文件的警告
+                if (oversizedFiles.length > 0) {
+                    let message = '以下文件超过16MB限制，将被拒绝：\n\n';
+                    oversizedFiles.forEach(file => {
+                        message += `- ${file.name} (${formatFileSize(file.size)})\n`;
+                    });
+                    message += '\n请移除这些文件或压缩它们。';
+                    alert(message);
+                    docUpload.value = '';
+                    uploadSection.style.display = 'none';
+                    return;
+                }
+                
+                uploadSection.style.display = 'block';
+                filesPreviewList.innerHTML = '';
+                documentTypeFields.innerHTML = '';
+                fileCountBadge.textContent = `${files.length} 个文件`;
+                
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    
+                    // 添加到预览列表
+                    const previewItem = document.createElement('div');
+                    previewItem.className = 'list-group-item';
+                    previewItem.innerHTML = `
+                        <div class="d-flex align-items-center">
+                            <i class="fas ${getFileIcon(file.name)} fa-lg text-primary me-3"></i>
+                            <div class="flex-grow-1">
+                                <div class="fw-bold text-truncate" title="${file.name}">${file.name}</div>
+                                <small class="text-muted">${formatFileSize(file.size)}</small>
+                            </div>
+                            <span class="badge bg-secondary">${i + 1}</span>
+                        </div>
+                    `;
+                    filesPreviewList.appendChild(previewItem);
+                    
+                    // 创建文档类型字段
+                    const col = document.createElement('div');
+                    col.className = 'col-md-6';
+                    
+                    const label = document.createElement('label');
+                    label.className = 'form-label small fw-bold';
+                    label.innerHTML = `<i class="fas fa-file me-1"></i>文件 ${i + 1}: ${file.name}`;
+                    
+                    const select = document.createElement('select');
+                    select.className = 'form-select form-select-sm';
+                    select.name = 'document_types';
+                    select.required = true;
+                    
+                    const defaultOption = document.createElement('option');
+                    defaultOption.value = '';
+                    defaultOption.textContent = '-- 选择文档类型 --';
+                    defaultOption.disabled = true;
+                    defaultOption.selected = true;
+                    select.appendChild(defaultOption);
+                    
+                    documentTypes.forEach(type => {
+                        const option = document.createElement('option');
+                        option.value = type.value;
+                        option.textContent = type.label;
+                        select.appendChild(option);
+                    });
+                    
+                    col.appendChild(label);
+                    col.appendChild(select);
+                    documentTypeFields.appendChild(col);
+                }
+            });
+        }
+        
+        function getFileIcon(filename) {
+            const ext = filename.split('.').pop().toLowerCase();
+            const iconMap = {
+                'pdf': 'fa-file-pdf',
+                'doc': 'fa-file-word',
+                'docx': 'fa-file-word',
+                'jpg': 'fa-file-image',
+                'jpeg': 'fa-file-image',
+                'png': 'fa-file-image'
+            };
+            return iconMap[ext] || 'fa-file';
+        }
+        
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
     });
+    
+    // 删除文档函数
+    function deleteDocument(docId, fileName) {
+        if (!confirm(`确定要删除 "${fileName}" 吗？`)) {
+            return;
+        }
+        
+        fetch(`/companies/{{ company.id }}/documents/${docId}/delete`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('删除失败');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                // 从表格中移除该行
+                const row = document.getElementById(`document-row-${docId}`);
+                if (row) {
+                    row.style.transition = 'opacity 0.3s ease';
+                    row.style.opacity = '0';
+                    setTimeout(() => row.remove(), 300);
+                }
+                
+                // 显示成功消息
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'alert alert-success alert-dismissible fade show';
+                alertDiv.innerHTML = `
+                    <i class="fas fa-check-circle me-2"></i>
+                    文档 "${fileName}" 已成功删除。
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                document.querySelector('.card-body').insertBefore(alertDiv, document.querySelector('.card-body').firstChild);
+                
+                // 3秒后自动消失
+                setTimeout(() => {
+                    if (alertDiv.parentNode) {
+                        alertDiv.remove();
+                    }
+                }, 3000);
+            } else {
+                alert('删除文档失败: ' + (data.error || '未知错误'));
+            }
+        })
+        .catch(error => {
+            console.error('删除错误:', error);
+            alert('删除文档失败，请重试。');
+        });
+    }
 </script>
 {% endblock %}

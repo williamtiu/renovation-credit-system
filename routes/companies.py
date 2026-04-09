@@ -1,11 +1,13 @@
 import json
+import os
 from io import BytesIO
 from datetime import datetime, timezone
 
-from flask import Blueprint, flash, g, redirect, render_template, request, send_file, url_for
+from flask import Blueprint, flash, g, redirect, render_template, request, send_file, url_for, jsonify
 from utils.template_helper import render_template_with_lang_fallback
 
 from models.company import Company
+from models.company_document import CompanyDocument
 from models.credit_score import CreditScore
 from models.audit_log import AuditLog
 from models.dispute_case import DisputeCase
@@ -15,6 +17,15 @@ from models.project_bid import ProjectBid
 from services.audit_service import log_action
 from services.credit_scorer import CreditScorer
 from services.report_service import build_credit_report_pdf
+from services.company_document_service import (
+    upload_multiple_documents,
+    get_company_documents,
+    get_document_by_id,
+    verify_document,
+    reject_document,
+    delete_document,
+    get_document_file_path
+)
 from utils.auth_helper import can_manage_company, company_user_can_add, login_required, role_required, require_ownership
 
 companies_bp = Blueprint('companies', __name__)
@@ -579,6 +590,49 @@ def add_company():
             db.session.flush()
             if g.user.role == 'company_user' and g.user.company_id is None:
                 g.user.company_id = company.id
+            
+            # Handle document uploads if present
+            if 'documents' in request.files:
+                files = request.files.getlist('documents')
+                document_types = request.form.getlist('document_types')
+                
+                if files and files[0].filename != '' and len(files) == len(document_types):
+                    files_data = []
+                    for i, file in enumerate(files):
+                        if file.filename:
+                            expiry_date_str = request.form.getlist('expiry_dates')[i] if i < len(request.form.getlist('expiry_dates')) else None
+                            expiry_date = None
+                            if expiry_date_str:
+                                try:
+                                    expiry_date = datetime.strptime(expiry_date_str, '%Y-%m-%d').date()
+                                except ValueError:
+                                    pass
+                            
+                            files_data.append({
+                                'file': file,
+                                'document_type': document_types[i],
+                                'description': None,
+                                'expiry_date': expiry_date
+                            })
+                    
+                    if files_data:
+                        successful, failed = upload_multiple_documents(
+                            company_id=company.id,
+                            files_data=files_data,
+                            uploaded_by=g.user.id
+                        )
+                        
+                        if successful:
+                            flash(f'Company created successfully with {len(successful)} document(s) uploaded.', 'success')
+                        else:
+                            flash('Company created but document upload failed.', 'warning')
+                        
+                        db.session.commit()
+                        log_action('company_created', 'Company', company.id, {'company_name': company.company_name})
+                        db.session.commit()
+                        
+                        return redirect(url_for('companies.view_company', id=company.id))
+            
             db.session.commit()
             log_action('company_created', 'Company', company.id, {'company_name': company.company_name})
             db.session.commit()
@@ -650,23 +704,74 @@ def edit_company(id):
     company = get_or_404(Company, id)
     require_ownership(can_manage_company(g.user, company))
     
+    # Get existing documents for display
+    existing_documents = get_company_documents(company_id=id, active_only=True)
+    
     if request.method == 'POST':
         try:
             _apply_company_form(company)
             company.is_verified_for_bidding = _derive_bid_eligibility(company)
             
+            # Handle document uploads if present
+            documents_uploaded = 0
+            if 'documents' in request.files:
+                files = request.files.getlist('documents')
+                document_types = request.form.getlist('document_types')
+                
+                if files and files[0].filename != '' and len(files) == len(document_types):
+                    files_data = []
+                    for i, file in enumerate(files):
+                        if file.filename:
+                            expiry_date_str = request.form.getlist('expiry_dates')[i] if i < len(request.form.getlist('expiry_dates')) else None
+                            expiry_date = None
+                            if expiry_date_str:
+                                try:
+                                    expiry_date = datetime.strptime(expiry_date_str, '%Y-%m-%d').date()
+                                except ValueError:
+                                    pass
+                            
+                            files_data.append({
+                                'file': file,
+                                'document_type': document_types[i],
+                                'description': None,
+                                'expiry_date': expiry_date
+                            })
+                    
+                    if files_data:
+                        successful, failed = upload_multiple_documents(
+                            company_id=company.id,
+                            files_data=files_data,
+                            uploaded_by=g.user.id
+                        )
+                        documents_uploaded = len(successful)
+                        
+                        if failed:
+                            error_messages = [f"{f['file_name']}: {f['error']}" for f in failed]
+                            flash(f"Failed to upload {len(failed)} document(s): {'; '.join(error_messages)}", 'warning')
+            
             db.session.commit()
             log_action('company_updated', 'Company', company.id, {'company_name': company.company_name})
             db.session.commit()
             
-            flash('Company updated successfully.', 'success')
+            if documents_uploaded > 0:
+                flash(f'Company updated successfully with {documents_uploaded} new document(s).', 'success')
+            else:
+                flash('Company updated successfully.', 'success')
             return redirect(url_for('companies.view_company', id=company.id))
             
         except Exception as e:
             db.session.rollback()
-            flash(f'Failed to update company: {str(e)}', 'error')
+            error_msg = str(e)
+            if 'Request Entity Too Large' in error_msg or '413' in error_msg:
+                flash('File size too large. Maximum allowed size is 50MB total. Please upload smaller files.', 'error')
+            else:
+                flash(f'Failed to update company: {error_msg}', 'error')
     
-    return render_template_with_lang_fallback('companies/form.html', company=company)
+    return render_template_with_lang_fallback('companies/form.html', 
+                         company=company,
+                         existing_documents=existing_documents)
+
+
 
 @companies_bp.route('/<int:id>/score', methods=['GET', 'POST'])
 @login_required
@@ -708,3 +813,276 @@ def delete_company(id):
         flash(f'Failed to delete company: {str(e)}', 'error')
     
     return redirect(url_for('companies.list_companies'))
+
+
+@companies_bp.route('/<int:id>/documents/upload', methods=['POST'])
+@login_required
+def upload_documents(id):
+    """Upload multiple documents for a company"""
+    company = get_or_404(Company, id)
+    require_ownership(can_manage_company(g.user, company) or g.user.role == 'company_user' and g.user.company_id == company.id)
+    
+    print(f"\n{'='*60}")
+    print(f"📤 开始上传文档 - 公司ID: {id}")
+    print(f"用户: {g.user.username} (ID: {g.user.id})")
+    print(f"{'='*60}")
+    
+    if 'documents' not in request.files:
+        print("❌ 错误: 请求中没有 'documents' 字段")
+        flash('No files selected.', 'error')
+        return redirect(url_for('companies.view_company', id=id))
+    
+    files = request.files.getlist('documents')
+    document_types = request.form.getlist('document_types')
+    descriptions = request.form.getlist('descriptions')
+    expiry_dates = request.form.getlist('expiry_dates')
+    
+    print(f"📁 收到 {len(files)} 个文件")
+    print(f"📋 文档类型: {document_types}")
+    print(f"📝 描述: {descriptions}")
+    
+    if not files or files[0].filename == '':
+        print("❌ 错误: 文件名为空")
+        flash('No files selected.', 'error')
+        return redirect(url_for('companies.view_company', id=id))
+    
+    if len(files) != len(document_types):
+        print(f"❌ 错误: 文件数({len(files)}) != 类型数({len(document_types)})")
+        flash(f'Number of files ({len(files)}) must match number of document types ({len(document_types)}).', 'error')
+        return redirect(url_for('companies.view_company', id=id))
+    
+    files_data = []
+    for i, file in enumerate(files):
+        print(f"\n   📄 处理文件 {i+1}: {file.filename}")
+        print(f"      类型: {document_types[i]}")
+        print(f"      描述: {descriptions[i] if i < len(descriptions) else 'None'}")
+        
+        expiry_date = None
+        if i < len(expiry_dates) and expiry_dates[i]:
+            try:
+                expiry_date = datetime.strptime(expiry_dates[i], '%Y-%m-%d').date()
+                print(f"      过期日期: {expiry_date}")
+            except ValueError:
+                print(f"      ⚠️  过期日期格式错误")
+                pass
+        
+        files_data.append({
+            'file': file,
+            'document_type': document_types[i],
+            'description': descriptions[i] if i < len(descriptions) else None,
+            'expiry_date': expiry_date
+        })
+    
+    try:
+        successful, failed = upload_multiple_documents(
+            company_id=id,
+            files_data=files_data,
+            uploaded_by=g.user.id
+        )
+        
+        if successful:
+            print(f"\n✅ 成功上传 {len(successful)} 个文档:")
+            for doc in successful:
+                print(f"   - {doc.file_name} (ID: {doc.id})")
+            flash(f'Successfully uploaded {len(successful)} document(s).', 'success')
+        
+        if failed:
+            print(f"\n❌ 失败 {len(failed)} 个文档:")
+            error_messages = [f"{f['file_name']}: {f['error']}" for f in failed]
+            for msg in error_messages:
+                print(f"   - {msg}")
+            flash(f"Failed to upload {len(failed)} document(s): {'; '.join(error_messages)}", 'warning')
+        
+    except Exception as e:
+        import traceback
+        error_detail = traceback.format_exc()
+        print(f"\n💥 上传异常:")
+        print(error_detail)
+        flash(f'Upload failed: {str(e)}', 'error')
+    
+    print(f"{'='*60}\n")
+    return redirect(url_for('companies.view_company', id=id))
+
+
+@companies_bp.route('/<int:id>/documents')
+@login_required
+def list_documents(id):
+    """List all documents for a company"""
+    company = get_or_404(Company, id)
+    require_ownership(can_manage_company(g.user, company) or g.user.role == 'company_user' and g.user.company_id == company.id)
+    
+    document_type = request.args.get('document_type')
+    status = request.args.get('status')
+    
+    documents = get_company_documents(
+        company_id=id,
+        document_type=document_type,
+        status=status
+    )
+    
+    return jsonify({
+        'documents': [doc.to_dict() for doc in documents]
+    })
+
+
+@companies_bp.route('/<int:id>/documents/<int:doc_id>/download')
+@login_required
+def download_document(id, doc_id):
+    """Download a company document"""
+    company = get_or_404(Company, id)
+    require_ownership(can_manage_company(g.user, company) or g.user.role == 'company_user' and g.user.company_id == company.id)
+    
+    doc = get_document_by_id(doc_id)
+    if not doc or doc.company_id != id:
+        flash('Document not found.', 'error')
+        return redirect(url_for('companies.view_company', id=id))
+    
+    try:
+        file_path = get_document_file_path(doc_id)
+        if not file_path or not os.path.exists(file_path):
+            flash('File not found on server.', 'error')
+            return redirect(url_for('companies.view_company', id=id))
+        
+        log_action(
+            'document_downloaded',
+            'CompanyDocument',
+            doc_id,
+            {'downloaded_by': g.user.id}
+        )
+        
+        return send_file(
+            file_path,
+            mimetype=doc.mime_type,
+            as_attachment=True,
+            download_name=doc.file_name
+        )
+        
+    except Exception as e:
+        flash(f'Download failed: {str(e)}', 'error')
+        return redirect(url_for('companies.view_company', id=id))
+
+
+@companies_bp.route('/<int:id>/documents/<int:doc_id>/view')
+@login_required
+def view_document(id, doc_id):
+    """View a company document inline (for PDFs and images)"""
+    company = get_or_404(Company, id)
+    require_ownership(can_manage_company(g.user, company) or g.user.role == 'company_user' and g.user.company_id == company.id)
+    
+    doc = get_document_by_id(doc_id)
+    if not doc or doc.company_id != id:
+        flash('Document not found.', 'error')
+        return redirect(url_for('companies.view_company', id=id))
+    
+    try:
+        file_path = get_document_file_path(doc_id)
+        if not file_path or not os.path.exists(file_path):
+            flash('File not found on server.', 'error')
+            return redirect(url_for('companies.view_company', id=id))
+        
+        log_action(
+            'document_viewed',
+            'CompanyDocument',
+            doc_id,
+            {'viewed_by': g.user.id}
+        )
+        
+        return send_file(
+            file_path,
+            mimetype=doc.mime_type,
+            as_attachment=False
+        )
+        
+    except Exception as e:
+        flash(f'View failed: {str(e)}', 'error')
+        return redirect(url_for('companies.view_company', id=id))
+
+
+@companies_bp.route('/<int:id>/documents/<int:doc_id>/verify', methods=['POST'])
+@role_required('admin', 'reviewer')
+def verify_document_route(id, doc_id):
+    """Verify a company document (admin/reviewer only)"""
+    company = get_or_404(Company, id)
+    
+    doc = get_document_by_id(doc_id)
+    if not doc or doc.company_id != id:
+        flash('Document not found.', 'error')
+        return redirect(url_for('companies.view_company', id=id))
+    
+    notes = request.form.get('notes')
+    
+    try:
+        verify_document(doc_id, g.user.id, notes)
+        flash('Document verified successfully.', 'success')
+    except Exception as e:
+        flash(f'Verification failed: {str(e)}', 'error')
+    
+    return redirect(url_for('companies.view_company', id=id))
+
+
+@companies_bp.route('/<int:id>/documents/<int:doc_id>/reject', methods=['POST'])
+@role_required('admin', 'reviewer')
+def reject_document_route(id, doc_id):
+    """Reject a company document (admin/reviewer only)"""
+    company = get_or_404(Company, id)
+    
+    doc = get_document_by_id(doc_id)
+    if not doc or doc.company_id != id:
+        flash('Document not found.', 'error')
+        return redirect(url_for('companies.view_company', id=id))
+    
+    reason = request.form.get('reason')
+    if not reason:
+        flash('Rejection reason is required.', 'error')
+        return redirect(url_for('companies.view_company', id=id))
+    
+    try:
+        reject_document(doc_id, g.user.id, reason)
+        flash('Document rejected.', 'warning')
+    except Exception as e:
+        flash(f'Rejection failed: {str(e)}', 'error')
+    
+    return redirect(url_for('companies.view_company', id=id))
+
+
+@companies_bp.route('/<int:id>/documents/<int:doc_id>/delete', methods=['POST'])
+@login_required
+def delete_document_route(id, doc_id):
+    """Delete a company document (soft delete)"""
+    company = get_or_404(Company, id)
+    
+    doc = get_document_by_id(doc_id)
+    if not doc or doc.company_id != id:
+        if request.is_json:
+            return jsonify({'success': False, 'error': 'Document not found'}), 404
+        flash('Document not found.', 'error')
+        return redirect(url_for('companies.view_company', id=id))
+    
+    # Check ownership
+    is_owner = (
+        g.user.role == 'admin' or 
+        doc.uploaded_by == g.user.id or
+        (g.user.role == 'company_user' and g.user.company_id == company.id)
+    )
+    
+    if not is_owner:
+        if request.is_json:
+            return jsonify({'success': False, 'error': 'Permission denied'}), 403
+        require_ownership(False)
+    
+    try:
+        delete_document(doc_id, g.user.id)
+        
+        # Return JSON response for AJAX calls
+        if request.is_json:
+            return jsonify({'success': True})
+        
+        flash('Document deleted.', 'success')
+    except Exception as e:
+        if request.is_json:
+            return jsonify({'success': False, 'error': str(e)}), 500
+        flash(f'Deletion failed: {str(e)}', 'error')
+    
+    if not request.is_json:
+        return redirect(url_for('companies.view_company', id=id))
+    return jsonify({'success': True})

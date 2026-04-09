@@ -126,12 +126,16 @@ def auth_register_json():
     email = (payload.get('email') or '').strip().lower()
     password = payload.get('password') or ''
     role = (payload.get('role') or 'customer').strip()
+    companyName = payload.get('companyName') or payload.get('company_name') or ''
 
     if role not in SELF_REGISTRATION_ROLES:
         return jsonify({'success': False, 'error': 'Selected role is not available for self-registration'}), 400
 
     if not username or not email or not password:
         return jsonify({'success': False, 'error': 'Username, email and password are required'}), 400
+
+    if role == 'company_user' and not companyName:
+        return jsonify({'success': False, 'error': 'Company name is required for company user registration'}), 400
 
     if User.query.filter_by(username=username).first():
         return jsonify({'success': False, 'error': 'Username already exists'}), 409
@@ -141,11 +145,96 @@ def auth_register_json():
 
     user = User(username=username, email=email, role=role)
     user.set_password(password)
+    
+    if role == 'company_user' and companyName:
+        company = Company(
+            company_name=companyName,
+            business_registration='',
+            established_date=datetime.now(timezone.utc).date(),
+            status='active',
+            owner_user_id=user.id
+        )
+        db.session.add(company)
+        db.session.flush()
+        user.company_id = company.id
+
     db.session.add(user)
     db.session.commit()
 
     session['user_id'] = user.id
     return jsonify({'success': True, 'data': _serialize_user(user)}), 201
+
+
+@api_bp.route('/companies/<int:id>/documents/upload', methods=['POST'])
+@api_login_required
+def upload_documents_api(id):
+    """Upload multiple documents for a company via API"""
+    company = get_or_404(Company, id)
+    if not (can_manage_company(g.user, company) or (g.user.role == 'company_user' and g.user.company_id == company.id)):
+        return jsonify({'success': False, 'error': 'Forbidden'}), 403
+    
+    if 'documents' not in request.files:
+        return jsonify({'success': False, 'error': 'No files selected'}), 400
+    
+    files = request.files.getlist('documents')
+    document_types = request.form.getlist('document_types')
+    descriptions = request.form.getlist('descriptions')
+    expiry_dates = request.form.getlist('expiry_dates')
+    
+    if not files or files[0].filename == '':
+        return jsonify({'success': False, 'error': 'No files selected'}), 400
+    
+    if len(files) != len(document_types):
+        return jsonify({'success': False, 'error': f'Number of files ({len(files)}) must match number of document types ({len(document_types)})'}), 400
+    
+    files_data = []
+    for i, file in enumerate(files):
+        expiry_date = None
+        if i < len(expiry_dates) and expiry_dates[i]:
+            try:
+                expiry_date = datetime.strptime(expiry_dates[i], '%Y-%m-%d').date()
+            except ValueError:
+                pass
+        
+        files_data.append({
+            'file': file,
+            'document_type': document_types[i],
+            'description': descriptions[i] if i < len(descriptions) else None,
+            'expiry_date': expiry_date
+        })
+    
+    try:
+        from services.company_document_service import upload_multiple_documents
+        successful, failed = upload_multiple_documents(
+            company_id=id,
+            files_data=files_data,
+            uploaded_by=g.user.id
+        )
+        
+        if successful:
+            return jsonify({
+                'success': True,
+                'message': f'Successfully uploaded {len(successful)} document(s)',
+                'data': {
+                    'successful': len(successful),
+                    'failed': len(failed),
+                    'documents': [{'id': doc.id, 'file_name': doc.file_name, 'document_type': doc.document_type} for doc in successful]
+                }
+            }), 201
+        else:
+            error_messages = [f"{f['file_name']}: {f['error']}" for f in failed]
+            return jsonify({
+                'success': False,
+                'error': f'Failed to upload {len(failed)} document(s)',
+                'data': {
+                    'errors': error_messages
+                }
+            }), 400
+        
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'success': False, 'error': f'Upload failed: {str(e)}'}), 500
 
 @api_bp.route('/companies', methods=['GET', 'POST'])
 @api_login_required

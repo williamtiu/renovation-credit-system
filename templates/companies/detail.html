@@ -7,10 +7,8 @@
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2>{{ company.company_name }}</h2>
         <div class="page-actions">
-            <a href="{{ url_for('companies.view_credit_report', id=company.id) }}" class="btn btn-secondary">View
-                信貸報告</a>
-            <a href="{{ url_for('companies.download_credit_report', id=company.id) }}" class="btn btn-primary">Download
-                PDF</a>
+            <a href="{{ url_for('companies.view_credit_report', id=company.id) }}" class="btn btn-secondary">View 信貸報告</a>
+            <a href="{{ url_for('companies.download_credit_report', id=company.id) }}" class="btn btn-primary">Download PDF</a>
             <a href="{{ url_for('companies.edit_company', id=company.id) }}" class="btn btn-warning">Edit</a>
             <a href="{{ url_for('loans.add_application') }}" class="btn btn-primary">New Loan</a>
         </div>
@@ -37,8 +35,7 @@
                     <div class="row">
                         <div class="col-md-6">
                             <p><strong>Business Registration:</strong> {{ company.business_registration }}</p>
-                            <p><strong>Company Registration Number:</strong> {{ company.company_registration_number or
-                                '-' }}</p>
+                            <p><strong>Company Registration Number:</strong> {{ company.company_registration_number or '-' }}</p>
                             <p><strong>Contact Person:</strong> {{ company.contact_person or '-' }}</p>
                             <p><strong>Position:</strong> {{ company.contact_position or '-' }}</p>
                             <p><strong>Phone:</strong> {{ company.phone or '-' }}</p>
@@ -46,8 +43,7 @@
                         </div>
                         <div class="col-md-6">
                             <p><strong>Address:</strong> {{ company.address or '-' }}</p>
-                            <p><strong>Annual Revenue:</strong> HK$ {{ "{:,.0f}".format(company.annual_revenue or 0) }}
-                            </p>
+                            <p><strong>Annual Revenue:</strong> HK$ {{ "{:,.0f}".format(company.annual_revenue or 0) }}</p>
                             <p><strong>Completed Projects:</strong> {{ company.project_count_completed or 0 }}</p>
                             <p><strong>Status:</strong> {{ company.status }}</p>
                         </div>
@@ -67,8 +63,7 @@
                             <p><strong>License Number:</strong> {{ company.licence_number or '-' }}</p>
                         </div>
                         <div class="col-md-6">
-                            <p><strong>Licence Verification:</strong> {{ company.licence_verification_status or
-                                'pending' }}</p>
+                            <p><strong>Licence Verification:</strong> {{ company.licence_verification_status or 'pending' }}</p>
                             <p><strong>Licence Expiry:</strong> {{ company.licence_expiry_date or '-' }}</p>
                         </div>
                     </div>
@@ -85,8 +80,7 @@
                             <p><strong>OSH Officer Role:</strong> {{ company.osh_officer_role or '-' }}</p>
                         </div>
                         <div class="col-md-6">
-                            <p><strong>OSH Officer License Number:</strong> {{ company.osh_officer_license_number or '-'
-                                }}</p>
+                            <p><strong>OSH Officer License Number:</strong> {{ company.osh_officer_license_number or '-' }}</p>
                         </div>
                     </div>
                 </div>
@@ -103,8 +97,7 @@
                             <p><strong>Policy Number:</strong> {{ company.insurance_policy_number or '-' }}</p>
                         </div>
                         <div class="col-md-6">
-                            <p><strong>Insurance Verification:</strong> {{ company.insurance_verification_status or
-                                'pending' }}</p>
+                            <p><strong>Insurance Verification:</strong> {{ company.insurance_verification_status or 'pending' }}</p>
                             <p><strong>Insurance Expiry:</strong> {{ company.insurance_expiry_date or '-' }}</p>
                         </div>
                     </div>
@@ -118,18 +111,12 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
-                            <p><strong>Safety Training Coverage:</strong> {{ company.safety_training_coverage if
-                                company.safety_training_coverage is not none else '-' }}{% if
-                                company.safety_training_coverage is not none %}%{% endif %}</p>
+                            <p><strong>Safety Training Coverage:</strong> {{ company.safety_training_coverage if company.safety_training_coverage is not none else '-' }}{% if company.safety_training_coverage is not none %}%{% endif %}</p>
                         </div>
                         <div class="col-md-6">
-                            <p><strong>Safety Incidents (12 months):</strong> {{ company.safety_incident_count or 0 }}
-                            </p>
-                            <p><strong>ESG Policy Level:</strong> {{ (company.esg_policy_level or 'none')|replace('_', '
-                                ')|title }}</p>
-                            <p><strong>Green Material Adoption:</strong> {{ company.green_material_ratio if
-                                company.green_material_ratio is not none else '-' }}{% if company.green_material_ratio
-                                is not none %}%{% endif %}</p>
+                            <p><strong>Safety Incidents (12 months):</strong> {{ company.safety_incident_count or 0 }}</p>
+                            <p><strong>ESG Policy Level:</strong> {{ (company.esg_policy_level or 'none')|replace('_', ' ')|title }}</p>
+                            <p><strong>Green Material Adoption:</strong> {{ company.green_material_ratio if company.green_material_ratio is not none else '-' }}{% if company.green_material_ratio is not none %}%{% endif %}</p>
                         </div>
                     </div>
                 </div>
@@ -150,8 +137,7 @@
                         </div>
                         <div class="report-score-meta">
                             <p><strong>Risk:</strong> {{ latest_score.risk_level }}</p>
-                            <p><strong>Recommended Limit:</strong> HK$ {{
-                                "{:,.0f}".format(latest_score.recommended_loan_limit or 0) }}</p>
+                            <p><strong>Recommended Limit:</strong> HK$ {{ "{:,.0f}".format(latest_score.recommended_loan_limit or 0) }}</p>
                             <p><strong>Interest Rate:</strong> {{ latest_score.recommended_interest_rate or 0 }}%</p>
                         </div>
                     </div>
@@ -165,6 +151,22 @@
                         class="btn btn-secondary w-100 mt-3">Open Full Credit Report</a>
                     <a href="{{ url_for('companies.download_credit_report', id=company.id) }}"
                         class="btn btn-primary w-100 mt-3">Download PDF Version</a>
+                </div>
+            </div>
+
+                        <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5><i class="fas fa-folder-open me-2"></i>Documents</h5>
+                </div>
+                <div class="card-body">
+                    <div id="documents-list">
+                        <div class="text-center py-3">
+                            <div class="spinner-border spinner-border-sm text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="text-muted small mt-2 mb-0">Loading documents...</p>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -190,4 +192,105 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Load existing documents
+    loadDocuments();
+});
+
+// Load existing documents via AJAX
+function loadDocuments() {
+    console.log('📂 Loading documents...');
+    
+    fetch(`/companies/{{ company.id }}/documents`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('📦 Received data:', data);
+            const container = document.getElementById('documents-list');
+            
+            if (data.documents && data.documents.length > 0) {
+                console.log(`✅ Found ${data.documents.length} documents`);
+                
+                let html = '<div class="table-responsive"><table class="table table-sm table-hover">';
+                html += '<thead class="table-light"><tr>';
+                html += '<th>Type</th><th>File</th><th>Size</th><th>Uploaded</th><th>Status</th><th>Actions</th>';
+                html += '</tr></thead>';
+                html += '<tbody>';
+                
+                data.documents.forEach(doc => {
+                    const uploadDate = new Date(doc.uploaded_at).toLocaleDateString();
+                    const statusBadge = doc.verified ? 
+                        '<span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Verified</span>' : 
+                        '<span class="badge bg-warning"><i class="fas fa-clock me-1"></i>Pending</span>';
+                    
+                    html += `
+                        <tr>
+                            <td>
+                                <small class="fw-bold">
+                                    <i class="fas fa-file-alt me-1 text-primary"></i>
+                                    ${doc.document_type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                                </small>
+                            </td>
+                            <td>
+                                <small class="text-truncate d-inline-block" style="max-width:150px;" title="${doc.file_name}">
+                                    ${doc.file_name}
+                                </small>
+                            </td>
+                            <td><small>${formatFileSize(doc.file_size || 0)}</small></td>
+                            <td><small>${uploadDate}</small></td>
+                            <td>${statusBadge}</td>
+                            <td>
+                                <a href="/companies/{{ company.id }}/documents/${doc.id}/view" target="_blank" 
+                                   class="btn btn-sm btn-info" title="View Document">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="/companies/{{ company.id }}/documents/${doc.id}/download" 
+                                   class="btn btn-sm btn-secondary" title="Download">
+                                    <i class="fas fa-download"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    `;
+                });
+                
+                html += '</tbody></table></div>';
+                container.innerHTML = html;
+            } else {
+                console.log('ℹ️ No documents found');
+                container.innerHTML = `
+                    <div class="text-center py-5">
+                        <i class="fas fa-folder-open fa-4x text-muted mb-3 opacity-50"></i>
+                        <h6 class="text-muted mb-2">No documents uploaded yet</h6>
+                        <p class="text-muted small mb-3">Please upload documents during company registration or edit</p>
+                    </div>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error('❌ Failed to load documents:', error);
+            document.getElementById('documents-list').innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Failed to load documents</strong>
+                    <br><small class="text-muted">${error.message}</small>
+                </div>
+            `;
+        });
+}
+
+// Global formatFileSize function
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+</script>
 {% endblock %}

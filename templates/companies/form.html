@@ -6,7 +6,8 @@
 <div class="container mt-4">
     <h2>{% if company %}Edit Company{% else %}Company Registration{% endif %}</h2>
     <form method="POST"
-        action="{% if company %}{{ url_for('companies.edit_company', id=company.id) }}{% else %}{{ url_for('companies.add_company') }}{% endif %}">
+        action="{% if company %}{{ url_for('companies.edit_company', id=company.id) }}{% else %}{{ url_for('companies.add_company') }}{% endif %}"
+        enctype="multipart/form-data">
         <div class="card mb-4">
             <div class="card-header">
                 <h5>Basic Information</h5>
@@ -255,7 +256,113 @@
             </div>
         </div>
 
-
+                <div class="card mb-4">
+            <div class="card-header">
+                <h5><i class="fas fa-upload me-2"></i>Company Documents (Optional)</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    You can upload multiple documents. Each file needs a document type assigned.
+                </div>
+                
+                <!-- Existing Documents Section -->
+                {% if existing_documents and existing_documents|length > 0 %}
+                <div class="mb-4">
+                    <h6 class="mb-3">
+                        <i class="fas fa-folder-open me-2 text-primary"></i>Uploaded Documents ({{ existing_documents|length }})
+                    </h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Type</th>
+                                    <th>File Name</th>
+                                    <th>Size</th>
+                                    <th>Uploaded</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for doc in existing_documents %}
+                                <tr id="document-row-{{ doc.id }}">
+                                    <td>
+                                        <small class="fw-bold">
+                                            <i class="fas fa-file-alt me-1 text-primary"></i>
+                                            {{ doc.document_type.replace('_', ' ')|title }}
+                                        </small>
+                                    </td>
+                                        <td>
+                                            <small class="text-truncate d-inline-block" style="max-width:200px;" title="{{ doc.file_name }}">
+                                                {{ doc.file_name }}
+                                            </small>
+                                        </td>
+                                    <td><small>{{ (doc.file_size or 0) | format_file_size }}</small></td>
+                                    <td><small>{{ doc.uploaded_at.strftime('%Y-%m-%d') }}</small></td>
+                                    <td>
+                                        {% if doc.verified %}
+                                        <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Verified</span>
+                                        {% else %}
+                                        <span class="badge bg-warning"><i class="fas fa-clock me-1"></i>Pending</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{{ url_for('companies.view_document', id=company.id, doc_id=doc.id) }}" 
+                                           target="_blank" class="btn btn-sm btn-info" title="View">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{{ url_for('companies.download_document', id=company.id, doc_id=doc.id) }}" 
+                                           class="btn btn-sm btn-secondary" title="Download">
+                                            <i class="fas fa-download"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-sm btn-danger" 
+                                                onclick="deleteDocument({{ doc.id }}, '{{ doc.file_name }}')"
+                                                title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Upload New Documents Section -->
+                <div class="mb-3">
+                    <label for="doc_upload" class="form-label fw-bold">
+                        <i class="fas fa-paperclip me-2 text-primary"></i>Upload New Files
+                    </label>
+                    <input type="file" class="form-control" id="doc_upload" 
+                           name="documents" multiple accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+                    <div class="form-text mt-2">
+                        <strong>Accepted formats:</strong> PDF, JPG, PNG, DOC, DOCX | 
+                        <strong>Max size:</strong> 16MB per file, 50MB total
+                    </div>
+                </div>
+                
+                <div id="document-upload-section" style="display:none;">
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="mb-0">
+                                <i class="fas fa-list-check me-2 text-success"></i>Selected Files
+                            </h6>
+                            <span id="file-count-badge" class="badge bg-primary"></span>
+                        </div>
+                        <div id="files-preview-list" class="list-group list-group-flush"></div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <h6 class="mb-3">
+                            <i class="fas fa-tags me-2 text-warning"></i>Assign Document Types
+                        </h6>
+                        <div id="document-type-fields" class="row g-3"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <button type="submit" class="btn btn-primary">Save Company</button>
         <a href="{{ url_for('companies.list_companies') }}" class="btn btn-secondary">Cancel</a>
@@ -297,6 +404,205 @@
         });
 
         updateRemoveButtons();
+        
+        // Document upload handling
+        const docUpload = document.getElementById('doc_upload');
+        const uploadSection = document.getElementById('document-upload-section');
+        const filesPreviewList = document.getElementById('files-preview-list');
+        const documentTypeFields = document.getElementById('document-type-fields');
+        const fileCountBadge = document.getElementById('file-count-badge');
+        
+        const documentTypes = [
+            { value: 'business_registration', label: 'Business Registration' },
+            { value: 'licence_certificate', label: 'Licence Certificate' },
+            { value: 'insurance_certificate', label: 'Insurance Certificate' },
+            { value: 'audited_financials', label: 'Audited Financials' },
+            { value: 'tax_returns', label: 'Tax Returns' },
+            { value: 'osh_license', label: 'OSH License' },
+            { value: 'project_photos', label: 'Project Photos' },
+            { value: 'invoices', label: 'Invoices' },
+            { value: 'other', label: 'Other' }
+        ];
+        
+        const MAX_FILE_SIZE = 16 * 1024 * 1024; // 16MB per file
+        const MAX_TOTAL_SIZE = 50 * 1024 * 1024; // 50MB total
+        
+        if (docUpload) {
+            docUpload.addEventListener('change', function(e) {
+                const files = e.target.files;
+                
+                if (files.length === 0) {
+                    uploadSection.style.display = 'none';
+                    return;
+                }
+                
+                // Check individual file sizes
+                let oversizedFiles = [];
+                let totalSize = 0;
+                
+                for (let i = 0; i < files.length; i++) {
+                    totalSize += files[i].size;
+                    if (files[i].size > MAX_FILE_SIZE) {
+                        oversizedFiles.push({
+                            name: files[i].name,
+                            size: files[i].size
+                        });
+                    }
+                }
+                
+                // Check total size
+                if (totalSize > MAX_TOTAL_SIZE) {
+                    alert(`Total file size (${formatFileSize(totalSize)}) exceeds the maximum limit of ${formatFileSize(MAX_TOTAL_SIZE)}. Please select smaller files.`);
+                    docUpload.value = '';
+                    uploadSection.style.display = 'none';
+                    return;
+                }
+                
+                // Show warnings for oversized files
+                if (oversizedFiles.length > 0) {
+                    let message = 'The following files exceed the 16MB limit and will be rejected:\n\n';
+                    oversizedFiles.forEach(file => {
+                        message += `- ${file.name} (${formatFileSize(file.size)})\n`;
+                    });
+                    message += '\nPlease remove these files or compress them.';
+                    alert(message);
+                    docUpload.value = '';
+                    uploadSection.style.display = 'none';
+                    return;
+                }
+                
+                uploadSection.style.display = 'block';
+                filesPreviewList.innerHTML = '';
+                documentTypeFields.innerHTML = '';
+                fileCountBadge.textContent = `${files.length} file(s)`;
+                
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    
+                    // Add to preview list
+                    const previewItem = document.createElement('div');
+                    previewItem.className = 'list-group-item';
+                    previewItem.innerHTML = `
+                        <div class="d-flex align-items-center">
+                            <i class="fas ${getFileIcon(file.name)} fa-lg text-primary me-3"></i>
+                            <div class="flex-grow-1">
+                                <div class="fw-bold text-truncate" title="${file.name}">${file.name}</div>
+                                <small class="text-muted">${formatFileSize(file.size)}</small>
+                            </div>
+                            <span class="badge bg-secondary">${i + 1}</span>
+                        </div>
+                    `;
+                    filesPreviewList.appendChild(previewItem);
+                    
+                    // Create document type field
+                    const col = document.createElement('div');
+                    col.className = 'col-md-6';
+                    
+                    const label = document.createElement('label');
+                    label.className = 'form-label small fw-bold';
+                    label.innerHTML = `<i class="fas fa-file me-1"></i>File ${i + 1}: ${file.name}`;
+                    
+                    const select = document.createElement('select');
+                    select.className = 'form-select form-select-sm';
+                    select.name = 'document_types';
+                    select.required = true;
+                    
+                    const defaultOption = document.createElement('option');
+                    defaultOption.value = '';
+                    defaultOption.textContent = '-- Select document type --';
+                    defaultOption.disabled = true;
+                    defaultOption.selected = true;
+                    select.appendChild(defaultOption);
+                    
+                    documentTypes.forEach(type => {
+                        const option = document.createElement('option');
+                        option.value = type.value;
+                        option.textContent = type.label;
+                        select.appendChild(option);
+                    });
+                    
+                    col.appendChild(label);
+                    col.appendChild(select);
+                    documentTypeFields.appendChild(col);
+                }
+            });
+        }
+        
+        function getFileIcon(filename) {
+            const ext = filename.split('.').pop().toLowerCase();
+            const iconMap = {
+                'pdf': 'fa-file-pdf',
+                'doc': 'fa-file-word',
+                'docx': 'fa-file-word',
+                'jpg': 'fa-file-image',
+                'jpeg': 'fa-file-image',
+                'png': 'fa-file-image'
+            };
+            return iconMap[ext] || 'fa-file';
+        }
+        
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
     });
+    
+    // Delete document function
+    function deleteDocument(docId, fileName) {
+        if (!confirm(`Are you sure you want to delete "${fileName}"?`)) {
+            return;
+        }
+        
+        fetch(`/companies/{{ company.id }}/documents/${docId}/delete`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Delete failed');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                // Remove the row from the table
+                const row = document.getElementById(`document-row-${docId}`);
+                if (row) {
+                    row.style.transition = 'opacity 0.3s ease';
+                    row.style.opacity = '0';
+                    setTimeout(() => row.remove(), 300);
+                }
+                
+                // Show success message
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'alert alert-success alert-dismissible fade show';
+                alertDiv.innerHTML = `
+                    <i class="fas fa-check-circle me-2"></i>
+                    Document "${fileName}" deleted successfully.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                document.querySelector('.card-body').insertBefore(alertDiv, document.querySelector('.card-body').firstChild);
+                
+                // Auto-dismiss after 3 seconds
+                setTimeout(() => {
+                    if (alertDiv.parentNode) {
+                        alertDiv.remove();
+                    }
+                }, 3000);
+            } else {
+                alert('Failed to delete document: ' + (data.error || 'Unknown error'));
+            }
+        })
+        .catch(error => {
+            console.error('Delete error:', error);
+            alert('Failed to delete document. Please try again.');
+        });
+    }
 </script>
+
 {% endblock %}
