@@ -989,3 +989,6 @@ body {
 /* Responsive Tables Fix */
 .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 @media (max-width: 768px) { .row { display: flex; flex-direction: column; } .col-md-8, .col-md-6, .col-md-4 { width: 100% !important; max-width: 100% !important; flex: 0 0 100% !important; } }
+
+.card-body { overflow-x: auto; }
+

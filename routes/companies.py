@@ -315,34 +315,9 @@ def _build_credit_report(company, latest_score, credit_scores, loan_applications
 
     verification_checks = [
         {
-            'label': verification_labels.get('Company status', 'Company status'),
-            'value': company.status or 'unknown',
-            'status': 'verified' if company.status == 'active' else 'review',
-        },
-        {
-            'label': verification_labels.get('Contractor licence', 'Contractor licence'),
-            'value': company.licence_verification_status or 'pending',
-            'status': company.licence_verification_status or 'pending',
-        },
-        {
-            'label': verification_labels.get('Insurance cover', 'Insurance cover'),
-            'value': company.insurance_verification_status or 'pending',
-            'status': company.insurance_verification_status or 'pending',
-        },
-        {
-            'label': verification_labels.get('Bid eligibility', 'Bid eligibility'),
-            'value': 'eligible' if company.is_verified_for_bidding else 'restricted',
-            'status': 'verified' if company.is_verified_for_bidding else 'review',
-        },
-        {
             'label': verification_labels.get('OSH controls', 'OSH controls'),
             'value': f'{training_coverage or 0}% training · OSH verified: ' + ('Yes' if company.osh_safety_officer_verified else 'No'),
             'status': osh_status,
-        },
-        {
-            'label': verification_labels.get('ESG readiness', 'ESG readiness'),
-            'value': (company.esg_policy_level or 'none').replace('_', ' '),
-            'status': esg_status,
         },
     ]
 
