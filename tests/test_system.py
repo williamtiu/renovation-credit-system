@@ -53,8 +53,6 @@ def _run_workflow_assertions():
             project_count_completed=85,
             average_project_value=300000,
             main_service_type='Residential Renovation',
-            has_license=True,
-            license_type='Minor Works Contractor',
             licence_number='LIC-001',
             licence_class='Class I',
             licence_categories='A,B',
