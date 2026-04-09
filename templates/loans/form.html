@@ -176,25 +176,47 @@ function toggleOtherBank() {
 document.addEventListener("DOMContentLoaded", function() {
     var companySelect = document.getElementById("company_id");
     var projectSelect = document.getElementById("project_id");
-    var projectSelectOptions = Array.from(projectSelect.options);
     
-    function filterProjects() {
-        var selectedCompanyId = companySelect.value;
-        var hasVisibleProjects = false;
+    if (companySelect && projectSelect) {
+        // Safe mapping of original options
+        var projectOptions = [];
+        for (var i = 0; i < projectSelect.options.length; i++) {
+            var opt = projectSelect.options[i];
+            projectOptions.push({
+                value: opt.value,
+                text: opt.text,
+                companyId: opt.getAttribute("data-company-id") || ""
+            });
+        }
         
-        projectSelect.innerHTML = "";
-        
-        projectSelectOptions.forEach(function(option) {
-            if (option.value === "" || option.getAttribute("data-company-id") === selectedCompanyId) {
-                projectSelect.appendChild(option);
+        function filterProjects() {
+            var selectedCompanyId = companySelect.value.toString();
+            var currentProjectValue = projectSelect.value;
+            projectSelect.innerHTML = "";
+            
+            var validValues = [];
+            projectOptions.forEach(function(data) {
+                if (data.value === "" || data.companyId === selectedCompanyId) {
+                    var newOption = document.createElement("option");
+                    newOption.value = data.value;
+                    newOption.text = data.text;
+                    if (data.companyId) {
+                        newOption.setAttribute("data-company-id", data.companyId);
+                    }
+                    projectSelect.appendChild(newOption);
+                    validValues.push(data.value);
+                }
+            });
+            
+            if (validValues.includes(currentProjectValue)) {
+                projectSelect.value = currentProjectValue;
+            } else {
+                projectSelect.value = "";
             }
-        });
+        }
         
-        projectSelect.value = "";
-    }
-    
-    if (companySelect) {
         companySelect.addEventListener("change", filterProjects);
+        // Run once on load to filter initial state
         filterProjects();
     }
 });
