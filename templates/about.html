@@ -181,7 +181,7 @@
                 <ul style="list-style: none; padding: 0; margin: 0;">
                     <li style="display: flex; align-items: center; margin-bottom: 0.5rem;">
                         <i class="fas fa-circle" style="color: #3b82f6; font-size: 0.5rem; margin-right: 0.75rem;"></i>
-                        <span style="font-size: 0.875rem; color: #374151;"><strong>Total Score Range:</strong> 0 - 1000
+                        <span style="font-size: 0.875rem; color: #374151;"><strong>Total Score Range:</strong> 0 - 1350
                             Points</span>
                     </li>
                     <li style="display: flex; align-items: center; margin-bottom: 0.5rem;">
@@ -192,8 +192,8 @@
                     <li style="display: flex; align-items: center;">
                         <i class="fas fa-circle" style="color: #3b82f6; font-size: 0.5rem; margin-right: 0.75rem;"></i>
                         <span style="font-size: 0.875rem; color: #374151;"><strong>Credit Grades:</strong> AAA
-                            (751-1000), AA (701-750), A (651-700), BBB (601-650), BB (551-600), B (501-550), C
-                            (0-500)</span>
+                            (1014-1350), AA (947-1013), A (880-946), BBB (813-879), BB (746-812), B (679-745), C
+                            (0-678)</span>
                     </li>
                 </ul>
             </div>
@@ -239,23 +239,5 @@
     </div>
 </div>
 
-<!-- CTA Section -->
-<div style="padding: 4rem 0; background: #f9fafb;">
-    <div class="container" style="max-width: 800px; margin: 0 auto; padding: 0 2rem; text-align: center;">
-        <h2 style="font-size: 1.75rem; font-weight: 600; margin: 0 0 1rem 0; color: #1a1a1a;">Ready to get started?</h2>
-        <p style="font-size: 1rem; color: #6b7280; margin: 0 0 2rem 0;">
-            Join DecoFinance today and transform the way you manage renovation projects and financing.
-        </p>
-        <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
-            <a href="{{ url_for('auth.register') }}"
-                style="background: #2563eb; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 6px; font-size: 1rem; font-weight: 500; text-decoration: none; transition: background-color 0.2s;">
-                Get Started
-            </a>
-            <a href="{{ url_for('main.dashboard') }}"
-                style="background: white; color: #374151; border: 1px solid #d1d5db; padding: 0.75rem 1.5rem; border-radius: 6px; font-size: 1rem; font-weight: 500; text-decoration: none; transition: all 0.2s;">
-                View Dashboard
-            </a>
-        </div>
-    </div>
-</div>
+
 {% endblock %}

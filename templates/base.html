@@ -310,28 +310,35 @@
             .main-content {
                 padding: 1rem;
             }
+
             .col-md-6 {
                 flex: 0 0 100%;
                 max-width: 100%;
             }
+
             .col-md-8 {
                 flex: 0 0 100%;
                 max-width: 100%;
             }
+
             .col-md-4 {
                 flex: 0 0 100%;
                 max-width: 100%;
             }
+
             .feature-card {
                 padding: 1.5rem;
             }
+
             .table-responsive {
                 overflow-x: auto;
                 -webkit-overflow-scrolling: touch;
             }
+
             .card-body {
                 padding: 1rem;
             }
+
             .card-header {
                 flex-direction: column;
                 align-items: flex-start;
@@ -865,7 +872,7 @@
     <div class="mobile-toggle" onclick="toggleMobileSidebar()">
         <i class="fas fa-bars"></i>
     </div>
-    
+
     <div class="mobile-overlay" onclick="toggleMobileSidebar()"></div>
 
     <aside class="sidebar">
@@ -944,7 +951,8 @@
             <div class="trust-value">{{ g.user.company.trust_score_cached or 'N/A' }}</div>
             <div class="trust-meta">
                 {% if g.user.company.credit_scores %}
-                Grade {{ g.user.company.credit_scores[0].credit_grade }}
+                {% set sorted_scores = g.user.company.credit_scores|sort(attribute='scored_at', reverse=True) %}
+                Grade {{ sorted_scores[0].credit_grade }}
                 {% endif %}
             </div>
         </a>
@@ -959,11 +967,13 @@
 
             <div class="language-switcher">
                 <a href="{{ url_for('main.set_language', lang='en') }}"
-                    class="language-btn {% if session.get('language', 'en') == 'en' %}active{% endif %}">
+                    class="language-btn {% if session.get('language', 'en') == 'en' %}active{% endif %}"
+                    style="display: none;">
                     <i class="fas fa-globe"></i> EN
                 </a>
                 <a href="{{ url_for('main.set_language', lang='ch') }}"
-                    class="language-btn {% if session.get('language', 'en') == 'ch' %}active{% endif %}">
+                    class="language-btn {% if session.get('language', 'en') == 'ch' %}active{% endif %}"
+                    style="display: none;">
                     <i class="fas fa-globe-asia"></i> 中文
                 </a>
             </div>
@@ -990,11 +1000,13 @@
         <div class="sidebar-footer">
             <div class="language-switcher">
                 <a href="{{ url_for('main.set_language', lang='en') }}"
-                    class="language-btn {% if session.get('language', 'en') == 'en' %}active{% endif %}">
+                    class="language-btn {% if session.get('language', 'en') == 'en' %}active{% endif %}"
+                    style="display: none;">
                     <i class="fas fa-globe"></i> EN
                 </a>
                 <a href="{{ url_for('main.set_language', lang='ch') }}"
-                    class="language-btn {% if session.get('language', 'en') == 'ch' %}active{% endif %}">
+                    class="language-btn {% if session.get('language', 'en') == 'ch' %}active{% endif %}"
+                    style="display: none;">
                     <i class="fas fa-globe-asia"></i> 中文
                 </a>
             </div>
