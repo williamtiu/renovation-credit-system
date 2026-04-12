@@ -35,7 +35,8 @@
                     <div class="row">
                         <div class="col-md-6">
                             <p><strong>Business Registration:</strong> {{ company.business_registration }}</p>
-                            <p><strong>Company Registration Number:</strong> {{ company.company_registration_number or '-' }}</p>
+                            <p><strong>Company Registration Number:</strong> {{ company.company_registration_number or
+                                '-' }}</p>
                             <p><strong>Contact Person:</strong> {{ company.contact_person or '-' }}</p>
                             <p><strong>Position:</strong> {{ company.contact_position or '-' }}</p>
                             <p><strong>Phone:</strong> {{ company.phone or '-' }}</p>
@@ -43,7 +44,8 @@
                         </div>
                         <div class="col-md-6">
                             <p><strong>Address:</strong> {{ company.address or '-' }}</p>
-                            <p><strong>Annual Revenue:</strong> HK$ {{ "{:,.0f}".format(company.annual_revenue or 0) }}</p>
+                            <p><strong>Annual Revenue:</strong> HK$ {{ "{:,.0f}".format(company.annual_revenue or 0) }}
+                            </p>
                             <p><strong>Completed Projects:</strong> {{ company.project_count_completed or 0 }}</p>
                             <p><strong>Status:</strong> {{ company.status }}</p>
                         </div>
@@ -63,7 +65,8 @@
                             <p><strong>License Number:</strong> {{ company.licence_number or '-' }}</p>
                         </div>
                         <div class="col-md-6">
-                            <p><strong>Licence Verification:</strong> {{ company.licence_verification_status or 'pending' }}</p>
+                            <p><strong>Licence Verification:</strong> {{ company.licence_verification_status or
+                                'pending' }}</p>
                             <p><strong>Licence Expiry:</strong> {{ company.licence_expiry_date or '-' }}</p>
                         </div>
                     </div>
@@ -80,7 +83,8 @@
                             <p><strong>OSH Officer Role:</strong> {{ company.osh_officer_role or '-' }}</p>
                         </div>
                         <div class="col-md-6">
-                            <p><strong>OSH Officer License Number:</strong> {{ company.osh_officer_license_number or '-' }}</p>
+                            <p><strong>OSH Officer License Number:</strong> {{ company.osh_officer_license_number or '-'
+                                }}</p>
                         </div>
                     </div>
                 </div>
@@ -97,7 +101,8 @@
                             <p><strong>Policy Number:</strong> {{ company.insurance_policy_number or '-' }}</p>
                         </div>
                         <div class="col-md-6">
-                            <p><strong>Insurance Verification:</strong> {{ company.insurance_verification_status or 'pending' }}</p>
+                            <p><strong>Insurance Verification:</strong> {{ company.insurance_verification_status or
+                                'pending' }}</p>
                             <p><strong>Insurance Expiry:</strong> {{ company.insurance_expiry_date or '-' }}</p>
                         </div>
                     </div>
@@ -111,12 +116,18 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
-                            <p><strong>Safety Training Coverage:</strong> {{ company.safety_training_coverage if company.safety_training_coverage is not none else '-' }}{% if company.safety_training_coverage is not none %}%{% endif %}</p>
+                            <p><strong>Safety Training Coverage:</strong> {{ company.safety_training_coverage if
+                                company.safety_training_coverage is not none else '-' }}{% if
+                                company.safety_training_coverage is not none %}%{% endif %}</p>
                         </div>
                         <div class="col-md-6">
-                            <p><strong>Safety Incidents (12 months):</strong> {{ company.safety_incident_count or 0 }}</p>
-                            <p><strong>ESG Policy Level:</strong> {{ (company.esg_policy_level or 'none')|replace('_', ' ')|title }}</p>
-                            <p><strong>Green Material Adoption:</strong> {{ company.green_material_ratio if company.green_material_ratio is not none else '-' }}{% if company.green_material_ratio is not none %}%{% endif %}</p>
+                            <p><strong>Safety Incidents (12 months):</strong> {{ company.safety_incident_count or 0 }}
+                            </p>
+                            <p><strong>ESG Policy Level:</strong> {{ (company.esg_policy_level or 'none')|replace('_', '
+                                ')|title }}</p>
+                            <p><strong>Green Material Adoption:</strong> {{ company.green_material_ratio if
+                                company.green_material_ratio is not none else '-' }}{% if company.green_material_ratio
+                                is not none %}%{% endif %}</p>
                         </div>
                     </div>
                 </div>
@@ -137,7 +148,8 @@
                         </div>
                         <div class="report-score-meta">
                             <p><strong>Risk:</strong> {{ latest_score.risk_level }}</p>
-                            <p><strong>Recommended Limit:</strong> HK$ {{ "{:,.0f}".format(latest_score.recommended_loan_limit or 0) }}</p>
+                            <p><strong>Recommended Limit:</strong> HK$ {{
+                                "{:,.0f}".format(latest_score.recommended_loan_limit or 0) }}</p>
                             <p><strong>Interest Rate:</strong> {{ latest_score.recommended_interest_rate or 0 }}%</p>
                         </div>
                     </div>
