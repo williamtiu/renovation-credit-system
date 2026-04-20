@@ -46,50 +46,51 @@
                     <form method="POST" action="{{ url_for('loans.review_application', id=application.id) }}">
                         
                         <!-- Form Status -->
-                        <input type="hidden" name="action" id="action_field" value="">
-
-                        <ul class="nav nav-tabs" id="reviewTabs" role="tablist">
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link active" id="approve-tab" data-bs-toggle="tab" data-bs-target="#approve" type="button" role="tab" aria-controls="approve" aria-selected="true" onclick="document.getElementById('action_field').value='approve'">
-                                    <i class="fas fa-check text-success"></i> Approve
-                                </button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="reject-tab" data-bs-toggle="tab" data-bs-target="#reject" type="button" role="tab" aria-controls="reject" aria-selected="false" onclick="document.getElementById('action_field').value='reject'">
-                                    <i class="fas fa-times text-danger"></i> Reject
-                                </button>
-                            </li>
-                        </ul>
-                        
-                        <div class="tab-content mt-3" id="reviewTabsContent">
-                            <!-- Approve Details -->
-                            <div class="tab-pane fade show active" id="approve" role="tabpanel" aria-labelledby="approve-tab">
-                                <div class="mb-3">
-                                    <label for="approved_amount" class="form-label">Approved Amount (HK$)</label>
-                                    <input type="number" step="0.01" class="form-control" id="approved_amount" name="approved_amount" value="{{ application.loan_amount }}" required>
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Evaluation Decision <span class="text-danger">*</span></label>
+                            <div class="d-flex gap-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="action" id="action_approve" value="approve" required onchange="toggleDecisionFields()">
+                                    <label class="form-check-label text-success" for="action_approve">
+                                        <i class="fas fa-check"></i> Approve
+                                    </label>
                                 </div>
-                                <div class="mb-3">
-                                    <label for="approved_interest_rate" class="form-label">Approved Interest Rate (%)</label>
-                                    <input type="number" step="0.01" class="form-control" id="approved_interest_rate" name="approved_interest_rate" value="{{ application.recommended_interest_rate | default(4.5) }}" required>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="approval_conditions" class="form-label">Additional Conditions (Optional)</label>
-                                    <textarea class="form-control" id="approval_conditions" name="approval_conditions" rows="3" placeholder="e.g., Submit additional docs..."></textarea>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="action" id="action_reject" value="reject" required onchange="toggleDecisionFields()">
+                                    <label class="form-check-label text-danger" for="action_reject">
+                                        <i class="fas fa-times"></i> Reject
+                                    </label>
                                 </div>
                             </div>
-                            
-                            <!-- Reject Details -->
-                            <div class="tab-pane fade" id="reject" role="tabpanel" aria-labelledby="reject-tab">
-                                <div class="mb-3">
-                                    <label for="rejection_reason" class="form-label text-danger">Reason for Rejection *</label>
-                                    <textarea class="form-control" id="rejection_reason" name="rejection_reason" rows="4" placeholder="Please fillReason for Rejection..."></textarea>
-                                    <small class="text-muted">If rejected, this field should be filled (recommended).</small>
-                                </div>
+                        </div>
+
+                        <!-- Approve Details -->
+                        <div id="approve_fields" style="display: none;" class="mt-3">
+                            <div class="mb-3">
+                                <label for="approved_amount" class="form-label">Approved Amount (HK$)</label>
+                                <input type="number" step="0.01" class="form-control" id="approved_amount" name="approved_amount" value="{{ application.loan_amount }}">
+                            </div>
+                            <div class="mb-3">
+                                <label for="approved_interest_rate" class="form-label">Approved Interest Rate (%)</label>
+                                <input type="number" step="0.01" class="form-control" id="approved_interest_rate" name="approved_interest_rate" value="{{ application.recommended_interest_rate | default(4.5) }}">
+                            </div>
+                            <div class="mb-3">
+                                <label for="approval_conditions" class="form-label">Additional Conditions (Optional)</label>
+                                <textarea class="form-control" id="approval_conditions" name="approval_conditions" rows="3" placeholder="e.g., Submit additional docs..."></textarea>
+                            </div>
+                        </div>
+                        
+                        <!-- Reject Details -->
+                        <div id="reject_fields" style="display: none;" class="mt-3">
+                            <div class="mb-3">
+                                <label for="rejection_reason" class="form-label text-danger">Reason for Rejection *</label>
+                                <textarea class="form-control" id="rejection_reason" name="rejection_reason" rows="4" placeholder="Please fillReason for Rejection..."></textarea>
+                                <small class="text-muted">If rejected, this field should be filled (recommended).</small>
                             </div>
                         </div>
                         
                         <div class="mt-4">
-                            <button type="submit" class="btn btn-primary" onclick="if(document.getElementById('action_field').value === '') document.getElementById('action_field').value='approve'; return confirm('Confirm determination?');">Confirm Submission</button>
+                            <button type="submit" class="btn btn-primary" onclick="return confirm('Confirm determination?');">Confirm Submission</button>
                             <a href="{{ url_for('loans.view_application', id=application.id) }}" class="btn btn-secondary">Cancel</a>
                         </div>
                     </form>
@@ -98,4 +99,17 @@
         </div>
     </div>
 </div>
+
+<script>
+function toggleDecisionFields() {
+    const isApprove = document.getElementById('action_approve').checked;
+    const isReject = document.getElementById('action_reject').checked;
+    
+    document.getElementById('approve_fields').style.display = isApprove ? 'block' : 'none';
+    document.getElementById('reject_fields').style.display = isReject ? 'block' : 'none';
+    
+    document.getElementById('approved_amount').required = isApprove;
+    document.getElementById('approved_interest_rate').required = isApprove;
+}
+</script>
 {% endblock %}

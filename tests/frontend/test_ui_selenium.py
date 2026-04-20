@@ -166,24 +166,24 @@ def live_server():
         db.drop_all()
         db.create_all()
 
-        customer = User(username='customer_ui', email='customer_ui@test.com', role='customer')
+        customer = User(usercompany_name='customer_ui', email='customer_ui@test.com', role='customer')
         customer.set_password('password123')
-        company_user = User(username='builder_ui', email='builder_ui@test.com', role='company_user')
+        company_user = User(usercompany_name='builder_ui', email='builder_ui@test.com', role='company_user')
         company_user.set_password('password123')
-        reviewer = User(username='reviewer_ui', email='reviewer_ui@test.com', role='reviewer')
+        reviewer = User(usercompany_name='reviewer_ui', email='reviewer_ui@test.com', role='reviewer')
         reviewer.set_password('password123')
         db.session.add_all([customer, company_user, reviewer])
         db.session.flush()
 
         company = Company(
-            company_name='UI Builder Co',
+            company_company_name='UI Builder Co',
             company_name_en='UI Builder Company Limited',
             business_registration='99887766',
             established_date=date(2020, 1, 1),
             contact_person='UI Tester',
             phone='12345678',
             email='ui-builder@test.com',
-            district='Kowloon',
+            
             annual_revenue=3000000,
             trust_score_cached=730,
             risk_level='low',
@@ -198,11 +198,11 @@ def live_server():
         company_user.company_id = company.id
 
         peer_company = Company(
-            company_name='Alt Builder Co',
+            company_company_name='Alt Builder Co',
             company_name_en='Alt Builder Limited',
             business_registration='11223344',
             established_date=date(2017, 4, 1),
-            district='Hong Kong Island',
+            
             annual_revenue=2200000,
             trust_score_cached=640,
             risk_level='medium',
@@ -373,7 +373,7 @@ def test_reviewer_can_compare_reports_and_download_pdf(live_server):
             driver.find_element(By.CSS_SELECTOR, 'form[action$="/compare-report"] button[type="submit"]').click()
             wait.until(EC.text_to_be_present_in_element((By.TAG_NAME, 'body'), 'Select Companies'))
 
-            checkboxes = wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, 'input[name="company_ids"]')))
+            checkboxes = wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, 'input[company_name="company_ids"]')))
             for checkbox in checkboxes[:2]:
                 if not checkbox.is_selected():
                     checkbox.click()

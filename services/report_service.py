@@ -83,13 +83,13 @@ def build_credit_report_pdf(company, report):
     ]
     cover_table = Table(cover_rows, colWidths=[66 * mm, 56 * mm, 48 * mm])
     cover_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#0f172a')),
+        ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor("#96aee4")),
         ('TEXTCOLOR', (0, 0), (-1, -1), colors.white),
         ('SPAN', (0, 0), (-1, 0)),
         ('SPAN', (0, 1), (-1, 1)),
         ('SPAN', (0, 2), (-1, 2)),
-        ('BOX', (0, 0), (-1, -1), 0.75, colors.HexColor('#0f172a')),
-        ('INNERGRID', (0, 3), (-1, 3), 0.5, colors.HexColor('#334155')),
+        ('BOX', (0, 0), (-1, -1), 0.75, colors.HexColor("#96aee4")),
+        ('INNERGRID', (0, 3), (-1, 3), 0.5, colors.HexColor("#96aee4")),
         ('PADDING', (0, 0), (-1, -1), 8),
     ]))
     story.append(cover_table)
@@ -122,6 +122,7 @@ def build_credit_report_pdf(company, report):
     subject = report.get('subject', {})
     subject_table = _styled_table([
         ['Business registration', _safe_text(subject.get('business_registration'))],
+        ['License number', _safe_text(subject.get('license_number'), 'Missing')],
         ['English name', _safe_text(subject.get('company_name_en'))],
         ['Contact', _safe_text(subject.get('contact_person'))],
         ['Role', _safe_text(subject.get('contact_position'))],
@@ -158,20 +159,6 @@ def build_credit_report_pdf(company, report):
         ])
     verification_table = _styled_table(verification_rows, [70 * mm, 35 * mm, 55 * mm])
     story.append(verification_table)
-    story.append(Spacer(1, 10))
-
-    story.append(_section_heading('OSH And ESG Signals', styles))
-    osh_profile = report.get('osh_profile', {})
-    esg_profile = report.get('esg_profile', {})
-    osh_table = _styled_table([
-        ['Signal', 'Value'],
-        ['Safety training coverage', f"{osh_profile.get('training_coverage')}%" if osh_profile.get('training_coverage') is not None else '-'],
-        ['Safety incidents (12 months)', _safe_text(osh_profile.get('incident_count'), '0')],
-        ['ESG policy level', _safe_text(esg_profile.get('policy_level'), 'none').replace('_', ' ').title()],
-        ['Green material adoption', f"{esg_profile.get('green_material_ratio')}%" if esg_profile.get('green_material_ratio') is not None else '-'],
-        ['ISO certified', 'Yes' if esg_profile.get('iso_certified') else 'No'],
-    ], [72 * mm, 98 * mm])
-    story.append(osh_table)
     story.append(Spacer(1, 10))
 
     story.append(_section_heading('Credit Exposure And Project Behaviour', styles))

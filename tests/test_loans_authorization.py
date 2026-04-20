@@ -26,21 +26,21 @@ def client():
             db.drop_all()
             db.create_all()
 
-            admin = User(username='admin', email='admin@test.com', role='admin')
+            admin = User(usercompany_name='admin', email='admin@test.com', role='admin')
             admin.set_password('password123')
-            reviewer = User(username='reviewer', email='reviewer@test.com', role='reviewer')
+            reviewer = User(usercompany_name='reviewer', email='reviewer@test.com', role='reviewer')
             reviewer.set_password('password123')
-            customer = User(username='customer', email='customer@test.com', role='customer')
+            customer = User(usercompany_name='customer', email='customer@test.com', role='customer')
             customer.set_password('password123')
-            owner = User(username='builder', email='builder@test.com', role='company_user')
+            owner = User(usercompany_name='builder', email='builder@test.com', role='company_user')
             owner.set_password('password123')
-            outsider = User(username='outsider', email='outsider@test.com', role='company_user')
+            outsider = User(usercompany_name='outsider', email='outsider@test.com', role='company_user')
             outsider.set_password('password123')
             db.session.add_all([admin, reviewer, customer, owner, outsider])
             db.session.flush()
 
             company = Company(
-                company_name='Owner Company',
+                company_company_name='Owner Company',
                 business_registration='12345678',
                 established_date=date(2020, 1, 1),
                 owner_user_id=owner.id,
@@ -50,7 +50,7 @@ def client():
                 status='active',
             )
             other_company = Company(
-                company_name='Other Company',
+                company_company_name='Other Company',
                 business_registration='87654321',
                 established_date=date(2019, 1, 1),
                 owner_user_id=outsider.id,

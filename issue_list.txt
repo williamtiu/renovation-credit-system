@@ -1,0 +1,39 @@
+when the page not in full screen , it seem have problem 
+when the page running in mobile deiece , it have issus 
+
+http://localhost:5001/loans/*/review
+
+The UI of Evaluate Application , approve and reject is not clear , it should be a selection box 
+
+
+http://localhost:5001/loans/add
+
+請在此加入核取方塊，供公司授權 DecoFinance 使用並分享其資料以進行貸款轉介。
+
+I authorize DecoFinance to share the Company’s evaluation package (validated documents, credit score, and assessment report) with partner financial institutions for loan consideration. I understand DecoFinance only provides referral and information services and does not guarantee loan approval; I may withdraw this consent in writing, subject to prior processing.
+
+
+http://localhost:5001/loans/add 
+(允許公司選擇，這三間銀行為 DecoFinance 的合作銀行)
+In the New Loan Application ,this is for the company apply the loan in the Financial Institution update the load as following
+
+
+Financial Institution
+1. Hang Seng Bank
+2. Bank of China
+3. MOX Bank
+4. Others: 
+
+
+Input : ____
+(if select others , Financial Institution Name)
+
+Related Project
+if "Related Project" is no linked progkect 
+
+因為現在沒有項目投標，應考慮要求公司仔細描述裝修項目
+add extra input data : 
+1. Renovation Project Details
+2. Renovation Project Name
+3. Project Location (e.g. Flat A, 10/F, XX Building, Tsim Sha Tsui, Kowloon)
+4. DecoFinance Customer ID (if applicable) 

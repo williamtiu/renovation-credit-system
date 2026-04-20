@@ -53,7 +53,7 @@ def list_loans():
                          status=status)
 
 @loans_bp.route('/add', methods=['GET', 'POST'])
-@role_required('company_user')
+@role_required('company_user', 'admin')
 def add_application():
     if request.method == 'POST':
         try:
@@ -68,13 +68,11 @@ def add_application():
                 require_ownership(g.user.company_id == company_id)
 
             project_id = int(request.form['project_id']) if request.form.get('project_id') else None
-            if project_id is not None and g.user.role == 'company_user':
+            if project_id is not None:
                 project = db.session.get(Project, project_id)
-                require_ownership(
-                    project is not None
-                    and project.accepted_bid_id is not None
-                    and any(bid.id == project.accepted_bid_id and bid.company_id == g.user.company_id for bid in project.bids)
-                )
+                if not project or not project.accepted_bid_id or not any(bid.id == project.accepted_bid_id and bid.company_id == company_id for bid in project.bids):
+                    flash('Selected project is not linked to the specified company.', 'error')
+                    return redirect(url_for('loans.add_application'))
             
             latest_score = CreditScore.query.filter_by(company_id=company_id).order_by(CreditScore.scored_at.desc()).first()
             
@@ -87,7 +85,7 @@ def add_application():
                 collateral_type=request.form.get('collateral_type'),
                 collateral_value=float(request.form.get('collateral_value', 0)),
                 guarantor=request.form.get('guarantor'),
-                bank_name=request.form.get('bank_name'),
+                bank_name=request.form.get('bank_name_other') if request.form.get('bank_name') == 'Others' else request.form.get('bank_name'),
                 bank_officer=request.form.get('bank_officer'),
                 project_id=project_id,
                 credit_score_at_application=latest_score.credit_score if latest_score else None,
@@ -108,8 +106,17 @@ def add_application():
             db.session.rollback()
             flash(f'Failed to submit application: {str(e)}', 'error')
     
-    companies = Company.query.filter_by(id=g.user.company_id, status='active').all()
-    projects = _visible_projects_for_company(g.user.company_id)
+    if g.user.role == 'admin':
+        companies = Company.query.all()
+        projects = Project.query.filter(Project.accepted_bid_id.isnot(None)).all()
+        for p in projects:
+            p.awarded_company_id = next((b.company_id for b in p.bids if b.id == p.accepted_bid_id), 'none')
+    else:
+        companies = Company.query.filter_by(id=g.user.company_id, status='active').all()
+        projects = _visible_projects_for_company(g.user.company_id)
+        for p in projects:
+            p.awarded_company_id = g.user.company_id
+        
     return render_template_with_lang_fallback('loans/form.html', companies=companies, projects=projects, application=None)
 
 @loans_bp.route('/<int:id>')

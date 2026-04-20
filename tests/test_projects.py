@@ -26,16 +26,16 @@ def app_client():
         with app.app_context():
             db.drop_all()
             db.create_all()
-            customer = User(username='customer', email='customer@test.com', role='customer')
+            customer = User(usercompany_name='customer', email='customer@test.com', role='customer')
             customer.set_password('password123')
-            company_user = User(username='builder', email='builder@test.com', role='company_user')
+            company_user = User(usercompany_name='builder', email='builder@test.com', role='company_user')
             company_user.set_password('password123')
-            other_company_user = User(username='other-builder', email='other-builder@test.com', role='company_user')
+            other_company_user = User(usercompany_name='other-builder', email='other-builder@test.com', role='company_user')
             other_company_user.set_password('password123')
             db.session.add_all([customer, company_user, other_company_user])
             db.session.flush()
             company = Company(
-                company_name='Builder Co',
+                company_company_name='Builder Co',
                 business_registration='87654321',
                 owner_user_id=company_user.id,
                 licence_verification_status='verified',
@@ -47,7 +47,7 @@ def app_client():
             db.session.flush()
             company_user.company_id = company.id
             other_company = Company(
-                company_name='Other Builder Co',
+                company_company_name='Other Builder Co',
                 business_registration='87654322',
                 owner_user_id=other_company_user.id,
                 licence_verification_status='verified',
@@ -158,7 +158,7 @@ def test_contract_lifecycle_updates_with_milestones_and_disputes(app_client):
 
     reviewer_id = None
     with app_client.application.app_context():
-        reviewer = User(username='reviewer', email='reviewer@test.com', role='reviewer')
+        reviewer = User(usercompany_name='reviewer', email='reviewer@test.com', role='reviewer')
         reviewer.set_password('password123')
         db.session.add(reviewer)
         db.session.commit()
@@ -265,7 +265,7 @@ def test_only_accepted_company_can_submit_milestone(app_client):
         db.session.add(accepted_bid)
         db.session.flush()
         project.accepted_bid_id = accepted_bid.id
-        milestone = ProjectMilestone(project_id=project.id, sequence_no=1, name='Stage 1', planned_amount=50000, status='planned')
+        milestone = ProjectMilestone(project_id=project.id, sequence_no=1, company_name='Stage 1', planned_amount=50000, status='planned')
         db.session.add(milestone)
         db.session.commit()
 
@@ -296,7 +296,7 @@ def test_open_dispute_blocks_milestone_approval(app_client):
         db.session.add(accepted_bid)
         db.session.flush()
         project.accepted_bid_id = accepted_bid.id
-        milestone = ProjectMilestone(project_id=project.id, sequence_no=1, name='Stage 1', planned_amount=40000, status='submitted')
+        milestone = ProjectMilestone(project_id=project.id, sequence_no=1, company_name='Stage 1', planned_amount=40000, status='submitted')
         dispute = DisputeCase(project_id=project.id, milestone_id=milestone.id, opened_by_user_id=1, against_company_id=1, dispute_type='quality_issue', description='Issue still open')
         db.session.add_all([milestone, dispute])
         db.session.commit()

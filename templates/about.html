@@ -3,93 +3,241 @@
 {% block title %}About - DecoFinance{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="row justify-content-center">
-        <div class="col-md-10">
-            <h1 class="text-center mb-4"><i class="fas fa-info-circle"></i> About DecoFinance</h1>
-            
-            <div class="card">
-                <div class="card-body">
-                    <h3>🏠 Platform Introduction</h3>
-                    <p>
-                        DecoFinance is a renovation-finance platform built for lenders, suppliers, and customers who need a clearer way to verify contractors, score risk, and release funding against real project progress.
-                    </p>
-                    
-                    <hr>
-                    
-                    <h3>🎯 Core Modules</h3>
-                    <ul>
-                        <li><strong>Decorator Trust Registry:</strong> Maintain verified company profiles, licences, references, insurance, and operational credentials.</li>
-                        <li><strong>Renovation Credit Scoring:</strong> Evaluate firms across financial strength, operational stability, qualifications, and customer reviews.</li>
-                        <li><strong>Project-Backed Financing:</strong> Connect verified projects, bids, milestones, escrow logic, and underwriting decisions.</li>
-                        <li><strong>Risk Management Dashboard:</strong> Monitor score drift, exposure, disputes, overdue balances, and portfolio watchlists.</li>
-                        <li><strong>Audit And Compliance:</strong> Preserve consent, verification history, and reviewer actions for controlled lending workflows.</li>
-                    </ul>
-                    
-                    <hr>
-                    
-                    <h3>📊 Scoring Model (v2.0)</h3>
-                    <p>The DecoFinance score uses four dimensions tuned for the renovation sector:</p>
-                    <table class="table table-bordered">
-                        <thead>
-                            <tr>
-                                <th>Dimension</th>
-                                <th>Max Points</th>
-                                <th>Key Metrics</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><strong>Financial Strength</strong></td>
-                                <td>600 Points</td>
-                                <td>Registered Capital, Annual Revenue, Current Ratio, Cash Ratio, Debt-to-Equity</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Operational Stability</strong></td>
-                                <td>250 Points</td>
-                                <td>Years in Business, Completed Projects, Employee Count</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Qualifications</strong></td>
-                                <td>200 Points</td>
-                                <td>Business Registration, Minor Works Contractor Registration, Insurance, OSH Safety Officer, ISO Certification</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Customer Reviews</strong></td>
-                                <td>300 Points</td>
-                                <td>Average Customer Rating, DecoFinance Subjective Assessment</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    
-                    <div class="alert alert-info mt-3">
-                        <strong>Total Score Range:</strong> 0 - 1000 Points<br>
-                        <strong>Score Validity:</strong> 180 days<br>
-                        <strong>Credit Grades:</strong> AAA (751-1000), AA (701-750), A (651-700), BBB (601-650), BB (551-600), B (501-550), C (0-500)
-                    </div>
-                    
-                    <hr>
-                    
-                    <h3>🔒 Security And Privacy</h3>
-                    <p>
-                        The platform records consent, reviewer decisions, and operational checkpoints so financing teams can work with stronger controls and traceability.
-                    </p>
-                    
-                    <hr>
-                    
-                    <h3>📞 Market Focus</h3>
-                    <p>
-                        DecoFinance is designed around Hong Kong renovation market pain points: fragmented contractor quality, uneven cashflow, milestone disputes, and limited lender visibility into live project risk.
-                    </p>
-                    
-                    <div class="text-center mt-4">
-                        <a href="{{ url_for('main.index') }}" class="btn btn-primary">
-                            <i class="fas fa-home"></i> Back to Home
-                        </a>
-                    </div>
+<!-- Hero Section -->
+<div style="background: linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%); padding: 4rem 0; text-align: center;">
+    <div class="container" style="max-width: 1200px; margin: 0 auto; padding: 0 2rem;">
+        <div
+            style="display: inline-block; padding: 0.5rem 1rem; background: #e0e7ff; border-radius: 20px; font-size: 0.875rem; font-weight: 500; color: #4f46e5; margin-bottom: 1.5rem;">
+            About Us
+        </div>
+        <h1 style="font-size: 2.5rem; font-weight: 700; margin: 0 0 1rem 0; color: #1a1a1a;">DecoFinance</h1>
+        <p style="font-size: 1.125rem; color: #6b7280; max-width: 800px; margin: 0 auto;">
+            A renovation-finance platform built for lenders, suppliers, and customers who need a clearer way to verify
+            contractors, score risk, and release funding against real project progress.
+        </p>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div style="padding: 4rem 0; background: white;">
+    <div class="container" style="max-width: 1000px; margin: 0 auto; padding: 0 2rem;">
+        <!-- Platform Introduction -->
+        <div style="margin-bottom: 3rem;">
+            <div style="display: flex; align-items: center; margin-bottom: 1.5rem;">
+                <div
+                    style="width: 48px; height: 48px; background: #e0e7ff; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-right: 1rem;">
+                    <i class="fas fa-home" style="color: #4f46e5; font-size: 1.5rem;"></i>
                 </div>
+                <h2 style="font-size: 1.75rem; font-weight: 600; margin: 0; color: #1a1a1a;">Platform Introduction</h2>
             </div>
+            <p style="font-size: 1rem; color: #6b7280; line-height: 1.6; margin: 0;">
+                DecoFinance is a renovation-finance platform built for lenders, suppliers, and customers who need a
+                clearer way to verify contractors, score risk, and release funding against real project progress.
+            </p>
+        </div>
+
+        <!-- Core Modules -->
+        <div style="margin-bottom: 3rem;">
+            <div style="display: flex; align-items: center; margin-bottom: 1.5rem;">
+                <div
+                    style="width: 48px; height: 48px; background: #e0e7ff; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-right: 1rem;">
+                    <i class="fas fa-tasks" style="color: #4f46e5; font-size: 1.5rem;"></i>
+                </div>
+                <h2 style="font-size: 1.75rem; font-weight: 600; margin: 0; color: #1a1a1a;">Core Modules</h2>
+            </div>
+            <div style="background: #f9fafb; border-radius: 12px; padding: 2rem; border: 1px solid #e5e7eb;">
+                <ul style="list-style: none; padding: 0; margin: 0;">
+                    <li
+                        style="display: flex; align-items: flex-start; margin-bottom: 1.25rem; padding-bottom: 1.25rem; border-bottom: 1px solid #e5e7eb;">
+                        <i class="fas fa-check-circle"
+                            style="color: #10b981; font-size: 1.25rem; margin-right: 1rem; margin-top: 0.25rem;"></i>
+                        <div>
+                            <strong
+                                style="display: block; font-size: 1rem; font-weight: 600; color: #1a1a1a; margin-bottom: 0.25rem;">Decorator
+                                Trust Registry</strong>
+                            <p style="font-size: 0.875rem; color: #6b7280; margin: 0;">Maintain verified company
+                                profiles, licences, references, insurance, and operational credentials.</p>
+                        </div>
+                    </li>
+                    <li
+                        style="display: flex; align-items: flex-start; margin-bottom: 1.25rem; padding-bottom: 1.25rem; border-bottom: 1px solid #e5e7eb;">
+                        <i class="fas fa-check-circle"
+                            style="color: #10b981; font-size: 1.25rem; margin-right: 1rem; margin-top: 0.25rem;"></i>
+                        <div>
+                            <strong
+                                style="display: block; font-size: 1rem; font-weight: 600; color: #1a1a1a; margin-bottom: 0.25rem;">Renovation
+                                Credit Scoring</strong>
+                            <p style="font-size: 0.875rem; color: #6b7280; margin: 0;">Evaluate firms across financial
+                                strength, operational stability, qualifications, and customer reviews.</p>
+                        </div>
+                    </li>
+                    <li
+                        style="display: flex; align-items: flex-start; margin-bottom: 1.25rem; padding-bottom: 1.25rem; border-bottom: 1px solid #e5e7eb;">
+                        <i class="fas fa-check-circle"
+                            style="color: #10b981; font-size: 1.25rem; margin-right: 1rem; margin-top: 0.25rem;"></i>
+                        <div>
+                            <strong
+                                style="display: block; font-size: 1rem; font-weight: 600; color: #1a1a1a; margin-bottom: 0.25rem;">Project-Backed
+                                Financing</strong>
+                            <p style="font-size: 0.875rem; color: #6b7280; margin: 0;">Connect verified projects, bids,
+                                milestones, escrow logic, and underwriting decisions.</p>
+                        </div>
+                    </li>
+                    <li
+                        style="display: flex; align-items: flex-start; margin-bottom: 1.25rem; padding-bottom: 1.25rem; border-bottom: 1px solid #e5e7eb;">
+                        <i class="fas fa-check-circle"
+                            style="color: #10b981; font-size: 1.25rem; margin-right: 1rem; margin-top: 0.25rem;"></i>
+                        <div>
+                            <strong
+                                style="display: block; font-size: 1rem; font-weight: 600; color: #1a1a1a; margin-bottom: 0.25rem;">Risk
+                                Management Dashboard</strong>
+                            <p style="font-size: 0.875rem; color: #6b7280; margin: 0;">Monitor score drift, exposure,
+                                disputes, overdue balances, and portfolio watchlists.</p>
+                        </div>
+                    </li>
+                    <li style="display: flex; align-items: flex-start;">
+                        <i class="fas fa-check-circle"
+                            style="color: #10b981; font-size: 1.25rem; margin-right: 1rem; margin-top: 0.25rem;"></i>
+                        <div>
+                            <strong
+                                style="display: block; font-size: 1rem; font-weight: 600; color: #1a1a1a; margin-bottom: 0.25rem;">Audit
+                                And Compliance</strong>
+                            <p style="font-size: 0.875rem; color: #6b7280; margin: 0;">Preserve consent, verification
+                                history, and reviewer actions for controlled lending workflows.</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Scoring Model -->
+        <div style="margin-bottom: 3rem;">
+            <div style="display: flex; align-items: center; margin-bottom: 1.5rem;">
+                <div
+                    style="width: 48px; height: 48px; background: #e0e7ff; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-right: 1rem;">
+                    <i class="fas fa-chart-line" style="color: #4f46e5; font-size: 1.5rem;"></i>
+                </div>
+                <h2 style="font-size: 1.75rem; font-weight: 600; margin: 0; color: #1a1a1a;">Scoring Model (v2.0)</h2>
+            </div>
+            <p style="font-size: 1rem; color: #6b7280; line-height: 1.6; margin: 0 0 1.5rem 0;">
+                The DecoFinance score uses four dimensions tuned for the renovation sector:
+            </p>
+            <div style="overflow-x: auto;">
+                <table
+                    style="width: 100%; border-collapse: collapse; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);">
+                    <thead style="background: #f3f4f6;">
+                        <tr>
+                            <th
+                                style="padding: 1rem; text-align: left; font-size: 0.875rem; font-weight: 600; color: #374151; border-bottom: 1px solid #e5e7eb;">
+                                Dimension</th>
+                            <th
+                                style="padding: 1rem; text-align: right; font-size: 0.875rem; font-weight: 600; color: #374151; border-bottom: 1px solid #e5e7eb;">
+                                Max Points</th>
+                            <th
+                                style="padding: 1rem; text-align: left; font-size: 0.875rem; font-weight: 600; color: #374151; border-bottom: 1px solid #e5e7eb;">
+                                Key Metrics</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: white; border-bottom: 1px solid #e5e7eb;">
+                            <td style="padding: 1rem; font-size: 0.875rem; font-weight: 500; color: #1a1a1a;">Financial
+                                Strength</td>
+                            <td style="padding: 1rem; text-align: right; font-size: 0.875rem; color: #6b7280;">400
+                                Points</td>
+                            <td style="padding: 1rem; font-size: 0.875rem; color: #6b7280;">Registered Capital, Annual
+                                Revenue, Current Ratio, Cash Ratio, Debt-to-Equity</td>
+                        </tr>
+                        <tr style="background: #f9fafb; border-bottom: 1px solid #e5e7eb;">
+                            <td style="padding: 1rem; font-size: 0.875rem; font-weight: 500; color: #1a1a1a;">
+                                Operational Stability</td>
+                            <td style="padding: 1rem; text-align: right; font-size: 0.875rem; color: #6b7280;">250
+                                Points</td>
+                            <td style="padding: 1rem; font-size: 0.875rem; color: #6b7280;">Years in Business, Completed
+                                Projects, Employee Count</td>
+                        </tr>
+                        <tr style="background: white; border-bottom: 1px solid #e5e7eb;">
+                            <td style="padding: 1rem; font-size: 0.875rem; font-weight: 500; color: #1a1a1a;">
+                                Qualifications</td>
+                            <td style="padding: 1rem; text-align: right; font-size: 0.875rem; color: #6b7280;">200
+                                Points</td>
+                            <td style="padding: 1rem; font-size: 0.875rem; color: #6b7280;">Business Registration, Minor
+                                Works Contractor Registration, Insurance, OSH Safety Officer, ISO Certification</td>
+                        </tr>
+                        <tr style="background: #f9fafb;">
+                            <td style="padding: 1rem; font-size: 0.875rem; font-weight: 500; color: #1a1a1a;">Customer
+                                Reviews</td>
+                            <td style="padding: 1rem; text-align: right; font-size: 0.875rem; color: #6b7280;">150
+                                Points</td>
+                            <td style="padding: 1rem; font-size: 0.875rem; color: #6b7280;">Average Customer Rating,
+                                DecoFinance Subjective Assessment</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div
+                style="background: #eff6ff; border-radius: 8px; padding: 1.5rem; margin-top: 1.5rem; border: 1px solid #dbeafe;">
+                <h4 style="font-size: 1rem; font-weight: 600; color: #1e40af; margin: 0 0 1rem 0;">Score Details</h4>
+                <ul style="list-style: none; padding: 0; margin: 0;">
+                    <li style="display: flex; align-items: center; margin-bottom: 0.5rem;">
+                        <i class="fas fa-circle" style="color: #3b82f6; font-size: 0.5rem; margin-right: 0.75rem;"></i>
+                        <span style="font-size: 0.875rem; color: #374151;"><strong>Total Score Range:</strong> 0 - 1000
+                            Points</span>
+                    </li>
+                    <li style="display: flex; align-items: center; margin-bottom: 0.5rem;">
+                        <i class="fas fa-circle" style="color: #3b82f6; font-size: 0.5rem; margin-right: 0.75rem;"></i>
+                        <span style="font-size: 0.875rem; color: #374151;"><strong>Score Validity:</strong> 180
+                            days</span>
+                    </li>
+                    <li style="display: flex; align-items: center;">
+                        <i class="fas fa-circle" style="color: #3b82f6; font-size: 0.5rem; margin-right: 0.75rem;"></i>
+                        <span style="font-size: 0.875rem; color: #374151;"><strong>Credit Grades:</strong> AAA
+                            (900-1000), AA (800-899), A (700-799), BBB (600-699), BB (500-599), B (400-499), C
+                            (0-399)</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Security And Privacy -->
+        <div style="margin-bottom: 3rem;">
+            <div style="display: flex; align-items: center; margin-bottom: 1.5rem;">
+                <div
+                    style="width: 48px; height: 48px; background: #e0e7ff; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-right: 1rem;">
+                    <i class="fas fa-shield-alt" style="color: #4f46e5; font-size: 1.5rem;"></i>
+                </div>
+                <h2 style="font-size: 1.75rem; font-weight: 600; margin: 0; color: #1a1a1a;">Security And Privacy</h2>
+            </div>
+            <p style="font-size: 1rem; color: #6b7280; line-height: 1.6; margin: 0;">
+                The platform records consent, reviewer decisions, and operational checkpoints so financing teams can
+                work with stronger controls and traceability.
+            </p>
+        </div>
+
+        <!-- Market Focus -->
+        <div style="margin-bottom: 3rem;">
+            <div style="display: flex; align-items: center; margin-bottom: 1.5rem;">
+                <div
+                    style="width: 48px; height: 48px; background: #e0e7ff; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-right: 1rem;">
+                    <i class="fas fa-map-marker-alt" style="color: #4f46e5; font-size: 1.5rem;"></i>
+                </div>
+                <h2 style="font-size: 1.75rem; font-weight: 600; margin: 0; color: #1a1a1a;">Market Focus</h2>
+            </div>
+            <p style="font-size: 1rem; color: #6b7280; line-height: 1.6; margin: 0;">
+                DecoFinance is designed around Hong Kong renovation market pain points: fragmented contractor quality,
+                uneven cashflow, milestone disputes, and limited lender visibility into live project risk.
+            </p>
+        </div>
+
+        <!-- Back to Home Button -->
+        <div style="text-align: center; margin-top: 4rem;">
+            <a href="{{ url_for('main.index') }}"
+                style="background: #2563eb; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 6px; font-size: 1rem; font-weight: 500; text-decoration: none; transition: background-color 0.2s; display: inline-flex; align-items: center;">
+                <i class="fas fa-home mr-2" style="margin-right: 0.5rem;"></i> Back to Home
+            </a>
         </div>
     </div>
 </div>
+
+
 {% endblock %}

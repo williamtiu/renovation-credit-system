@@ -3,62 +3,147 @@
 {% block title %}Dashboard - DecoFinance{% endblock %}
 
 {% block content %}
-<div class="page-header">
-    <h1>Dashboard</h1>
-    <p>Portfolio Monitoring & Risk Management</p>
+<div class="page-header" style="text-align: center; padding: 2rem 0; margin-bottom: 1.5rem;">
+    <h1 style="margin: 0 0 0.5rem 0; font-size: 2.5rem; font-weight: 700; color: #1a1a1a;">Welcome back, {{
+        g.user.company_name or g.user.username }}!</h1>
+    <p style="margin: 0; font-size: 1.1rem; color: #666;">Here's your business overview for today</p>
 </div>
 
 <div class="content-wrapper">
-    <div class="dashboard-hero-panel">
-        <div>
-            <p class="dashboard-eyebrow">Portfolio Monitoring</p>
-            <h2>DecoFinance Risk Management Dashboard</h2>
-            <p class="text-muted">A lender-facing view of trust scores, verification backlog, OSH review pressure, ESG readiness, loan pipeline stress, and dispute hotspots.</p>
+    <!-- Key Metrics Section -->
+    <div class="dashboard-metrics-grid"
+        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+        <!-- Trust Score Card -->
+        <div
+            style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                <h3 style="margin: 0; font-size: 1rem; font-weight: 500; opacity: 0.9;">Trust Score</h3>
+                <i class="fas fa-shield-alt" style="font-size: 1.5rem; opacity: 0.8;"></i>
+            </div>
+            <div style="margin-bottom: 0.5rem;">
+                <span style="font-size: 2.5rem; font-weight: 700;">{{ g.user.company.trust_score_cached or 0 }}</span>
+            </div>
+            <div style="display: flex; align-items: center; font-size: 0.875rem;">
+                <span style="color: #dcfce7; margin-right: 0.5rem;">+18 this month</span>
+                <span
+                    style="background: rgba(255, 255, 255, 0.2); padding: 0.25rem 0.5rem; border-radius: 12px; font-size: 0.75rem;">Grade
+                    {{ g.user.company.credit_scores[0].credit_grade if g.user.company.credit_scores else 'N/A' }}</span>
+            </div>
         </div>
-        <div class="metric-strip">
-            <div class="metric-pill"><span>Scored companies</span><strong>{{ scored_companies }}/{{ total_companies }}</strong></div>
-            <div class="metric-pill"><span>Average trust score</span><strong>{{ '%.0f'|format(average_trust_score) if average_trust_score else '0' }}</strong></div>
-            <div class="metric-pill"><span>Approved volume</span><strong>HK$ {{ '{:,.0f}'.format(approved_loan_volume or 0) }}</strong></div>
+
+        <!-- Active Projects Card -->
+        <div
+            style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); border: 1px solid #e5e7eb;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                <h3 style="margin: 0; font-size: 1rem; font-weight: 500; color: #4b5563;">Active Projects</h3>
+                <i class="fas fa-project-diagram" style="font-size: 1.5rem; color: #6b7280;"></i>
+            </div>
+            <div style="margin-bottom: 0.5rem;">
+                <span style="font-size: 2.5rem; font-weight: 700; color: #1a1a1a;">2</span>
+            </div>
+            <div style="font-size: 0.875rem; color: #6b7280;">
+                1 pending bids
+            </div>
         </div>
-        <div class="page-actions">
+
+        <!-- Total Loans Card -->
+        <div
+            style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); border: 1px solid #e5e7eb;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                <h3 style="margin: 0; font-size: 1rem; font-weight: 500; color: #4b5563;">Total Loans</h3>
+                <i class="fas fa-money-bill-wave" style="font-size: 1.5rem; color: #6b7280;"></i>
+            </div>
+            <div style="margin-bottom: 0.5rem;">
+                <span style="font-size: 2.5rem; font-weight: 700; color: #1a1a1a;">$100K</span>
+            </div>
+            <div style="font-size: 0.875rem; color: #6b7280;">
+                1 under review
+            </div>
+        </div>
+
+        <!-- Contracts Card -->
+        <div
+            style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); border: 1px solid #e5e7eb;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                <h3 style="margin: 0; font-size: 1rem; font-weight: 500; color: #4b5563;">Contracts</h3>
+                <i class="fas fa-file-contract" style="font-size: 1.5rem; color: #6b7280;"></i>
+            </div>
+            <div style="margin-bottom: 0.5rem;">
+                <span style="font-size: 2.5rem; font-weight: 700; color: #1a1a1a;">1</span>
+            </div>
+            <div style="font-size: 0.875rem; color: #6b7280;">
+                $45K released
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Hero Panel -->
+    <div class="dashboard-hero-panel"
+        style="background: #f9fafb; border-radius: 12px; padding: 2rem; margin-bottom: 2rem; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);">
+        <div style="margin-bottom: 1.5rem;">
+            <p class="dashboard-eyebrow"
+                style="margin: 0 0 0.5rem 0; font-size: 0.875rem; font-weight: 500; color: #6b7280;">Portfolio
+                Monitoring</p>
+            <h2 style="margin: 0 0 0.75rem 0; font-size: 1.75rem; font-weight: 600; color: #1a1a1a;">DecoFinance Risk
+                Management Dashboard</h2>
+            <p class="text-muted" style="margin: 0; color: #6b7280; line-height: 1.6;">A lender-facing view of trust
+                scores, verification backlog, OSH review pressure, loan pipeline stress, and dispute
+                hotspots.</p>
+        </div>
+        <div class="metric-strip" style="display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
+            <div class="metric-pill"
+                style="background: white; padding: 0.75rem 1rem; border-radius: 8px; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1); display: flex; flex-direction: column;">
+                <span style="font-size: 0.75rem; color: #6b7280; margin-bottom: 0.25rem;">Scored companies</span>
+                <strong style="font-size: 1.125rem; color: #1a1a1a;">{{ scored_companies }}/{{ total_companies
+                    }}</strong>
+            </div>
+            <div class="metric-pill"
+                style="background: white; padding: 0.75rem 1rem; border-radius: 8px; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1); display: flex; flex-direction: column;">
+                <span style="font-size: 0.75rem; color: #6b7280; margin-bottom: 0.25rem;">Average trust score</span>
+                <strong style="font-size: 1.125rem; color: #1a1a1a;">{{ '%.0f'|format(average_trust_score) if
+                    average_trust_score else '0' }}</strong>
+            </div>
+            <div class="metric-pill"
+                style="background: white; padding: 0.75rem 1rem; border-radius: 8px; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1); display: flex; flex-direction: column;">
+                <span style="font-size: 0.75rem; color: #6b7280; margin-bottom: 0.25rem;">Approved volume</span>
+                <strong style="font-size: 1.125rem; color: #1a1a1a;">HK$ {{ '{:,.0f}'.format(approved_loan_volume or 0)
+                    }}</strong>
+            </div>
+        </div>
+        <div class="page-actions" style="display: flex; gap: 1rem;">
             {% if g.user and g.user.role in ['admin', 'reviewer'] %}
-            <a href="{{ url_for('companies.compare_reports') }}" class="btn btn-primary">Compare Reports</a>
-            <a href="{{ url_for('admin.audit_logs') }}" class="btn btn-secondary">Review Audit Trail</a>
+            <a href="{{ url_for('companies.compare_reports') }}" class="btn btn-primary"
+                style="background: #2563eb; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 500; text-decoration: none; display: inline-flex; align-items: center;">Compare
+                Reports</a>
+            <a href="{{ url_for('admin.audit_logs') }}" class="btn btn-secondary"
+                style="background: #f3f4f6; color: #374151; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 500; text-decoration: none; display: inline-flex; align-items: center;">Review
+                Audit Trail</a>
             {% else %}
-            <a href="{{ url_for('companies.list_companies') }}" class="btn btn-secondary">Browse Companies</a>
+            <a href="{{ url_for('companies.list_companies') }}" class="btn btn-secondary"
+                style="background: #f3f4f6; color: #374151; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 500; text-decoration: none; display: inline-flex; align-items: center;">Browse
+                Companies</a>
             {% endif %}
         </div>
     </div>
 
     <div class="dashboard-kpi-grid">
-        <div class="kpi-card"><span>Total companies</span><strong>{{ total_companies }}</strong><small>Registered renovation suppliers</small></div>
-        <div class="kpi-card"><span>Verified for bidding</span><strong>{{ verified_companies }}</strong><small>Passed licence and insurance checks</small></div>
-        <div class="kpi-card"><span>Total projects</span><strong>{{ total_projects }}</strong><small>Tracked escrow and delivery jobs</small></div>
-        <div class="kpi-card alert"><span>Open disputes</span><strong>{{ open_disputes }}</strong><small>Cases needing active review</small></div>
-        <div class="kpi-card warning"><span>Verification backlog</span><strong>{{ verification_backlog }}</strong><small>Companies missing complete verification</small></div>
-        <div class="kpi-card warning"><span>Safety review backlog</span><strong>{{ safety_review_backlog }}</strong><small>Companies missing OSH controls or training evidence</small></div>
-        <div class="kpi-card"><span>ESG-ready companies</span><strong>{{ esg_ready_companies }}</strong><small>Declared ESG policy with sustainable delivery intent</small></div>
+        <div class="kpi-card"><span>Total companies</span><strong>{{ total_companies }}</strong><small>Registered
+                renovation suppliers</small></div>
+        <div class="kpi-card"><span>Verified for bidding</span><strong>{{ verified_companies }}</strong><small>Passed
+                licence and insurance checks</small></div>
+        <div class="kpi-card"><span>Total projects</span><strong>{{ total_projects }}</strong><small>Tracked escrow and
+                delivery jobs</small></div>
+        <div class="kpi-card alert"><span>Open disputes</span><strong>{{ open_disputes }}</strong><small>Cases needing
+                active review</small></div>
+        <div class="kpi-card warning"><span>Verification backlog</span><strong>{{ verification_backlog
+                }}</strong><small>Companies missing complete verification</small></div>
+        <div class="kpi-card warning"><span>Safety review backlog</span><strong>{{ safety_review_backlog
+                }}</strong><small>Companies missing OSH controls or training evidence</small></div>
+        <div class="kpi-card"><span>ESG-ready companies</span><strong>{{ esg_ready_companies }}</strong><small>Declared
+                ESG policy with sustainable delivery intent</small></div>
     </div>
 
-    <div class="dashboard-grid">
-        <div class="card">
-            <div class="card-header">
-                <h2><i class="fas fa-chart-line me-2"></i>Score Trend</h2>
-            </div>
-            <div class="card-body">
-                <div id="score-trend-chart" class="chart-shell" data-chart-kind="line" data-chart-points='{{ score_trend_series|tojson }}'></div>
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="card-header">
-                <h2><i class="fas fa-exclamation-triangle me-2"></i>Dispute Trend</h2>
-            </div>
-            <div class="card-body">
-                <div id="dispute-trend-chart" class="chart-shell" data-chart-kind="bar" data-chart-points='{{ dispute_trend_series|tojson }}'></div>
-            </div>
-        </div>
-    </div>
+    <div style="margin-top: 2rem;"></div>
 
     {% if g.user and g.user.role in ['admin', 'reviewer'] %}
     <div class="card">
@@ -102,7 +187,7 @@
     </div>
     {% endif %}
 
-    <div class="dashboard-grid">
+    <div class="dashboard-grid" style="margin-top: 2.5rem;">
         <div class="card">
             <div class="card-header">
                 <h2><i class="fas fa-chart-pie me-2"></i>Portfolio Overview</h2>
@@ -113,7 +198,12 @@
                     {% if grade_distribution %}
                     <div class="table-responsive">
                         <table class="table">
-                            <thead><tr><th>Grade</th><th>Count</th></tr></thead>
+                            <thead>
+                                <tr>
+                                    <th>Grade</th>
+                                    <th>Count</th>
+                                </tr>
+                            </thead>
                             <tbody>
                                 {% for grade, count in grade_distribution %}
                                 <tr>
@@ -133,11 +223,17 @@
                     {% if risk_distribution %}
                     <div class="table-responsive">
                         <table class="table">
-                            <thead><tr><th>Risk</th><th>Count</th></tr></thead>
+                            <thead>
+                                <tr>
+                                    <th>Risk</th>
+                                    <th>Count</th>
+                                </tr>
+                            </thead>
                             <tbody>
                                 {% for risk, count in risk_distribution %}
                                 <tr>
-                                    <td><span class="status-chip status-{{ (risk or 'unknown')|lower }}">{{ (risk or 'unknown')|replace('_', ' ')|title }}</span></td>
+                                    <td><span class="status-chip status-{{ (risk or 'unknown')|lower }}">{{ (risk or
+                                            'unknown')|replace('_', ' ')|title }}</span></td>
                                     <td>{{ count }}</td>
                                 </tr>
                                 {% endfor %}
@@ -162,10 +258,12 @@
                     <a class="watchlist-row" href="{{ url_for('companies.view_credit_report', id=company.id) }}">
                         <div>
                             <strong>{{ company.company_name }}</strong>
-                            <p class="text-muted">{{ company.business_registration }} · {{ company.company_registration_number or '-' }} · {{ company.status|title }}</p>
+                            <p class="text-muted">{{ company.business_registration }} · {{
+                                company.company_registration_number or '-' }} · {{ company.status|title }}</p>
                         </div>
                         <div class="watchlist-row-meta">
-                            <span class="status-chip status-{{ (company.risk_level or 'unknown')|lower }}">{{ (company.risk_level or 'unknown')|title }}</span>
+                            <span class="status-chip status-{{ (company.risk_level or 'unknown')|lower }}">{{
+                                (company.risk_level or 'unknown')|title }}</span>
                             <strong>{{ company.trust_score_cached or 'N/A' }}</strong>
                         </div>
                     </a>
@@ -189,10 +287,18 @@
                     {% if loan_status_stats %}
                     <div class="table-responsive">
                         <table class="table">
-                            <thead><tr><th>Status</th><th>Count</th></tr></thead>
+                            <thead>
+                                <tr>
+                                    <th>Status</th>
+                                    <th>Count</th>
+                                </tr>
+                            </thead>
                             <tbody>
                                 {% for status, count in loan_status_stats %}
-                                <tr><td>{{ status|replace('_', ' ')|title }}</td><td>{{ count }}</td></tr>
+                                <tr>
+                                    <td>{{ status|replace('_', ' ')|title }}</td>
+                                    <td>{{ count }}</td>
+                                </tr>
                                 {% endfor %}
                             </tbody>
                         </table>
@@ -205,13 +311,27 @@
                     <h3>Project and dispute workflow</h3>
                     <div class="table-responsive">
                         <table class="table compact-table">
-                            <thead><tr><th>Type</th><th>Status</th><th>Count</th></tr></thead>
+                            <thead>
+                                <tr>
+                                    <th>Type</th>
+                                    <th>Status</th>
+                                    <th>Count</th>
+                                </tr>
+                            </thead>
                             <tbody>
                                 {% for status, count in project_status_stats %}
-                                <tr><td>Project</td><td>{{ status|replace('_', ' ')|title }}</td><td>{{ count }}</td></tr>
+                                <tr>
+                                    <td>Project</td>
+                                    <td>{{ status|replace('_', ' ')|title }}</td>
+                                    <td>{{ count }}</td>
+                                </tr>
                                 {% endfor %}
                                 {% for status, count in dispute_status_stats %}
-                                <tr><td>Dispute</td><td>{{ status|replace('_', ' ')|title }}</td><td>{{ count }}</td></tr>
+                                <tr>
+                                    <td>Dispute</td>
+                                    <td>{{ status|replace('_', ' ')|title }}</td>
+                                    <td>{{ count }}</td>
+                                </tr>
                                 {% endfor %}
                             </tbody>
                         </table>
@@ -228,7 +348,14 @@
                 {% if pending_loans %}
                 <div class="table-responsive">
                     <table class="table">
-                        <thead><tr><th>Company</th><th>Amount</th><th>Status</th><th>Applied</th></tr></thead>
+                        <thead>
+                            <tr>
+                                <th>Company</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Applied</th>
+                            </tr>
+                        </thead>
                         <tbody>
                             {% for loan in pending_loans %}
                             <tr>
@@ -256,16 +383,27 @@
             {% if recent_scores %}
             <div class="table-responsive">
                 <table class="table">
-                    <thead><tr><th>Company</th><th>Score</th><th>Grade</th><th>Risk</th><th>Date</th><th>Report</th></tr></thead>
+                    <thead>
+                        <tr>
+                            <th>Company</th>
+                            <th>Score</th>
+                            <th>Grade</th>
+                            <th>Risk</th>
+                            <th>Date</th>
+                            <th>Report</th>
+                        </tr>
+                    </thead>
                     <tbody>
                         {% for score in recent_scores %}
                         <tr>
                             <td><strong>{{ score.company.company_name }}</strong></td>
                             <td>{{ score.credit_score }}</td>
-                            <td><span class="badge badge-{{ score.credit_grade|lower }}">{{ score.credit_grade }}</span></td>
+                            <td><span class="badge badge-{{ score.credit_grade|lower }}">{{ score.credit_grade }}</span>
+                            </td>
                             <td>{{ score.risk_level|replace('_', ' ')|title }}</td>
                             <td>{{ score.scored_at.strftime('%Y-%m-%d') if score.scored_at else '-' }}</td>
-                            <td><a href="{{ url_for('companies.view_credit_report', id=score.company_id) }}">Open report</a></td>
+                            <td><a href="{{ url_for('companies.view_credit_report', id=score.company_id) }}">Open
+                                    report</a></td>
                         </tr>
                         {% endfor %}
                     </tbody>

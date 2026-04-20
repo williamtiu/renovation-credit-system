@@ -1,0 +1,550 @@
+{% extends "base.html" %}
+
+{% block title %}Documents - {{ company.company_name }} - DecoFinance{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('companies.list_companies') }}">Companies</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('companies.view_company', id=company.id) }}">{{ company.company_name }}</a></li>
+            <li class="breadcrumb-item active">Documents</li>
+        </ol>
+    </nav>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h2><i class="fas fa-folder-open me-2"></i>Documents</h2>
+            <p class="text-muted mb-0">Manage all documents for {{ company.company_name }}</p>
+        </div>
+        <button class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#uploadDocModal">
+            <i class="fas fa-cloud-upload-alt me-2"></i>Upload Multiple Files
+        </button>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-8">
+            <div class="btn-group" role="group">
+                <button type="button" class="btn btn-outline-secondary active" onclick="filterByType('')">
+                    All Types
+                </button>
+                <button type="button" class="btn btn-outline-secondary" onclick="filterByType('business_registration')">
+                    Business Reg
+                </button>
+                <button type="button" class="btn btn-outline-secondary" onclick="filterByType('licence_certificate')">
+                    Licences
+                </button>
+                <button type="button" class="btn btn-outline-secondary" onclick="filterByType('insurance_certificate')">
+                    Insurance
+                </button>
+                <button type="button" class="btn btn-outline-secondary" onclick="filterByType('audited_financials')">
+                    Financials
+                </button>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <select class="form-select" id="statusFilter" onchange="filterByStatus(this.value)">
+                <option value="">All Status</option>
+                <option value="pending">Pending Verification</option>
+                <option value="verified">Verified</option>
+                <option value="rejected">Rejected</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            {% if documents %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle" id="documentsTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width: 50px;"></th>
+                            <th>Document Type</th>
+                            <th>File Name</th>
+                            <th>Size</th>
+                            <th>Uploaded By</th>
+                            <th>Upload Date</th>
+                            <th>Status</th>
+                            <th>Expiry</th>
+                            <th style="width: 200px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for doc in documents %}
+                        <tr data-doc-type="{{ doc.document_type }}" data-status="{{ doc.status }}">
+                            <td>
+                                {% if doc.document_type == 'business_registration' %}
+                                    <i class="fas fa-id-card fa-lg text-primary"></i>
+                                {% elif doc.document_type == 'licence_certificate' %}
+                                    <i class="fas fa-certificate fa-lg text-warning"></i>
+                                {% elif doc.document_type == 'insurance_certificate' %}
+                                    <i class="fas fa-shield-alt fa-lg text-success"></i>
+                                {% elif doc.document_type == 'audited_financials' %}
+                                    <i class="fas fa-chart-line fa-lg text-info"></i>
+                                {% elif doc.document_type == 'tax_returns' %}
+                                    <i class="fas fa-file-invoice-dollar fa-lg text-secondary"></i>
+                                {% elif doc.document_type == 'osh_license' %}
+                                    <i class="fas fa-hard-hat fa-lg text-danger"></i>
+                                {% elif doc.document_type == 'project_photos' %}
+                                    <i class="fas fa-images fa-lg text-purple"></i>
+                                {% elif doc.document_type == 'invoices' %}
+                                    <i class="fas fa-receipt fa-lg text-dark"></i>
+                                {% else %}
+                                    <i class="fas fa-file fa-lg text-muted"></i>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <strong>{{ doc.document_type|replace('_', ' ')|title }}</strong>
+                                {% if doc.description %}
+                                <br><small class="text-muted">{{ doc.description }}</small>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span title="{{ doc.file_name }}">{{ doc.file_name[:30] }}{% if doc.file_name|length > 30 %}...{% endif %}</span>
+                            </td>
+                            <td>
+                                {% if doc.file_size %}
+                                    {% if doc.file_size < 1024 %}
+                                        {{ doc.file_size }} B
+                                    {% elif doc.file_size < 1024*1024 %}
+                                        {{ "%.1f"|format(doc.file_size/1024) }} KB
+                                    {% else %}
+                                        {{ "%.1f"|format(doc.file_size/(1024*1024)) }} MB
+                                    {% endif %}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                            <td>{{ doc.uploader.username if doc.uploader else '-' }}</td>
+                            <td>{{ doc.uploaded_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>
+                                {% if doc.status == 'verified' %}
+                                    <span class="badge bg-success">
+                                        <i class="fas fa-check-circle me-1"></i>Verified
+                                    </span>
+                                    {% if doc.verification_notes %}
+                                    <br><small class="text-muted">{{ doc.verification_notes[:50] }}</small>
+                                    {% endif %}
+                                {% elif doc.status == 'rejected' %}
+                                    <span class="badge bg-danger">
+                                        <i class="fas fa-times-circle me-1"></i>Rejected
+                                    </span>
+                                    {% if doc.rejection_reason %}
+                                    <br><small class="text-danger" title="{{ doc.rejection_reason }}">
+                                        {{ doc.rejection_reason[:50] }}{% if doc.rejection_reason|length > 50 %}...{% endif %}
+                                    </small>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="badge bg-warning">
+                                        <i class="fas fa-clock me-1"></i>Pending
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if doc.expiry_date %}
+                                    {{ doc.expiry_date.strftime('%Y-%m-%d') }}
+                                    {% if doc.expiry_date < now() %}
+                                        <span class="badge bg-danger ms-1">Expired</span>
+                                    {% elif (doc.expiry_date - now()).days < 30 %}
+                                        <span class="badge bg-warning ms-1">Expiring Soon</span>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="text-muted">N/A</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <a href="{{ url_for('companies.view_document', id=company.id, doc_id=doc.id) }}" 
+                                       class="btn btn-info" target="_blank" title="View Document">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{{ url_for('companies.download_document', id=company.id, doc_id=doc.id) }}" 
+                                       class="btn btn-secondary" title="Download">
+                                        <i class="fas fa-download"></i>
+                                    </a>
+                                    {% if g.user.role in ['admin', 'reviewer'] and doc.status == 'pending' %}
+                                    <button class="btn btn-success verify-btn" 
+                                            data-doc-id="{{ doc.id }}" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#verifyModal"
+                                            title="Verify">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                    <button class="btn btn-danger reject-btn" 
+                                            data-doc-id="{{ doc.id }}"
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#rejectModal"
+                                            title="Reject">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                    {% endif %}
+                                    {% if g.user.role == 'admin' or doc.uploaded_by == g.user.id %}
+                                    <button class="btn btn-outline-danger delete-btn" 
+                                            data-doc-id="{{ doc.id }}"
+                                            title="Delete">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="mt-3">
+                <small class="text-muted">
+                    Showing {{ documents|length }} document(s)
+                </small>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-folder-open fa-4x text-muted mb-3"></i>
+                <h4 class="text-muted">No Documents Yet</h4>
+                <p class="text-muted mb-4">Start by uploading your first document</p>
+                <button class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#uploadDocModal">
+                    <i class="fas fa-cloud-upload-alt me-2"></i>Upload Documents
+                </button>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Upload Modal -->
+<div class="modal fade" id="uploadDocModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-cloud-upload-alt me-2"></i>Upload Multiple Documents
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('companies.upload_documents', id=company.id) }}" 
+                  enctype="multipart/form-data" id="uploadDocForm">
+                <div class="modal-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Tip:</strong> You can select multiple files at once. Each file must be assigned a document type.
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="modal_doc_upload" class="form-label fw-bold">
+                            <i class="fas fa-paperclip me-2"></i>Select Files
+                        </label>
+                        <input type="file" class="form-control form-control-lg" id="modal_doc_upload" 
+                               name="documents[]" multiple accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" required>
+                        <div class="form-text">
+                            <i class="fas fa-check-circle me-1 text-success"></i>
+                            Allowed formats: PDF, JPG, PNG, DOC, DOCX | Max size: 16MB per file
+                        </div>
+                    </div>
+                    
+                    <div id="upload-summary" class="mb-3" style="display:none;">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h6><i class="fas fa-list-check me-2"></i>Upload Summary</h6>
+                                <div id="files-count" class="fw-bold"></div>
+                                <div id="total-size" class="text-muted small"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="modal-document-types" class="mb-3" style="display:none;">
+                        <h6 class="fw-bold mb-3">
+                            <i class="fas fa-tags me-2"></i>Assign Document Types
+                        </h6>
+                        <div id="modal-type-fields" class="row g-3"></div>
+                        <div class="alert alert-warning mt-3">
+                            <small>
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                <strong>Required:</strong> Please assign a document type to each file before uploading.
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Cancel
+                    </button>
+                    <button type="submit" class="btn btn-primary btn-lg" id="uploadSubmitBtn" disabled>
+                        <i class="fas fa-cloud-upload-alt me-2"></i>Upload All Files
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Verify Modal -->
+<div class="modal fade" id="verifyModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-check-circle me-2"></i>Verify Document
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="verifyForm" method="POST">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="verify_notes" class="form-label">Verification Notes (Optional)</label>
+                        <textarea class="form-control" id="verify_notes" name="notes" rows="3" 
+                                  placeholder="Add any notes about this verification..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-check me-2"></i>Verify
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Reject Modal -->
+<div class="modal fade" id="rejectModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-times-circle me-2"></i>Reject Document
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="rejectForm" method="POST">
+                <div class="modal-body">
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Please provide a reason for rejection.
+                    </div>
+                    <div class="mb-3">
+                        <label for="reject_reason" class="form-label">
+                            Rejection Reason <span class="text-danger">*</span>
+                        </label>
+                        <textarea class="form-control" id="reject_reason" name="reason" rows="3" required
+                                  placeholder="Explain why this document is rejected..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-times me-2"></i>Reject
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const modalUpload = document.getElementById('modal_doc_upload');
+    const modalDocTypes = document.getElementById('modal-document-types');
+    const modalTypeFields = document.getElementById('modal-type-fields');
+    const uploadSummary = document.getElementById('upload-summary');
+    const filesCount = document.getElementById('files-count');
+    const totalSize = document.getElementById('total-size');
+    const uploadSubmitBtn = document.getElementById('uploadSubmitBtn');
+    
+    const documentTypes = [
+        { value: 'business_registration', label: 'Business Registration', icon: 'fa-id-card' },
+        { value: 'licence_certificate', label: 'Licence Certificate', icon: 'fa-certificate' },
+        { value: 'insurance_certificate', label: 'Insurance Certificate', icon: 'fa-shield-alt' },
+        { value: 'audited_financials', label: 'Audited Financials', icon: 'fa-chart-line' },
+        { value: 'tax_returns', label: 'Tax Returns', icon: 'fa-file-invoice-dollar' },
+        { value: 'osh_license', label: 'OSH License', icon: 'fa-hard-hat' },
+        { value: 'project_photos', label: 'Project Photos', icon: 'fa-images' },
+        { value: 'invoices', label: 'Invoices', icon: 'fa-receipt' },
+        { value: 'other', label: 'Other', icon: 'fa-file' }
+    ];
+    
+    if (modalUpload) {
+        modalUpload.addEventListener('change', function(e) {
+            const files = e.target.files;
+            
+            if (files.length === 0) {
+                modalDocTypes.style.display = 'none';
+                uploadSummary.style.display = 'none';
+                uploadSubmitBtn.disabled = true;
+                return;
+            }
+            
+            uploadSubmitBtn.disabled = false;
+            uploadSummary.style.display = 'block';
+            modalDocTypes.style.display = 'block';
+            
+            let totalBytes = 0;
+            for (let i = 0; i < files.length; i++) {
+                totalBytes += files[i].size;
+            }
+            
+            filesCount.textContent = `${files.length} file(s) selected`;
+            totalSize.textContent = `Total size: ${formatFileSize(totalBytes)}`;
+            
+            modalTypeFields.innerHTML = '';
+            
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const col = document.createElement('div');
+                col.className = 'col-md-6 col-lg-4';
+                
+                const card = document.createElement('div');
+                card.className = 'card h-100';
+                
+                const cardBody = document.createElement('div');
+                cardBody.className = 'card-body';
+                
+                const fileIcon = document.createElement('div');
+                fileIcon.className = 'mb-2';
+                
+                const iconClass = getFileIcon(file.name);
+                fileIcon.innerHTML = `<i class="fas ${iconClass} fa-2x text-primary"></i>`;
+                
+                const fileName = document.createElement('h6');
+                fileName.className = 'card-title text-truncate';
+                fileName.title = file.name;
+                fileName.textContent = file.name;
+                
+                const fileSize = document.createElement('p');
+                fileSize.className = 'card-text text-muted small mb-2';
+                fileSize.textContent = formatFileSize(file.size);
+                
+                const selectGroup = document.createElement('div');
+                const selectLabel = document.createElement('label');
+                selectLabel.className = 'form-label small fw-bold';
+                selectLabel.textContent = 'Document Type *';
+                
+                const select = document.createElement('select');
+                select.className = 'form-select form-select-sm';
+                select.name = 'document_types[]';
+                select.required = true;
+                select.dataset.fileIndex = i;
+                
+                const defaultOption = document.createElement('option');
+                defaultOption.value = '';
+                defaultOption.textContent = 'Select type...';
+                defaultOption.disabled = true;
+                defaultOption.selected = true;
+                select.appendChild(defaultOption);
+                
+                documentTypes.forEach(type => {
+                    const option = document.createElement('option');
+                    option.value = type.value;
+                    option.textContent = type.label;
+                    select.appendChild(option);
+                });
+                
+                select.addEventListener('change', validateAllTypesSelected);
+                
+                selectGroup.appendChild(selectLabel);
+                selectGroup.appendChild(select);
+                
+                cardBody.appendChild(fileIcon);
+                cardBody.appendChild(fileName);
+                cardBody.appendChild(fileSize);
+                cardBody.appendChild(selectGroup);
+                card.appendChild(cardBody);
+                col.appendChild(card);
+                modalTypeFields.appendChild(col);
+            }
+        });
+    }
+    
+    function validateAllTypesSelected() {
+        const selects = modalTypeFields.querySelectorAll('select[name="document_types[]"]');
+        let allSelected = true;
+        
+        selects.forEach(select => {
+            if (!select.value) {
+                allSelected = false;
+            }
+        });
+        
+        uploadSubmitBtn.disabled = !allSelected;
+    }
+    
+    function getFileIcon(filename) {
+        const ext = filename.split('.').pop().toLowerCase();
+        const icons = {
+            'pdf': 'fa-file-pdf',
+            'jpg': 'fa-file-image',
+            'jpeg': 'fa-file-image',
+            'png': 'fa-file-image',
+            'doc': 'fa-file-word',
+            'docx': 'fa-file-word'
+        };
+        return icons[ext] || 'fa-file';
+    }
+    
+    document.querySelectorAll('.verify-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const docId = this.dataset.docId;
+            document.getElementById('verifyForm').action = `/companies/{{ company.id }}/documents/${docId}/verify`;
+        });
+    });
+    
+    document.querySelectorAll('.reject-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const docId = this.dataset.docId;
+            document.getElementById('rejectForm').action = `/companies/{{ company.id }}/documents/${docId}/reject`;
+        });
+    });
+    
+    document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            if (confirm('Are you sure you want to delete this document?')) {
+                const docId = this.dataset.docId;
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = `/companies/{{ company.id }}/documents/${docId}/delete`;
+                document.body.appendChild(form);
+                form.submit();
+            }
+        });
+    });
+});
+
+function filterByType(type) {
+    const rows = document.querySelectorAll('#documentsTable tbody tr');
+    const buttons = document.querySelectorAll('.btn-group .btn');
+    
+    buttons.forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+    
+    rows.forEach(row => {
+        if (!type || row.dataset.docType === type) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+
+function filterByStatus(status) {
+    const rows = document.querySelectorAll('#documentsTable tbody tr');
+    
+    rows.forEach(row => {
+        if (!status || row.dataset.status === status) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+</script>
+{% endblock %}

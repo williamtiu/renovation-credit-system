@@ -8,8 +8,10 @@
         <h2>{{ project.title }}</h2>
         <div>
             <span class="badge bg-info">{{ project.status }}</span>
-            {% if g.user and (g.user.role == 'admin' or (g.user.role == 'customer' and g.user.id == project.customer_user_id)) and project.status in ['draft', 'open_for_bids'] %}
-            <a href="{{ url_for('projects.edit_project', id=project.id) }}" class="btn btn-sm btn-outline-primary ms-2">Edit Project</a>
+            {% if g.user and (g.user.role == 'admin' or (g.user.role == 'customer' and g.user.id ==
+            project.customer_user_id)) and project.status in ['draft', 'open_for_bids'] %}
+            <a href="{{ url_for('projects.edit_project', id=project.id) }}"
+                class="btn btn-sm btn-outline-primary ms-2">Edit Project</a>
             {% endif %}
         </div>
     </div>
@@ -17,7 +19,9 @@
     <div class="row">
         <div class="col-md-7">
             <div class="card mb-4">
-                <div class="card-header"><h5>Project Summary</h5></div>
+                <div class="card-header">
+                    <h5>Project Summary</h5>
+                </div>
                 <div class="card-body">
                     <p><strong>Description:</strong> {{ project.description or '-' }}</p>
                     <p><strong>Property Type:</strong> {{ project.property_type or '-' }}</p>
@@ -28,12 +32,20 @@
             </div>
 
             <div class="card mb-4">
-                <div class="card-header"><h5>Bids</h5></div>
+                <div class="card-header">
+                    <h5>Bids</h5>
+                </div>
                 <div class="card-body">
                     {% if project.bids %}
                     <table class="table">
                         <thead>
-                            <tr><th>Company</th><th>Bid</th><th>Duration</th><th>Status</th><th></th></tr>
+                            <tr>
+                                <th>Company</th>
+                                <th>Bid</th>
+                                <th>Duration</th>
+                                <th>Status</th>
+                                <th></th>
+                            </tr>
                         </thead>
                         <tbody>
                             {% for bid in project.bids %}
@@ -43,8 +55,10 @@
                                 <td>{{ bid.proposed_duration_days }} days</td>
                                 <td>{{ bid.status }}</td>
                                 <td>
-                                    {% if g.user and g.user.role in ['customer', 'admin'] and bid.status == 'submitted' %}
-                                    <form method="POST" action="{{ url_for('projects.accept_project_bid', project_id=project.id, bid_id=bid.id) }}">
+                                    {% if g.user and g.user.role in ['customer', 'admin'] and bid.status == 'submitted'
+                                    %}
+                                    <form method="POST"
+                                        action="{{ url_for('projects.accept_project_bid', project_id=project.id, bid_id=bid.id) }}">
                                         <button type="submit" class="btn btn-sm btn-success">Accept</button>
                                     </form>
                                     {% endif %}
@@ -62,10 +76,14 @@
                     <h6>Submit Bid</h6>
                     <form method="POST" action="{{ url_for('projects.submit_bid', id=project.id) }}">
                         <div class="row">
-                            <div class="col-md-4 mb-2"><input type="number" step="0.01" class="form-control" name="bid_amount" placeholder="Bid amount" required></div>
-                            <div class="col-md-4 mb-2"><input type="number" class="form-control" name="proposed_duration_days" placeholder="Duration days"></div>
-                            <div class="col-md-4 mb-2"><button type="submit" class="btn btn-primary w-100">Submit Bid</button></div>
-                            <div class="col-md-12"><textarea class="form-control" name="proposal_summary" rows="2" placeholder="Proposal summary"></textarea></div>
+                            <div class="col-md-4 mb-2"><input type="number" step="0.01" class="form-control"
+                                    name="bid_amount" placeholder="Bid amount" required></div>
+                            <div class="col-md-4 mb-2"><input type="number" class="form-control"
+                                    name="proposed_duration_days" placeholder="Duration days"></div>
+                            <div class="col-md-4 mb-2"><button type="submit" class="btn btn-primary w-100">Submit
+                                    Bid</button></div>
+                            <div class="col-md-12"><textarea class="form-control" name="proposal_summary" rows="2"
+                                    placeholder="Proposal summary"></textarea></div>
                         </div>
                     </form>
                     {% endif %}
@@ -88,7 +106,8 @@
                     <p><strong>Escrow Balance:</strong> HK$ {{ "{:,.0f}".format(contract.escrow_balance) }}</p>
                     <p><strong>Released:</strong> HK$ {{ "{:,.0f}".format(contract.released_amount) }}</p>
                     <p><strong>Frozen:</strong> HK$ {{ "{:,.0f}".format(contract.frozen_amount) }}</p>
-                    <p><strong>Milestones:</strong> {{ contract.approved_milestones }} / {{ contract.milestones_total }}</p>
+                    <p><strong>Milestones:</strong> {{ contract.approved_milestones }} / {{ contract.milestones_total }}
+                    </p>
                     <p><strong>Open Disputes:</strong> {{ contract.dispute_count }}</p>
                     {% set events = contract.parsed_events() %}
                     {% if events %}
@@ -109,8 +128,11 @@
                 </div>
             </div>
 
+            {% if not (g.user and g.user.role == 'company_user') %}
             <div class="card mb-4">
-                <div class="card-header"><h5>Milestones</h5></div>
+                <div class="card-header">
+                    <h5>Milestones</h5>
+                </div>
                 <div class="card-body">
                     {% if project.milestones %}
                     <ul class="list-group mb-3">
@@ -122,14 +144,19 @@
                             </div>
                             <div>HK$ {{ "{:,.0f}".format(milestone.planned_amount) }}</div>
                             <div class="mt-2">
-                                {% if g.user and g.user.role in ['company_user', 'admin'] and milestone.status == 'planned' %}
-                                <form method="POST" action="{{ url_for('projects.submit_milestone', id=milestone.id) }}" class="mb-2">
-                                    <textarea class="form-control mb-2" name="evidence_notes" rows="2" placeholder="Evidence notes"></textarea>
+                                {% if g.user and g.user.role in ['company_user', 'admin'] and milestone.status ==
+                                'planned' %}
+                                <form method="POST" action="{{ url_for('projects.submit_milestone', id=milestone.id) }}"
+                                    class="mb-2">
+                                    <textarea class="form-control mb-2" name="evidence_notes" rows="2"
+                                        placeholder="Evidence notes"></textarea>
                                     <button type="submit" class="btn btn-sm btn-primary">Submit Milestone</button>
                                 </form>
                                 {% endif %}
-                                {% if g.user and g.user.role in ['customer', 'admin'] and milestone.status == 'submitted' %}
-                                <form method="POST" action="{{ url_for('projects.approve_milestone', id=milestone.id) }}">
+                                {% if g.user and g.user.role in ['customer', 'admin'] and milestone.status ==
+                                'submitted' %}
+                                <form method="POST"
+                                    action="{{ url_for('projects.approve_milestone', id=milestone.id) }}">
                                     <button type="submit" class="btn btn-sm btn-success">Approve Milestone</button>
                                 </form>
                                 {% endif %}
@@ -141,16 +168,22 @@
                     <p class="text-muted">No milestones yet.</p>
                     {% endif %}
 
-                    {% if g.user and g.user.role in ['customer', 'admin'] and project.status in ['contracted', 'in_progress'] %}
+                    {% if g.user and g.user.role in ['customer', 'admin'] and project.status in ['contracted',
+                    'in_progress'] %}
                     <hr>
                     <h6>Add Milestone</h6>
                     <form method="POST" action="{{ url_for('projects.add_milestone', id=project.id) }}">
-                        <div class="mb-2"><input type="number" class="form-control" name="sequence_no" placeholder="Sequence" required></div>
-                        <div class="mb-2"><input type="text" class="form-control" name="name" placeholder="Milestone name" required></div>
-                        <div class="mb-2"><textarea class="form-control" name="description" rows="2" placeholder="Description"></textarea></div>
+                        <div class="mb-2"><input type="number" class="form-control" name="sequence_no"
+                                placeholder="Sequence" required></div>
+                        <div class="mb-2"><input type="text" class="form-control" name="name"
+                                placeholder="Milestone name" required></div>
+                        <div class="mb-2"><textarea class="form-control" name="description" rows="2"
+                                placeholder="Description"></textarea></div>
                         <div class="row">
-                            <div class="col-md-6 mb-2"><input type="number" step="0.01" class="form-control" name="planned_amount" placeholder="Amount"></div>
-                            <div class="col-md-6 mb-2"><input type="number" step="0.01" class="form-control" name="planned_percentage" placeholder="Percent"></div>
+                            <div class="col-md-6 mb-2"><input type="number" step="0.01" class="form-control"
+                                    name="planned_amount" placeholder="Amount"></div>
+                            <div class="col-md-6 mb-2"><input type="number" step="0.01" class="form-control"
+                                    name="planned_percentage" placeholder="Percent"></div>
                         </div>
                         <div class="mb-2"><input type="date" class="form-control" name="due_date"></div>
                         <button type="submit" class="btn btn-secondary">Add Milestone</button>
@@ -158,9 +191,12 @@
                     {% endif %}
                 </div>
             </div>
+            {% endif %}
 
             <div class="card">
-                <div class="card-header"><h5>Open Dispute</h5></div>
+                <div class="card-header">
+                    <h5>Open Dispute</h5>
+                </div>
                 <div class="card-body">
                     {% if g.user %}
                     <form method="POST" action="{{ url_for('disputes.add_dispute') }}">
@@ -170,12 +206,15 @@
                             <select class="form-control" id="milestone_id" name="milestone_id">
                                 <option value="">Project-level dispute</option>
                                 {% for milestone in project.milestones %}
-                                <option value="{{ milestone.id }}">{{ milestone.sequence_no }}. {{ milestone.name }}</option>
+                                <option value="{{ milestone.id }}">{{ milestone.sequence_no }}. {{ milestone.name }}
+                                </option>
                                 {% endfor %}
                             </select>
                         </div>
-                        <div class="mb-2"><input type="text" class="form-control" name="dispute_type" placeholder="Dispute type" required></div>
-                        <div class="mb-2"><textarea class="form-control" name="description" rows="3" placeholder="Describe the issue" required></textarea></div>
+                        <div class="mb-2"><input type="text" class="form-control" name="dispute_type"
+                                placeholder="Dispute type" required></div>
+                        <div class="mb-2"><textarea class="form-control" name="description" rows="3"
+                                placeholder="Describe the issue" required></textarea></div>
                         <button type="submit" class="btn btn-danger">Open Dispute</button>
                     </form>
                     {% endif %}

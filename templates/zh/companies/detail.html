@@ -28,7 +28,9 @@
             {% endif %}
 
             <div class="card mb-4">
-                <div class="card-header"><h5>公司资料</h5></div>
+                <div class="card-header">
+                    <h5>公司资料</h5>
+                </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
@@ -50,12 +52,15 @@
             </div>
 
             <div class="card mb-4">
-                <div class="card-header"><h5>小型工程承建商注册</h5></div>
+                <div class="card-header">
+                    <h5>小型工程承建商注册</h5>
+                </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
                             <p><strong>执照等级：</strong> {{ company.licence_class or '-' }}</p>
                             <p><strong>执照类别：</strong> {{ company.licence_categories or '-' }}</p>
+                            <p><strong>执照号码：</strong> {{ company.licence_number or '-' }}</p>
                         </div>
                         <div class="col-md-6">
                             <p><strong>执照验证：</strong> {{ company.licence_verification_status or 'pending' }}</p>
@@ -66,7 +71,9 @@
             </div>
 
             <div class="card mb-4">
-                <div class="card-header"><h5>OSH 认可人员</h5></div>
+                <div class="card-header">
+                    <h5>OSH 认可人员</h5>
+                </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
@@ -80,7 +87,9 @@
             </div>
 
             <div class="card mb-4">
-                <div class="card-header"><h5>保险覆盖</h5></div>
+                <div class="card-header">
+                    <h5>保险覆盖</h5>
+                </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
@@ -97,16 +106,22 @@
             </div>
 
             <div class="card mb-4">
-                <div class="card-header"><h5>职安健与ESG资料</h5></div>
+                <div class="card-header">
+                    <h5>职安健与ESG资料</h5>
+                </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
-                            <p><strong>安全培训覆盖率：</strong> {{ company.safety_training_coverage if company.safety_training_coverage is not none else '-' }}{% if company.safety_training_coverage is not none %}%{% endif %}</p>
+                            <p><strong>安全培训覆盖率：</strong> {{ company.safety_training_coverage if
+                                company.safety_training_coverage is not none else '-' }}{% if
+                                company.safety_training_coverage is not none %}%{% endif %}</p>
                         </div>
                         <div class="col-md-6">
                             <p><strong>安全事故 (12个月)：</strong> {{ company.safety_incident_count or 0 }}</p>
-                            <p><strong>ESG政策级别：</strong> {{ (company.esg_policy_level or 'none')|replace('_', ' ')|title }}</p>
-                            <p><strong>绿色材料采用：</strong> {{ company.green_material_ratio if company.green_material_ratio is not none else '-' }}{% if company.green_material_ratio is not none %}%{% endif %}</p>
+                            <p><strong>ESG政策级别：</strong> {{ (company.esg_policy_level or 'none')|replace('_', ' ')|title
+                                }}</p>
+                            <p><strong>绿色材料采用：</strong> {{ company.green_material_ratio if company.green_material_ratio
+                                is not none else '-' }}{% if company.green_material_ratio is not none %}%{% endif %}</p>
                             <p><strong>ISO认证：</strong> {{ '是' if company.iso_certified else '否' }}</p>
                         </div>
                     </div>
@@ -114,9 +129,10 @@
             </div>
         </div>
 
-        <div class="col-md-4">
-            <div class="card mb-4">
-                <div class="card-header"><h5>信任分数</h5></div>
+                    <div class="card mb-4">
+                <div class="card-header">
+                    <h5>信任分数</h5>
+                </div>
                 <div class="card-body">
                     {% if latest_score %}
                     <div class="report-score-card">
@@ -126,7 +142,8 @@
                         </div>
                         <div class="report-score-meta">
                             <p><strong>风险：</strong> {{ latest_score.risk_level }}</p>
-                            <p><strong>建议额度：</strong> HK$ {{ "{:,.0f}".format(latest_score.recommended_loan_limit or 0) }}</p>
+                            <p><strong>建议额度：</strong> HK$ {{ "{:,.0f}".format(latest_score.recommended_loan_limit or 0)
+                                }}</p>
                             <p><strong>利率：</strong> {{ latest_score.recommended_interest_rate or 0 }}%</p>
                         </div>
                     </div>
@@ -136,13 +153,33 @@
                     <form method="POST" action="{{ url_for('companies.calculate_score', id=company.id) }}">
                         <button type="submit" class="btn btn-success w-100">计算信任分数</button>
                     </form>
-                    <a href="{{ url_for('companies.view_credit_report', id=company.id) }}" class="btn btn-secondary w-100 mt-3">打开完整信贷报告</a>
-                    <a href="{{ url_for('companies.download_credit_report', id=company.id) }}" class="btn btn-primary w-100 mt-3">下载PDF版本</a>
+                    <a href="{{ url_for('companies.view_credit_report', id=company.id) }}"
+                        class="btn btn-secondary w-100 mt-3">打开完整信贷报告</a>
+                    <a href="{{ url_for('companies.download_credit_report', id=company.id) }}"
+                        class="btn btn-primary w-100 mt-3">下载PDF版本</a>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5><i class="fas fa-folder-open me-2"></i>文档</h5>
+                </div>
+                <div class="card-body">
+                    <div id="documents-list">
+                        <div class="text-center py-3">
+                            <div class="spinner-border spinner-border-sm text-primary" role="status">
+                                <span class="visually-hidden">加载中...</span>
+                            </div>
+                            <p class="text-muted small mt-2 mb-0">正在加载文档...</p>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <div class="card">
-                <div class="card-header"><h5>最近贷款申请</h5></div>
+                <div class="card-header">
+                    <h5>最近贷款申请</h5>
+                </div>
                 <div class="card-body">
                     {% if loan_applications %}
                     <ul class="list-group list-group-flush">
@@ -161,4 +198,105 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 加载文档
+    loadDocuments();
+});
+
+// 通过 AJAX 加载文档
+function loadDocuments() {
+    console.log('📂 正在加载文档...');
+    
+    fetch(`/companies/{{ company.id }}/documents`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP 错误! 状态: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('📦 收到数据:', data);
+            const container = document.getElementById('documents-list');
+            
+            if (data.documents && data.documents.length > 0) {
+                console.log(`✅ 找到 ${data.documents.length} 个文档`);
+                
+                let html = '<div class="table-responsive"><table class="table table-sm table-hover">';
+                html += '<thead class="table-light"><tr>';
+                html += '<th>类型</th><th>文件</th><th>大小</th><th>上传日期</th><th>状态</th><th>操作</th>';
+                html += '</tr></thead>';
+                html += '<tbody>';
+                
+                data.documents.forEach(doc => {
+                    const uploadDate = new Date(doc.uploaded_at).toLocaleDateString();
+                    const statusBadge = doc.verified ? 
+                        '<span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>已验证</span>' : 
+                        '<span class="badge bg-warning"><i class="fas fa-clock me-1"></i>待审核</span>';
+                    
+                    html += `
+                        <tr>
+                            <td>
+                                <small class="fw-bold">
+                                    <i class="fas fa-file-alt me-1 text-primary"></i>
+                                    ${doc.document_type.replace(/_/g, ' ')}
+                                </small>
+                            </td>
+                            <td>
+                                <small class="text-truncate d-inline-block" style="max-width:150px;" title="${doc.file_name}">
+                                    ${doc.file_name}
+                                </small>
+                            </td>
+                            <td><small>${formatFileSize(doc.file_size || 0)}</small></td>
+                            <td><small>${uploadDate}</small></td>
+                            <td>${statusBadge}</td>
+                            <td>
+                                <a href="/companies/{{ company.id }}/documents/${doc.id}/view" target="_blank" 
+                                   class="btn btn-sm btn-info" title="查看文档">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="/companies/{{ company.id }}/documents/${doc.id}/download" 
+                                   class="btn btn-sm btn-secondary" title="下载">
+                                    <i class="fas fa-download"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    `;
+                });
+                
+                html += '</tbody></table></div>';
+                container.innerHTML = html;
+            } else {
+                console.log('ℹ️ 没有找到文档');
+                container.innerHTML = `
+                    <div class="text-center py-5">
+                        <i class="fas fa-folder-open fa-4x text-muted mb-3 opacity-50"></i>
+                        <h6 class="text-muted mb-2">还没有上传文档</h6>
+                        <p class="text-muted small mb-3">请在公司注册或编辑时上传文档</p>
+                    </div>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error('❌ 加载文档失败:', error);
+            document.getElementById('documents-list').innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>加载文档失败</strong>
+                    <br><small class="text-muted">${error.message}</small>
+                </div>
+            `;
+        });
+}
+
+// 全局文件大小格式化函数
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+</script>
 {% endblock %}

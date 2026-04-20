@@ -19,8 +19,9 @@
                         <h5 class="mb-0"><i class="fas fa-building"></i> Company Information</h5>
                     </div>
                     <div class="card-body">
+                        
                         <div class="form-group">
-                            <label for="company_id">Applying Company <span class="text-danger">*</span></label>
+                            <label for="company_id">Renovation Company <span class="text-danger">*</span></label>
                             <select class="form-control" id="company_id" name="company_id" required>
                                 <option value="">Please Select Company</option>
                                 {% for c in companies %}
@@ -28,12 +29,27 @@
                                 {% endfor %}
                             </select>
                         </div>
+                    
+                        <div class="form-group">
+                            <label for="bank_name">Financial Institution <span class="text-danger">*</span></label>
+                            <select class="form-control" id="bank_name" name="bank_name" onchange="toggleOtherBank()" required>
+                                <option value="">Please Select Financial Institution</option>
+                                <option value="Hang Seng Bank">Hang Seng Bank</option>
+                                <option value="Bank of China">Bank of China</option>
+                                <option value="MOX Bank">MOX Bank</option>
+                                <option value="Others">Others... (Please specify below)</option>
+                            </select>
+                        </div>
+                        <div class="form-group" id="bank_name_other_group" style="display: none;">
+                            <label for="bank_name_other">Other Financial Institution Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="bank_name_other" name="bank_name_other">
+                        </div>
                         <div class="form-group">
                             <label for="project_id">Related Project</label>
                             <select class="form-control" id="project_id" name="project_id">
                                 <option value="">No linked project</option>
                                 {% for project in projects %}
-                                <option value="{{ project.id }}">{{ project.title }} ({{ project.status }})</option>
+                                <option value="{{ project.id }}" data-company-id="{{ project.awarded_company_id }}">{{ project.title }} ({{ project.status }})</option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -84,6 +100,7 @@
             </div>
 
             <div class="col-md-4">
+                <!--
                 <div class="card mb-4">
                     <div class="card-header bg-info text-white">
                         <h5 class="mb-0"><i class="fas fa-shield-alt"></i> Collateral Info</h5>
@@ -114,6 +131,17 @@
                         </div>
                     </div>
                 </div>
+                -->
+                <div class="card mb-4 mt-4">
+                    <div class="card-body bg-light">
+                        <div class="form-group form-check mb-0">
+                            <input type="checkbox" class="form-check-input" id="consent" name="consent" required>
+                            <label class="form-check-label text-muted small" for="consent">
+                                <strong>Authorization & Consent:</strong> I authorize DecoFinance to share the Company’s evaluation package (validated documents, credit score, and assessment report) with partner financial institutions for loan consideration. I understand DecoFinance only provides referral and information services and does not guarantee loan approval; I may withdraw this consent in writing, subject to prior processing.
+                            </label>
+                        </div>
+                    </div>
+                </div>
 
                 <div class="card">
                     <div class="card-body">
@@ -129,4 +157,68 @@
         </div>
     </form>
 </div>
+
+<script>
+function toggleOtherBank() {
+    var select = document.getElementById("bank_name");
+    var otherGroup = document.getElementById("bank_name_other_group");
+    var otherInput = document.getElementById("bank_name_other");
+    if (select.value === "Others") {
+        otherGroup.style.display = "block";
+        otherInput.setAttribute("required", "required");
+    } else {
+        otherGroup.style.display = "none";
+        otherInput.removeAttribute("required");
+        otherInput.value = "";
+    }
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+    var companySelect = document.getElementById("company_id");
+    var projectSelect = document.getElementById("project_id");
+    
+    if (companySelect && projectSelect) {
+        // Safe mapping of original options
+        var projectOptions = [];
+        for (var i = 0; i < projectSelect.options.length; i++) {
+            var opt = projectSelect.options[i];
+            projectOptions.push({
+                value: opt.value,
+                text: opt.text,
+                companyId: opt.getAttribute("data-company-id") || ""
+            });
+        }
+        
+        function filterProjects() {
+            var selectedCompanyId = companySelect.value.toString();
+            var currentProjectValue = projectSelect.value;
+            projectSelect.innerHTML = "";
+            
+            var validValues = [];
+            projectOptions.forEach(function(data) {
+                if (data.value === "" || data.companyId === selectedCompanyId) {
+                    var newOption = document.createElement("option");
+                    newOption.value = data.value;
+                    newOption.text = data.text;
+                    if (data.companyId) {
+                        newOption.setAttribute("data-company-id", data.companyId);
+                    }
+                    projectSelect.appendChild(newOption);
+                    validValues.push(data.value);
+                }
+            });
+            
+            if (validValues.includes(currentProjectValue)) {
+                projectSelect.value = currentProjectValue;
+            } else {
+                projectSelect.value = "";
+            }
+        }
+        
+        companySelect.addEventListener("change", filterProjects);
+        // Run once on load to filter initial state
+        filterProjects();
+    }
+});
+</script>
 {% endblock %}

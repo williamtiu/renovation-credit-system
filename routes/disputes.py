@@ -40,9 +40,12 @@ def list_disputes():
     return render_template_with_lang_fallback('disputes/list.html', disputes=disputes)
 
 
-@disputes_bp.route('/add', methods=['POST'])
+@disputes_bp.route('/add', methods=['GET', 'POST'])
 @role_required('customer', 'company_user', 'admin')
 def add_dispute():
+    if request.method == 'GET':
+        return redirect(url_for('disputes.list_disputes'))
+    
     project = get_or_404(Project, int(request.form['project_id']))
     company_id = None
     if g.user.role == 'customer':

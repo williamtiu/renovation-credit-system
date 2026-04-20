@@ -195,10 +195,12 @@ def accept_project_bid(project_id, bid_id):
     return redirect(url_for('projects.view_project', id=project.id))
 
 
-@projects_bp.route('/<int:id>/milestones/add', methods=['POST'])
+@projects_bp.route('/<int:id>/milestones/add', methods=['GET', 'POST'])
 @role_required('customer', 'admin')
 def add_milestone(id):
     project = get_or_404(Project, id)
+    if request.method == 'GET':
+        return redirect(url_for('projects.view_project', id=project.id))
     require_ownership(project.customer_user_id == g.user.id or g.user.role == 'admin')
     if project.status not in ['contracted', 'in_progress']:
         flash('Milestones can only be added after a bid has been accepted.', 'warning')

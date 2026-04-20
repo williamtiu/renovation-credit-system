@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -268,65 +269,79 @@
             border: 1px solid var(--border-color);
             border-radius: 0.5rem;
             padding: 0.5rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
 
         .mobile-overlay {
             display: none;
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0, 0, 0, 0.5);
             z-index: 999;
         }
 
-        .mobile-sidebar {
-            display: none;
-            position: fixed;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: var(--sidebar-width);
-            background: white;
-            border-right: 1px solid var(--border-color);
-            padding: 1.5rem;
-            overflow-y: auto;
-            z-index: 1000;
-            transform: translateX(-100%);
-            transition: transform 0.3s ease;
-        }
-
-        .mobile-sidebar.open {
-            transform: translateX(0);
+        .mobile-overlay.show {
+            display: block;
         }
 
         @media (max-width: 1024px) {
             .sidebar {
-                display: none;
+                transform: translateX(-100%);
             }
-            
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
             .main-content {
                 margin-left: 0;
                 padding: 1rem 2rem;
             }
-            
+
             .mobile-toggle {
                 display: flex;
                 align-items: center;
                 justify-content: center;
-            }
-            
-            .mobile-overlay {
-                display: block;
-            }
-            
-            .mobile-sidebar {
-                display: block;
+                cursor: pointer;
             }
         }
 
         @media (max-width: 768px) {
             .main-content {
                 padding: 1rem;
+            }
+
+            .col-md-6 {
+                flex: 0 0 100%;
+                max-width: 100%;
+            }
+
+            .col-md-8 {
+                flex: 0 0 100%;
+                max-width: 100%;
+            }
+
+            .col-md-4 {
+                flex: 0 0 100%;
+                max-width: 100%;
+            }
+
+            .feature-card {
+                padding: 1.5rem;
+            }
+
+            .table-responsive {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .card-body {
+                padding: 1rem;
+            }
+
+            .card-header {
+                flex-direction: column;
+                align-items: flex-start;
             }
         }
 
@@ -427,7 +442,7 @@
         .card {
             background: var(--card-bg);
             border-radius: 0.75rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             border: 1px solid var(--border-color);
             margin-bottom: 1.5rem;
         }
@@ -438,6 +453,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
         }
 
         .card-header h2 {
@@ -452,7 +469,7 @@
 
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
             gap: 1.5rem;
             margin-bottom: 2rem;
         }
@@ -461,9 +478,10 @@
             background: var(--card-bg);
             padding: 1.5rem;
             border-radius: 0.75rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             text-align: center;
             border: 1px solid var(--border-color);
+            word-wrap: break-word;
         }
 
         .stat-icon {
@@ -476,6 +494,7 @@
             font-weight: 700;
             color: var(--primary-color);
             margin-bottom: 0.5rem;
+            word-break: break-all;
         }
 
         .stat-label {
@@ -485,7 +504,7 @@
 
         .dashboard-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr));
             gap: 1.5rem;
             margin-bottom: 2rem;
         }
@@ -529,15 +548,52 @@
             gap: 0.375rem;
         }
 
-        .badge-a { background: #dcfce7; color: #166534; }
-        .badge-b { background: #fed7aa; color: #9a3412; }
-        .badge-c { background: #fee2e2; color: #991b1b; }
-        .badge-pending { background: #fef3c7; color: #92400e; }
-        .badge-approved, .badge-success { background: #dcfce7; color: #166534; }
-        .badge-rejected, .badge-danger { background: #fee2e2; color: #991b1b; }
-        .badge-under_review { background: #dbeafe; color: #1e40af; }
-        .badge-info { background: #dbeafe; color: #1e40af; }
-        .badge-secondary { background: #f1f5f9; color: #475569; }
+        .badge-a {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .badge-b {
+            background: #fed7aa;
+            color: #9a3412;
+        }
+
+        .badge-c {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .badge-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-approved,
+        .badge-success {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .badge-rejected,
+        .badge-danger {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .badge-under_review {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .badge-info {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .badge-secondary {
+            background: #f1f5f9;
+            color: #475569;
+        }
 
         .table {
             width: 100%;
@@ -661,8 +717,15 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .flash-success {
@@ -726,7 +789,7 @@
             background: var(--card-bg);
             padding: 2rem;
             border-radius: 0.75rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             text-align: center;
             border: 1px solid var(--border-color);
             transition: transform 0.2s, box-shadow 0.2s;
@@ -734,7 +797,7 @@
 
         .feature-card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
         }
 
         .feature-icon {
@@ -804,13 +867,14 @@
         }
     </style>
 </head>
+
 <body>
     <div class="mobile-toggle" onclick="toggleMobileSidebar()">
         <i class="fas fa-bars"></i>
     </div>
-    
+
     <div class="mobile-overlay" onclick="toggleMobileSidebar()"></div>
-    
+
     <aside class="sidebar">
         <div class="sidebar-header">
             <div class="sidebar-logo">
@@ -829,43 +893,53 @@
         </div>
 
         <nav class="sidebar-nav">
-            <a href="{{ url_for('main.index') }}" class="nav-item {% if request.endpoint == 'main.index' %}active{% endif %}">
+            <a href="{{ url_for('main.index') }}"
+                class="nav-item {% if request.endpoint == 'main.index' %}active{% endif %}">
                 <i class="fas fa-home"></i>
                 Home
             </a>
-            <a href="{{ url_for('main.dashboard') }}" class="nav-item {% if request.endpoint == 'main.dashboard' %}active{% endif %}">
+            {% if g.user and g.user.role != 'customer' %}
+            <a href="{{ url_for('main.dashboard') }}"
+                class="nav-item {% if request.endpoint == 'main.dashboard' %}active{% endif %}">
                 <i class="fas fa-tachometer-alt"></i>
                 Dashboard
             </a>
-            <a href="{{ url_for('companies.list_companies') }}" class="nav-item {% if request.endpoint == 'companies.list_companies' %}active{% endif %}">
+            {% endif %}
+            <a href="{{ url_for('companies.list_companies') }}"
+                class="nav-item {% if request.endpoint == 'companies.list_companies' %}active{% endif %}">
                 <i class="fas fa-building"></i>
                 Companies
             </a>
             {% if g.user and g.user.role in ['company_user', 'admin', 'reviewer'] %}
-            <a href="{{ url_for('loans.list_loans') }}" class="nav-item {% if request.endpoint == 'loans.list_loans' %}active{% endif %}">
+            <a href="{{ url_for('loans.list_loans') }}"
+                class="nav-item {% if request.endpoint == 'loans.list_loans' %}active{% endif %}">
                 <i class="fas fa-file-invoice-dollar"></i>
                 Loans
             </a>
             {% endif %}
             {% if g.user and g.user.role in ['customer', 'admin', 'company_user'] %}
-            <a href="{{ url_for('projects.list_projects') }}" class="nav-item {% if request.endpoint == 'projects.list_projects' %}active{% endif %}">
+            <a href="{{ url_for('projects.list_projects') }}"
+                class="nav-item {% if request.endpoint == 'projects.list_projects' %}active{% endif %}">
                 <i class="fas fa-project-diagram"></i>
                 Projects
             </a>
             {% endif %}
             {% if g.user and g.user.role in ['customer', 'admin', 'reviewer'] %}
-            <a href="{{ url_for('disputes.list_disputes') }}" class="nav-item {% if request.endpoint == 'disputes.list_disputes' %}active{% endif %}">
+            <a href="{{ url_for('disputes.list_disputes') }}"
+                class="nav-item {% if request.endpoint == 'disputes.list_disputes' %}active{% endif %}">
                 <i class="fas fa-exclamation-triangle"></i>
                 Disputes
             </a>
             {% endif %}
             {% if g.user and g.user.role in ['admin', 'reviewer'] %}
-            <a href="{{ url_for('admin.audit_logs') }}" class="nav-item {% if request.endpoint == 'admin.audit_logs' %}active{% endif %}">
+            <a href="{{ url_for('admin.audit_logs') }}"
+                class="nav-item {% if request.endpoint == 'admin.audit_logs' %}active{% endif %}">
                 <i class="fas fa-clipboard-list"></i>
                 Audit Logs
             </a>
             {% endif %}
-            <a href="{{ url_for('main.about') }}" class="nav-item {% if request.endpoint == 'main.about' %}active{% endif %}">
+            <a href="{{ url_for('main.about') }}"
+                class="nav-item {% if request.endpoint == 'main.about' %}active{% endif %}">
                 <i class="fas fa-info-circle"></i>
                 About
             </a>
@@ -877,7 +951,8 @@
             <div class="trust-value">{{ g.user.company.trust_score_cached or 'N/A' }}</div>
             <div class="trust-meta">
                 {% if g.user.company.credit_scores %}
-                Grade {{ g.user.company.credit_scores[0].credit_grade }}
+                {% set sorted_scores = g.user.company.credit_scores|sort(attribute='scored_at', reverse=True) %}
+                Grade {{ sorted_scores[0].credit_grade }}
                 {% endif %}
             </div>
         </a>
@@ -889,38 +964,49 @@
                 Logout
             </button>
             <form id="logout-form" action="{{ url_for('auth.logout') }}" method="POST" style="display: none;"></form>
-            
+
             <div class="language-switcher">
-                <a href="{{ url_for('main.set_language', lang='en') }}" class="language-btn {% if session.get('language', 'en') == 'en' %}active{% endif %}">
+                <a href="{{ url_for('main.set_language', lang='en') }}"
+                    class="language-btn {% if session.get('language', 'en') == 'en' %}active{% endif %}"
+                    style="display: none;">
                     <i class="fas fa-globe"></i> EN
                 </a>
-                <a href="{{ url_for('main.set_language', lang='ch') }}" class="language-btn {% if session.get('language', 'en') == 'ch' %}active{% endif %}">
+                <a href="{{ url_for('main.set_language', lang='ch') }}"
+                    class="language-btn {% if session.get('language', 'en') == 'ch' %}active{% endif %}"
+                    style="display: none;">
                     <i class="fas fa-globe-asia"></i> 中文
                 </a>
             </div>
         </div>
         {% else %}
         <nav class="sidebar-nav">
-            <a href="{{ url_for('main.index') }}" class="nav-item {% if request.endpoint == 'main.index' %}active{% endif %}">
+            <a href="{{ url_for('main.index') }}"
+                class="nav-item {% if request.endpoint == 'main.index' %}active{% endif %}">
                 <i class="fas fa-home"></i>
                 Home
             </a>
-            <a href="{{ url_for('auth.login') }}" class="nav-item {% if request.endpoint == 'auth.login' %}active{% endif %}">
+            <a href="{{ url_for('auth.login') }}"
+                class="nav-item {% if request.endpoint == 'auth.login' %}active{% endif %}">
                 <i class="fas fa-sign-in-alt"></i>
                 Login
             </a>
-            <a href="{{ url_for('auth.register') }}" class="nav-item {% if request.endpoint == 'auth.register' %}active{% endif %}">
+            <a href="{{ url_for('auth.register') }}"
+                class="nav-item {% if request.endpoint == 'auth.register' %}active{% endif %}">
                 <i class="fas fa-user-plus"></i>
                 Register
             </a>
         </nav>
-        
+
         <div class="sidebar-footer">
             <div class="language-switcher">
-                <a href="{{ url_for('main.set_language', lang='en') }}" class="language-btn {% if session.get('language', 'en') == 'en' %}active{% endif %}">
+                <a href="{{ url_for('main.set_language', lang='en') }}"
+                    class="language-btn {% if session.get('language', 'en') == 'en' %}active{% endif %}"
+                    style="display: none;">
                     <i class="fas fa-globe"></i> EN
                 </a>
-                <a href="{{ url_for('main.set_language', lang='ch') }}" class="language-btn {% if session.get('language', 'en') == 'ch' %}active{% endif %}">
+                <a href="{{ url_for('main.set_language', lang='ch') }}"
+                    class="language-btn {% if session.get('language', 'en') == 'ch' %}active{% endif %}"
+                    style="display: none;">
                     <i class="fas fa-globe-asia"></i> 中文
                 </a>
             </div>
@@ -931,16 +1017,16 @@
     <main class="main-content">
         <div class="content-wrapper">
             {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    <div class="flash-messages">
-                        {% for category, message in messages %}
-                            <div class="flash-message flash-{{ category }}">
-                                {{ message }}
-                                <button class="flash-close" onclick="this.parentElement.remove()">&times;</button>
-                            </div>
-                        {% endfor %}
-                    </div>
-                {% endif %}
+            {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                <div class="flash-message flash-{{ category }}">
+                    {{ message }}
+                    <button class="flash-close" onclick="this.parentElement.remove()">&times;</button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
             {% endwith %}
 
             {% block content %}{% endblock %}
@@ -950,20 +1036,23 @@
     <footer class="footer">
         <div class="content-wrapper">
             <p>© 2026 DecoFinance | Renovation Industry Trust Platform</p>
-            <p>Helping lenders, suppliers, and customers verify renovation companies and monitor project-backed loans.</p>
+            <p>Helping lenders, suppliers, and customers verify renovation companies and monitor project-backed loans.
+            </p>
         </div>
     </footer>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         function toggleMobileSidebar() {
-            const sidebar = document.querySelector('.mobile-sidebar');
+            const sidebar = document.querySelector('.sidebar');
             const overlay = document.querySelector('.mobile-overlay');
             const toggle = document.querySelector('.mobile-toggle');
             sidebar.classList.toggle('open');
-            overlay.classList.toggle('hidden');
+            overlay.classList.toggle('show');
             toggle.classList.toggle('active');
         }
     </script>
     {% block extra_js %}{% endblock %}
 </body>
+
 </html>

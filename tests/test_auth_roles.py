@@ -19,7 +19,7 @@ def client():
         with app.app_context():
             db.drop_all()
             db.create_all()
-            user = User(username='customer', email='customer@test.com', role='customer')
+            user = User(usercompany_name='customer', email='customer@test.com', role='customer')
             user.set_password('password123')
             db.session.add(user)
             db.session.commit()
@@ -36,7 +36,7 @@ def test_register_collects_role_and_email(client):
     assert response.status_code == 302
 
     with client.application.app_context():
-        user = User.query.filter_by(username='builder').first()
+        user = User.query.filter_by(usercompany_name='builder').first()
         assert user is not None
         assert user.role == 'company_user'
 
@@ -51,7 +51,7 @@ def test_register_rejects_privileged_roles(client):
     assert response.status_code == 302
 
     with client.application.app_context():
-        user = User.query.filter_by(username='admin2').first()
+        user = User.query.filter_by(usercompany_name='admin2').first()
         assert user is None
 
 

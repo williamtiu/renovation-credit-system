@@ -5,188 +5,360 @@
 {% block content %}
 <div class="container mt-4">
     <h2>{% if company %}Edit Company{% else %}Company Registration{% endif %}</h2>
-    <form method="POST" action="{% if company %}{{ url_for('companies.edit_company', id=company.id) }}{% else %}{{ url_for('companies.add_company') }}{% endif %}">
+    <form method="POST"
+        action="{% if company %}{{ url_for('companies.edit_company', id=company.id) }}{% else %}{{ url_for('companies.add_company') }}{% endif %}"
+        enctype="multipart/form-data">
         <div class="card mb-4">
-            <div class="card-header"><h5>Basic Information</h5></div>
+            <div class="card-header">
+                <h5>Basic Information</h5>
+            </div>
             <div class="card-body">
                 <div class="row">
                     <div class="col-6 mb-3">
                         <label for="company_name">Company Name (Chinese)</label>
-                        <input type="text" class="form-control" id="company_name" name="company_name" value="{{ company.company_name if company else '' }}" required>
+                        <input type="text" class="form-control" id="company_name" name="company_name"
+                            value="{{ company.company_name if company else '' }}" required>
                     </div>
                     <div class="col-6 mb-3">
                         <label for="company_name_en">Company Name (English)</label>
-                        <input type="text" class="form-control" id="company_name_en" name="company_name_en" value="{{ company.company_name_en if company else '' }}">
+                        <input type="text" class="form-control" id="company_name_en" name="company_name_en"
+                            value="{{ company.company_name_en if company else '' }}">
                     </div>
                     <div class="col-6 mb-3">
                         <label for="business_registration">Business Registration</label>
-                        <input type="text" class="form-control" id="business_registration" name="business_registration" value="{{ company.business_registration if company else '' }}" required>
+                        <input type="text" class="form-control" id="business_registration" name="business_registration"
+                            value="{{ company.business_registration if company else '' }}" required>
                     </div>
                     <div class="col-6 mb-3">
                         <label for="company_registration_number">Company Registration Number</label>
-                        <input type="text" class="form-control" id="company_registration_number" name="company_registration_number" value="{{ company.company_registration_number if company else '' }}">
+                        <input type="text" class="form-control" id="company_registration_number"
+                            name="company_registration_number"
+                            value="{{ company.company_registration_number if company else '' }}">
                     </div>
                     <div class="col-6 mb-3">
                         <label for="established_date">Established Date</label>
-                        <input type="date" class="form-control" id="established_date" name="established_date" value="{{ company.established_date.isoformat() if company and company.established_date else '' }}">
+                        <input type="date" class="form-control" id="established_date" name="established_date"
+                            value="{{ company.established_date.isoformat() if company and company.established_date else '' }}">
                     </div>
                     <div class="col-6 mb-3">
                         <label for="registered_capital">Registered Capital</label>
-                        <input type="number" step="0.01" class="form-control" id="registered_capital" name="registered_capital" value="{{ company.registered_capital if company else '' }}">
+                        <input type="number" step="0.01" class="form-control" id="registered_capital"
+                            name="registered_capital" value="{{ company.registered_capital if company else '' }}">
                     </div>
                     <div class="col-6 mb-3">
                         <label for="contact_person">Contact Person</label>
-                        <input type="text" class="form-control" id="contact_person" name="contact_person" value="{{ company.contact_person if company else '' }}">
+                        <input type="text" class="form-control" id="contact_person" name="contact_person"
+                            value="{{ company.contact_person if company else '' }}">
                     </div>
                     <div class="col-6 mb-3">
                         <label for="contact_position">Contact Position</label>
-                        <input type="text" class="form-control" id="contact_position" name="contact_position" value="{{ company.contact_position if company else '' }}">
+                        <input type="text" class="form-control" id="contact_position" name="contact_position"
+                            value="{{ company.contact_position if company else '' }}">
                     </div>
                     <div class="col-6 mb-3">
                         <label for="phone">Phone</label>
-                        <input type="text" class="form-control" id="phone" name="phone" value="{{ company.phone if company else '' }}">
+                        <input type="text" class="form-control" id="phone" name="phone"
+                            value="{{ company.phone if company else '' }}">
                     </div>
                     <div class="col-6 mb-3">
                         <label for="email">Email</label>
-                        <input type="email" class="form-control" id="email" name="email" value="{{ company.email if company else '' }}">
+                        <input type="email" class="form-control" id="email" name="email"
+                            value="{{ company.email if company else '' }}">
                     </div>
                     <div class="col-6 mb-3">
                         <label for="address">Address</label>
-                        <textarea class="form-control" id="address" name="address" rows="2">{{ company.address if company else '' }}</textarea>
+                        <textarea class="form-control" id="address" name="address"
+                            rows="2">{{ company.address if company else '' }}</textarea>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="card mb-4">
-            <div class="card-header"><h5>Operation</h5></div>
+            <div class="card-header">
+                <h5>Operation</h5>
+            </div>
             <div class="card-body">
                 <div class="row">
                     <div class="col-12 mb-3">
-                        <label for="main_service_type">Main Service Type (e.g. Residential, Office, Industrial, Others)</label>
-                        <input type="text" class="form-control" id="main_service_type" name="main_service_type" value="{{ company.main_service_type if company else '' }}">
+                        <label for="main_service_type">Main Service Type (e.g. Residential, Office, Industrial,
+                            Others)</label>
+                        <input type="text" class="form-control" id="main_service_type" name="main_service_type"
+                            value="{{ company.main_service_type if company else '' }}">
                     </div>
                     <div class="col-12 mb-3">
                         <label for="annual_revenue">Annual Revenue (in HKD)</label>
-                        <input type="number" step="0.01" class="form-control" id="annual_revenue" name="annual_revenue" value="{{ company.annual_revenue if company else '' }}">
+                        <input type="number" step="0.01" class="form-control" id="annual_revenue" name="annual_revenue"
+                            value="{{ company.annual_revenue if company else '' }}">
                     </div>
                     <div class="col-12 mb-3">
                         <label for="employee_count">Number of Employee</label>
-                        <input type="number" class="form-control" id="employee_count" name="employee_count" value="{{ company.employee_count if company else '' }}">
+                        <input type="number" class="form-control" id="employee_count" name="employee_count"
+                            value="{{ company.employee_count if company else '' }}">
                     </div>
                     <div class="col-12 mb-3">
                         <label for="project_count_completed">Completed Projects</label>
-                        <input type="number" class="form-control" id="project_count_completed" name="project_count_completed" value="{{ company.project_count_completed if company else '' }}">
+                        <input type="number" class="form-control" id="project_count_completed"
+                            name="project_count_completed"
+                            value="{{ company.project_count_completed if company else '' }}">
                     </div>
                     <div class="col-12 mb-3">
                         <label for="average_project_value">Average Project Value (in HKD)</label>
-                        <input type="number" step="0.01" class="form-control" id="average_project_value" name="average_project_value" value="{{ company.average_project_value if company else '' }}">
+                        <input type="number" step="0.01" class="form-control" id="average_project_value"
+                            name="average_project_value" value="{{ company.average_project_value if company else '' }}">
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="card mb-4">
-            <div class="card-header"><h5>Minor Works Contractor Registration</h5></div>
+            <div class="card-header">
+                <h5>Minor Works Contractor Registration</h5>
+            </div>
             <div class="card-body">
-                <div class="row">
-                    <div class="col-12 mb-3">
-                        <label for="licence_class">License Class (i.e. Level 1/2/3)</label>
-                        <input type="text" class="form-control" id="licence_class" name="licence_class" value="{{ company.licence_class if company else '' }}">
-                    </div>
-                    <div class="col-12 mb-3">
-                        <label for="licence_categories">License Category (i.e. Cat A-G)</label>
-                        <input type="text" class="form-control" id="licence_categories" name="licence_categories" value="{{ company.licence_categories if company else '' }}">
-                    </div>
-                    <div class="col-12 mb-3">
-                        <label for="licence_expiry_date">Licence Expiry</label>
-                        <input type="date" class="form-control" id="licence_expiry_date" name="licence_expiry_date" value="{{ company.licence_expiry_date.isoformat() if company and company.licence_expiry_date else '' }}">
-                    </div>
-                    <div class="col-12 mb-3">
-                        <label for="licence_verification_status">Licence Verification</label>
-                        <select class="form-control" id="licence_verification_status" name="licence_verification_status">
-                            {% set licence_status = company.licence_verification_status if company else 'pending' %}
-                            <option value="pending" {% if licence_status == 'pending' %}selected{% endif %}>Pending</option>
-                            <option value="verified" {% if licence_status == 'verified' %}selected{% endif %}>Verified</option>
-                            <option value="rejected" {% if licence_status == 'rejected' %}selected{% endif %}>Rejected</option>
-                        </select>
+                <div id="license-groups">
+                    <div class="row license-group">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">License Class (i.e. Level 1/2/3)</label>
+                            <input type="text" class="form-control" name="licence_class[]"
+                                value="{{ company.licence_class if company else '' }}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">License Category (i.e. Cat A-G)</label>
+                            <input type="text" class="form-control" name="licence_categories[]"
+                                value="{{ company.licence_categories if company else '' }}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">License Number</label>
+                            <input type="text" class="form-control" name="licence_number[]"
+                                value="{{ company.licence_number if company else '' }}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Licence Expiry</label>
+                            <input type="date" class="form-control" name="licence_expiry_date[]"
+                                value="{{ company.licence_expiry_date.isoformat() if company and company.licence_expiry_date else '' }}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Licence Verification</label>
+                            <select class="form-control" name="licence_verification_status[]">
+                                {% set licence_status = company.licence_verification_status if company else 'pending' %}
+                                <option value="pending" {% if licence_status=='pending' %}selected{% endif %}>Pending
+                                </option>
+                                <option value="verified" {% if licence_status=='verified' %}selected{% endif %}>Verified
+                                </option>
+                                <option value="rejected" {% if licence_status=='rejected' %}selected{% endif %}>Rejected
+                                </option>
+                            </select>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <button type="button" class="btn btn-outline btn-danger remove-license-button">Remove
+                                License</button>
+                        </div>
                     </div>
                 </div>
+
+                <button type="button" class="btn btn-secondary btn-sm" id="add-license-button">Add another
+                    license</button>
+
+                <template id="license-template">
+                    <div class="row license-group">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">License Class (i.e. Level 1/2/3)</label>
+                            <input type="text" class="form-control" name="licence_class[]">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">License Category (i.e. Cat A-G)</label>
+                            <input type="text" class="form-control" name="licence_categories[]">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">License Number</label>
+                            <input type="text" class="form-control" name="licence_number[]">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Licence Expiry</label>
+                            <input type="date" class="form-control" name="licence_expiry_date[]">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Licence Verification</label>
+                            <select class="form-control" name="licence_verification_status[]">
+                                <option value="pending" selected>Pending</option>
+                                <option value="verified">Verified</option>
+                                <option value="rejected">Rejected</option>
+                            </select>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <button type="button" class="btn btn-outline btn-danger remove-license-button">Remove
+                                License</button>
+                        </div>
+                    </div>
+                </template>
             </div>
         </div>
 
         <div class="card mb-4">
-            <div class="card-header"><h5>OSH Accredited Officers</h5></div>
+            <div class="card-header">
+                <h5>OSH Accredited Officers</h5>
+            </div>
             <div class="card-body">
                 <div class="row">
                     <div class="col-12 mb-3">
-                        <label for="osh_officer_role">1. OSH Accredited Officer Role (e.g. Safety Consultant, Safety Auditor, Safety Supervisor (Construction) or other)</label>
-                        <input type="text" class="form-control" id="osh_officer_role" name="osh_officer_role" value="{{ company.osh_officer_role if company else '' }}">
+                        <label for="osh_officer_role">1. OSH Accredited Officer Role (e.g. Safety Consultant, Safety
+                            Auditor, Safety Supervisor (Construction) or other)</label>
+                        <input type="text" class="form-control" id="osh_officer_role" name="osh_officer_role"
+                            value="{{ company.osh_officer_role if company else '' }}">
                     </div>
                     <div class="col-12 mb-3">
                         <label for="osh_officer_license_number">OSH Accredited Officer Licensed Number</label>
-                        <input type="text" class="form-control" id="osh_officer_license_number" name="osh_officer_license_number" value="{{ company.osh_officer_license_number if company else '' }}">
+                        <input type="text" class="form-control" id="osh_officer_license_number"
+                            name="osh_officer_license_number"
+                            value="{{ company.osh_officer_license_number if company else '' }}">
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="card mb-4">
-            <div class="card-header"><h5>Insurance Coverage</h5></div>
+            <div class="card-header">
+                <h5>Insurance Coverage</h5>
+            </div>
             <div class="card-body">
                 <div class="row">
                     <div class="col-12 mb-3">
                         <label for="insurance_provider">Insurance Provider</label>
-                        <input type="text" class="form-control" id="insurance_provider" name="insurance_provider" value="{{ company.insurance_provider if company else '' }}">
+                        <input type="text" class="form-control" id="insurance_provider" name="insurance_provider"
+                            value="{{ company.insurance_provider if company else '' }}">
                     </div>
                     <div class="col-12 mb-3">
                         <label for="insurance_policy_number">Insurance Policy Number</label>
-                        <input type="text" class="form-control" id="insurance_policy_number" name="insurance_policy_number" value="{{ company.insurance_policy_number if company else '' }}">
+                        <input type="text" class="form-control" id="insurance_policy_number"
+                            name="insurance_policy_number"
+                            value="{{ company.insurance_policy_number if company else '' }}">
                     </div>
                     <div class="col-12 mb-3">
                         <label for="insurance_expiry_date">Insurance Expiry</label>
-                        <input type="date" class="form-control" id="insurance_expiry_date" name="insurance_expiry_date" value="{{ company.insurance_expiry_date.isoformat() if company and company.insurance_expiry_date else '' }}">
+                        <input type="date" class="form-control" id="insurance_expiry_date" name="insurance_expiry_date"
+                            value="{{ company.insurance_expiry_date.isoformat() if company and company.insurance_expiry_date else '' }}">
                     </div>
                     <div class="col-12 mb-3">
                         <label for="insurance_verification_status">Insurance Verification</label>
-                        <select class="form-control" id="insurance_verification_status" name="insurance_verification_status">
+                        <select class="form-control" id="insurance_verification_status"
+                            name="insurance_verification_status">
                             {% set insurance_status = company.insurance_verification_status if company else 'pending' %}
-                            <option value="pending" {% if insurance_status == 'pending' %}selected{% endif %}>Pending</option>
-                            <option value="verified" {% if insurance_status == 'verified' %}selected{% endif %}>Verified</option>
-                            <option value="rejected" {% if insurance_status == 'rejected' %}selected{% endif %}>Rejected</option>
+                            <option value="pending" {% if insurance_status=='pending' %}selected{% endif %}>Pending
+                            </option>
+                            <option value="verified" {% if insurance_status=='verified' %}selected{% endif %}>Verified
+                            </option>
+                            <option value="rejected" {% if insurance_status=='rejected' %}selected{% endif %}>Rejected
+                            </option>
                         </select>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="card mb-4">
-            <div class="card-header"><h5>OSH and ESG Controls</h5></div>
+                <div class="card mb-4">
+            <div class="card-header">
+                <h5><i class="fas fa-upload me-2"></i>Company Documents (Optional)</h5>
+            </div>
             <div class="card-body">
-                <div class="row">
-                    <div class="col-6 mb-3">
-                        <label for="safety_training_coverage">Safety Training Coverage (%)</label>
-                        <input type="number" min="0" max="100" class="form-control" id="safety_training_coverage" name="safety_training_coverage" value="{{ company.safety_training_coverage if company and company.safety_training_coverage is not none else '' }}">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    You can upload multiple documents. Each file needs a document type assigned.
+                </div>
+                
+                <!-- Existing Documents Section -->
+                {% if existing_documents and existing_documents|length > 0 %}
+                <div class="mb-4">
+                    <h6 class="mb-3">
+                        <i class="fas fa-folder-open me-2 text-primary"></i>Uploaded Documents ({{ existing_documents|length }})
+                    </h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Type</th>
+                                    <th>File Name</th>
+                                    <th>Size</th>
+                                    <th>Uploaded</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for doc in existing_documents %}
+                                <tr id="document-row-{{ doc.id }}">
+                                    <td>
+                                        <small class="fw-bold">
+                                            <i class="fas fa-file-alt me-1 text-primary"></i>
+                                            {{ doc.document_type.replace('_', ' ')|title }}
+                                        </small>
+                                    </td>
+                                        <td>
+                                            <small class="text-truncate d-inline-block" style="max-width:200px;" title="{{ doc.file_name }}">
+                                                {{ doc.file_name }}
+                                            </small>
+                                        </td>
+                                    <td><small>{{ (doc.file_size or 0) | format_file_size }}</small></td>
+                                    <td><small>{{ doc.uploaded_at.strftime('%Y-%m-%d') }}</small></td>
+                                    <td>
+                                        {% if doc.verified %}
+                                        <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Verified</span>
+                                        {% else %}
+                                        <span class="badge bg-warning"><i class="fas fa-clock me-1"></i>Pending</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{{ url_for('companies.view_document', id=company.id, doc_id=doc.id) }}" 
+                                           target="_blank" class="btn btn-sm btn-info" title="View">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{{ url_for('companies.download_document', id=company.id, doc_id=doc.id) }}" 
+                                           class="btn btn-sm btn-secondary" title="Download">
+                                            <i class="fas fa-download"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-sm btn-danger" 
+                                                onclick="deleteDocument({{ doc.id }}, '{{ doc.file_name }}')"
+                                                title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
-                    <div class="col-6 mb-3">
-                        <label for="safety_incident_count">Safety Incidents (12 months)</label>
-                        <input type="number" min="0" class="form-control" id="safety_incident_count" name="safety_incident_count" value="{{ company.safety_incident_count if company and company.safety_incident_count is not none else 0 }}">
+                </div>
+                {% endif %}
+                
+                <!-- Upload New Documents Section -->
+                <div class="mb-3">
+                    <label for="doc_upload" class="form-label fw-bold">
+                        <i class="fas fa-paperclip me-2 text-primary"></i>Upload New Files
+                    </label>
+                    <input type="file" class="form-control" id="doc_upload" 
+                           name="documents" multiple accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+                    <div class="form-text mt-2">
+                        <strong>Accepted formats:</strong> PDF, JPG, PNG, DOC, DOCX | 
+                        <strong>Max size:</strong> 16MB per file, 50MB total
                     </div>
-                    <div class="col-6 mb-3">
-                        <label for="esg_policy_level">ESG Policy Level</label>
-                        <select class="form-control" id="esg_policy_level" name="esg_policy_level">
-                            {% set esg_level = company.esg_policy_level if company else 'none' %}
-                            <option value="none" {% if esg_level == 'none' %}selected{% endif %}>Not declared</option>
-                            <option value="basic" {% if esg_level == 'basic' %}selected{% endif %}>Basic</option>
-                            <option value="advanced" {% if esg_level == 'advanced' %}selected{% endif %}>Advanced</option>
-                        </select>
+                </div>
+                
+                <div id="document-upload-section" style="display:none;">
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="mb-0">
+                                <i class="fas fa-list-check me-2 text-success"></i>Selected Files
+                            </h6>
+                            <span id="file-count-badge" class="badge bg-primary"></span>
+                        </div>
+                        <div id="files-preview-list" class="list-group list-group-flush"></div>
                     </div>
-                    <div class="col-6 mb-3">
-                        <label for="green_material_ratio">Green Material Adoption (%)</label>
-                        <input type="number" min="0" max="100" class="form-control" id="green_material_ratio" name="green_material_ratio" value="{{ company.green_material_ratio if company and company.green_material_ratio is not none else '' }}">
-                    </div>
-                    <div class="col-12 mb-3">
-                        <div class="mini-note mt-2">DecoFinance uses these fields to compute OSH-inclusive trust signals, 16kg handling readiness, and ESG readiness for early-warning review.</div>
+                    
+                    <div class="mb-3">
+                        <h6 class="mb-3">
+                            <i class="fas fa-tags me-2 text-warning"></i>Assign Document Types
+                        </h6>
+                        <div id="document-type-fields" class="row g-3"></div>
                     </div>
                 </div>
             </div>
@@ -196,4 +368,241 @@
         <a href="{{ url_for('companies.list_companies') }}" class="btn btn-secondary">Cancel</a>
     </form>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const licenseGroups = document.getElementById('license-groups');
+        const addLicenseButton = document.getElementById('add-license-button');
+        const licenseTemplate = document.getElementById('license-template');
+
+        function updateRemoveButtons() {
+            const groups = licenseGroups.querySelectorAll('.license-group');
+            groups.forEach(group => {
+                const button = group.querySelector('.remove-license-button');
+                if (!button) return;
+                button.style.display = groups.length > 1 ? 'inline-flex' : 'none';
+            });
+        }
+
+        addLicenseButton.addEventListener('click', function (event) {
+            event.preventDefault();
+            const clone = licenseTemplate.content.firstElementChild.cloneNode(true);
+            licenseGroups.appendChild(clone);
+            updateRemoveButtons();
+        });
+
+        licenseGroups.addEventListener('click', function (event) {
+            if (!event.target.classList.contains('remove-license-button')) return;
+            event.preventDefault();
+            const group = event.target.closest('.license-group');
+            if (!group) return;
+            if (licenseGroups.querySelectorAll('.license-group').length <= 1) return;
+            group.remove();
+            updateRemoveButtons();
+        });
+
+        updateRemoveButtons();
+        
+        // Document upload handling
+        const docUpload = document.getElementById('doc_upload');
+        const uploadSection = document.getElementById('document-upload-section');
+        const filesPreviewList = document.getElementById('files-preview-list');
+        const documentTypeFields = document.getElementById('document-type-fields');
+        const fileCountBadge = document.getElementById('file-count-badge');
+        
+        const documentTypes = [
+            { value: 'business_registration', label: 'Business Registration' },
+            { value: 'licence_certificate', label: 'Licence Certificate' },
+            { value: 'insurance_certificate', label: 'Insurance Certificate' },
+            { value: 'audited_financials', label: 'Audited Financials' },
+            { value: 'tax_returns', label: 'Tax Returns' },
+            { value: 'osh_license', label: 'OSH License' },
+            { value: 'project_photos', label: 'Project Photos' },
+            { value: 'invoices', label: 'Invoices' },
+            { value: 'other', label: 'Other' }
+        ];
+        
+        const MAX_FILE_SIZE = 16 * 1024 * 1024; // 16MB per file
+        const MAX_TOTAL_SIZE = 50 * 1024 * 1024; // 50MB total
+        
+        if (docUpload) {
+            docUpload.addEventListener('change', function(e) {
+                const files = e.target.files;
+                
+                if (files.length === 0) {
+                    uploadSection.style.display = 'none';
+                    return;
+                }
+                
+                // Check individual file sizes
+                let oversizedFiles = [];
+                let totalSize = 0;
+                
+                for (let i = 0; i < files.length; i++) {
+                    totalSize += files[i].size;
+                    if (files[i].size > MAX_FILE_SIZE) {
+                        oversizedFiles.push({
+                            name: files[i].name,
+                            size: files[i].size
+                        });
+                    }
+                }
+                
+                // Check total size
+                if (totalSize > MAX_TOTAL_SIZE) {
+                    alert(`Total file size (${formatFileSize(totalSize)}) exceeds the maximum limit of ${formatFileSize(MAX_TOTAL_SIZE)}. Please select smaller files.`);
+                    docUpload.value = '';
+                    uploadSection.style.display = 'none';
+                    return;
+                }
+                
+                // Show warnings for oversized files
+                if (oversizedFiles.length > 0) {
+                    let message = 'The following files exceed the 16MB limit and will be rejected:\n\n';
+                    oversizedFiles.forEach(file => {
+                        message += `- ${file.name} (${formatFileSize(file.size)})\n`;
+                    });
+                    message += '\nPlease remove these files or compress them.';
+                    alert(message);
+                    docUpload.value = '';
+                    uploadSection.style.display = 'none';
+                    return;
+                }
+                
+                uploadSection.style.display = 'block';
+                filesPreviewList.innerHTML = '';
+                documentTypeFields.innerHTML = '';
+                fileCountBadge.textContent = `${files.length} file(s)`;
+                
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    
+                    // Add to preview list
+                    const previewItem = document.createElement('div');
+                    previewItem.className = 'list-group-item';
+                    previewItem.innerHTML = `
+                        <div class="d-flex align-items-center">
+                            <i class="fas ${getFileIcon(file.name)} fa-lg text-primary me-3"></i>
+                            <div class="flex-grow-1">
+                                <div class="fw-bold text-truncate" title="${file.name}">${file.name}</div>
+                                <small class="text-muted">${formatFileSize(file.size)}</small>
+                            </div>
+                            <span class="badge bg-secondary">${i + 1}</span>
+                        </div>
+                    `;
+                    filesPreviewList.appendChild(previewItem);
+                    
+                    // Create document type field
+                    const col = document.createElement('div');
+                    col.className = 'col-md-6';
+                    
+                    const label = document.createElement('label');
+                    label.className = 'form-label small fw-bold';
+                    label.innerHTML = `<i class="fas fa-file me-1"></i>File ${i + 1}: ${file.name}`;
+                    
+                    const select = document.createElement('select');
+                    select.className = 'form-select form-select-sm';
+                    select.name = 'document_types';
+                    select.required = true;
+                    
+                    const defaultOption = document.createElement('option');
+                    defaultOption.value = '';
+                    defaultOption.textContent = '-- Select document type --';
+                    defaultOption.disabled = true;
+                    defaultOption.selected = true;
+                    select.appendChild(defaultOption);
+                    
+                    documentTypes.forEach(type => {
+                        const option = document.createElement('option');
+                        option.value = type.value;
+                        option.textContent = type.label;
+                        select.appendChild(option);
+                    });
+                    
+                    col.appendChild(label);
+                    col.appendChild(select);
+                    documentTypeFields.appendChild(col);
+                }
+            });
+        }
+        
+        function getFileIcon(filename) {
+            const ext = filename.split('.').pop().toLowerCase();
+            const iconMap = {
+                'pdf': 'fa-file-pdf',
+                'doc': 'fa-file-word',
+                'docx': 'fa-file-word',
+                'jpg': 'fa-file-image',
+                'jpeg': 'fa-file-image',
+                'png': 'fa-file-image'
+            };
+            return iconMap[ext] || 'fa-file';
+        }
+        
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+    });
+    
+    // Delete document function
+    function deleteDocument(docId, fileName) {
+        if (!confirm(`Are you sure you want to delete "${fileName}"?`)) {
+            return;
+        }
+        
+        fetch(`/companies/{{ company.id }}/documents/${docId}/delete`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Delete failed');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                // Remove the row from the table
+                const row = document.getElementById(`document-row-${docId}`);
+                if (row) {
+                    row.style.transition = 'opacity 0.3s ease';
+                    row.style.opacity = '0';
+                    setTimeout(() => row.remove(), 300);
+                }
+                
+                // Show success message
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'alert alert-success alert-dismissible fade show';
+                alertDiv.innerHTML = `
+                    <i class="fas fa-check-circle me-2"></i>
+                    Document "${fileName}" deleted successfully.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                document.querySelector('.card-body').insertBefore(alertDiv, document.querySelector('.card-body').firstChild);
+                
+                // Auto-dismiss after 3 seconds
+                setTimeout(() => {
+                    if (alertDiv.parentNode) {
+                        alertDiv.remove();
+                    }
+                }, 3000);
+            } else {
+                alert('Failed to delete document: ' + (data.error || 'Unknown error'));
+            }
+        })
+        .catch(error => {
+            console.error('Delete error:', error);
+            alert('Failed to delete document. Please try again.');
+        });
+    }
+</script>
+
 {% endblock %}

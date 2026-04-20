@@ -28,6 +28,7 @@ from models.smart_contract_agreement import SmartContractAgreement
 from models.consent_record import ConsentRecord
 from models.audit_log import AuditLog
 from models.company_verification import CompanyVerification, LoanReferral, Bank
+from models.company_document import CompanyDocument
 from services.credit_scorer import CreditScorer
 from datetime import datetime
 import os
@@ -70,6 +71,17 @@ def create_app(config_name='default'):
         app.config['SECRET_KEY'] = 'renovation-credit-system-2026'
     if not app.config.get('SQLALCHEMY_DATABASE_URI'):
         app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///renovation_credit.db'
+    
+    # Add custom template filters
+    @app.template_filter('format_file_size')
+    def format_file_size_filter(bytes):
+        """Format file size for display in templates"""
+        if bytes == 0:
+            return '0 Bytes'
+        k = 1024
+        sizes = ['Bytes', 'KB', 'MB', 'GB']
+        i = int(__import__('math').log(bytes) / __import__('math').log(k))
+        return f"{round(bytes / (k ** i), 2)} {sizes[i]}"
     
     # Initialize Database
     db.init_app(app)
