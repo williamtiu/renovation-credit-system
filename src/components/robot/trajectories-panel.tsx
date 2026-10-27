@@ -51,6 +51,9 @@ interface PlaybackInfo {
   trajectoryName?: string
   point?: number
   total?: number
+  cycle?: number
+  totalCycles?: number
+  infinite?: boolean
   speed?: number
   progress?: number
 }
@@ -81,6 +84,7 @@ export function TrajectoriesPanel({ robot }: { robot: RobotContext }) {
   // 回放狀態
   const [playback, setPlayback] = useState<PlaybackInfo | null>(null)
   const [speed, setSpeed] = useState('1')
+  const [loop, setLoop] = useState('1') // 1 | 2 | 5 | 10 | 0（無限）
   const [deleteTarget, setDeleteTarget] = useState<TrajItem | null>(null)
 
   const wasRunningRef = useRef(false)
@@ -211,7 +215,7 @@ export function TrajectoriesPanel({ robot }: { robot: RobotContext }) {
     const res = await fetch(`/api/trajectories/${t.id}/execute`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ speed: parseFloat(speed) }),
+      body: JSON.stringify({ speed: parseFloat(speed), loop: parseInt(loop, 10) }),
     })
     const body = await res.json()
     if (body.ok) {
@@ -223,10 +227,18 @@ export function TrajectoriesPanel({ robot }: { robot: RobotContext }) {
         trajectoryName: t.name,
         point: 0,
         total: body.data.pointCount,
+        cycle: 1,
+        totalCycles: parseInt(loop, 10),
+        infinite: parseInt(loop, 10) === 0,
         speed: parseFloat(speed),
         progress: 0,
       })
-      toast({ title: `▶ 開始回放: ${t.name}`, description: `${body.data.pointCount} 點 @ ${speed}x` })
+      const loopText =
+        loop === '0' ? '∞ 無限循環' : loop === '1' ? '單次' : `循環 ${loop} 次`
+      toast({
+        title: `▶ 開始回放: ${t.name}`,
+        description: `${body.data.pointCount} 點 @ ${speed}x · ${loopText}`,
+      })
     } else {
       toast({ title: '回放失敗', description: body.error, variant: 'destructive' })
     }
@@ -290,6 +302,11 @@ export function TrajectoriesPanel({ robot }: { robot: RobotContext }) {
 
   const playing = playback?.running === true
   const pbPct = playback?.progress != null ? Math.round(playback.progress * 100) : 0
+  const cycleText = playback?.infinite
+    ? `第 ${playback?.cycle ?? 1} 輪`
+    : playback?.totalCycles && playback.totalCycles > 1
+      ? `第 ${playback?.cycle ?? 1}/${playback.totalCycles} 輪`
+      : null
 
   return (
     <div className="space-y-4">
@@ -374,11 +391,23 @@ export function TrajectoriesPanel({ robot }: { robot: RobotContext }) {
                 )}
               >
                 {playing
-                  ? `回放中 ${playback?.point ?? 0}/${playback?.total ?? 0}`
+                  ? `${cycleText ? `${cycleText} · ` : ''}${playback?.point ?? 0}/${playback?.total ?? 0} 點`
                   : (playback?.status ?? 'idle')}
               </Badge>
             </div>
             <Progress value={pbPct} className="h-2 bg-zinc-800" />
+            {playing && cycleText && (
+              <div className="flex items-center justify-between text-[11px] text-zinc-500">
+                <span>
+                  {playback?.infinite
+                    ? '無限循環模式 — 撳「取消」或 E-stop 可隨時停止'
+                    : `循環回放：${cycleText}`}
+                </span>
+                {playback?.infinite && (
+                  <span className="font-mono text-amber-400">∞ LOOP</span>
+                )}
+              </div>
+            )}
             {playback?.message && playing === false && (
               <p className="text-[11px] text-zinc-500">{playback.message}</p>
             )}
@@ -405,7 +434,7 @@ export function TrajectoriesPanel({ robot }: { robot: RobotContext }) {
               {trajs.length} 條
             </Badge>
           </CardTitle>
-          <div className="flex items-center gap-2 mt-1">
+          <div className="flex flex-wrap items-center gap-2 mt-1">
             <span className="text-xs text-zinc-500">回放速度</span>
             <Select value={speed} onValueChange={setSpeed}>
               <SelectTrigger className="h-7 w-[90px] text-xs border-zinc-700 bg-zinc-900">
@@ -415,6 +444,19 @@ export function TrajectoriesPanel({ robot }: { robot: RobotContext }) {
                 <SelectItem value="0.5">0.5x 慢速</SelectItem>
                 <SelectItem value="1">1x 原速</SelectItem>
                 <SelectItem value="2">2x 快速</SelectItem>
+              </SelectContent>
+            </Select>
+            <span className="text-xs text-zinc-500 ml-1">循環次數</span>
+            <Select value={loop} onValueChange={setLoop} disabled={playing}>
+              <SelectTrigger className="h-7 w-[100px] text-xs border-zinc-700 bg-zinc-900">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-zinc-900 border-zinc-700">
+                <SelectItem value="1">單次</SelectItem>
+                <SelectItem value="2">2 次</SelectItem>
+                <SelectItem value="5">5 次</SelectItem>
+                <SelectItem value="10">10 次</SelectItem>
+                <SelectItem value="0">∞ 無限</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -456,7 +498,7 @@ export function TrajectoriesPanel({ robot }: { robot: RobotContext }) {
                       onClick={() => void executeTraj(t)}
                     >
                       <Play className="h-3.5 w-3.5" aria-hidden />
-                      回放
+                      {loop === '0' ? '循環 ∞' : loop === '1' ? '回放' : `回放 ×${loop}`}
                     </Button>
                     <Button
                       size="sm" variant="ghost"
@@ -472,8 +514,8 @@ export function TrajectoriesPanel({ robot }: { robot: RobotContext }) {
             </div>
           )}
           <p className="text-[10px] text-zinc-600 mt-3 leading-relaxed">
-            💡 回放以逐點 goto 執行（每點 cosine 插補），經安全層驗證限位；如中途觸發 E-stop、
-            指令被拒或撳取消，回放立即中止。用「{sendCommand ? 'Shift+Esc' : ''}」可隨時緊急停止。
+            💡 回放以逐點 goto 執行（每點 cosine 插補），經安全層驗證限位；循環模式下每輪之間檢查 E-stop。
+            如中途觸發 E-stop、指令被拒或撳取消，回放立即中止（包括無限循環）。
           </p>
         </CardContent>
       </Card>

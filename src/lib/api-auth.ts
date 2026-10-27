@@ -54,7 +54,7 @@ export function extractApiKey(req: NextRequest, body?: { apiKey?: string }): str
 /**
  * 認證請求：
  *   - 無 key → ok（內部使用者，viaKey=false）
- *   - 有 key → 驗證存在 + 啟用，更新 lastUsedAt
+ *   - 有 key → 驗證存在 + 啟用 + 未過期，更新 lastUsedAt
  */
 export async function authenticateApiKey(
   req: NextRequest,
@@ -70,6 +70,15 @@ export async function authenticateApiKey(
   if (!user.active) {
     return { ok: false, status: 403, error: `API key 已停用（${user.name}）`, viaKey: true }
   }
+  // 有效期檢查：expiresAt 過去即拒絕（過期 key 唔會自動刪除，方便管理員延期復用）
+  if (user.expiresAt && user.expiresAt.getTime() <= Date.now()) {
+    return {
+      ok: false,
+      status: 401,
+      error: `API key 已過期（${user.name}，${user.expiresAt.toISOString()}）— 請聯絡管理員延期或重新生成`,
+      viaKey: true,
+    }
+  }
 
   await db.apiUser.update({
     where: { id: user.id },
@@ -77,6 +86,23 @@ export async function authenticateApiKey(
   })
 
   return { ok: true, user: { id: user.id, name: user.name, role: user.role as ApiRole }, viaKey: true }
+}
+
+/** 計算過期時間：expiresInDays（小時也支援小數）→ Date；null = 永久 */
+export function computeExpiry(expiresInDays: number | null | undefined): Date | null {
+  if (expiresInDays == null || Number.isNaN(expiresInDays) || expiresInDays <= 0) return null
+  return new Date(Date.now() + expiresInDays * 24 * 3600 * 1000)
+}
+
+/** 有效期格式化（供 API 回傳） */
+export function describeExpiry(expiresAt: Date | null): string {
+  if (!expiresAt) return '永久有效'
+  const ms = expiresAt.getTime() - Date.now()
+  if (ms <= 0) return '已過期'
+  const hours = ms / 3600000
+  if (hours < 1) return `剩餘 ${Math.max(1, Math.round(ms / 60000))} 分鐘`
+  if (hours < 48) return `剩餘 ${hours.toFixed(1)} 小時`
+  return `剩餘 ${Math.round(hours / 24)} 天`
 }
 
 /** 檢查角色權限（無 key 內部使用者 → 全部允許） */

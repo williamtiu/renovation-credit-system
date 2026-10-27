@@ -12,7 +12,7 @@
  */
 
 import { useCallback, useEffect, useState } from 'react'
-import { KeyRound, Plus, Copy, Check, RefreshCw, Trash2, ShieldAlert, ExternalLink } from 'lucide-react'
+import { KeyRound, Plus, Copy, Check, RefreshCw, Trash2, ShieldAlert, ExternalLink, Clock } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -41,6 +41,8 @@ interface ApiKeyItem {
   active: boolean
   keyMasked: string
   lastUsedAt: string | null
+  expiresAt: string | null
+  expired: boolean
   createdAt: string
 }
 
@@ -56,6 +58,20 @@ const ROLE_DESC: Record<string, string> = {
   viewer: '唯讀：狀態查詢 / 日誌 / 姿勢庫列表（可觸發 E-stop）',
 }
 
+/** 有效期狀態描述 */
+function expiryInfo(k: ApiKeyItem): { label: string; cls: string } {
+  if (!k.expiresAt) return { label: '永久', cls: 'border-zinc-700 text-zinc-500' }
+  if (k.expired) return { label: '已過期', cls: 'border-red-500/50 bg-red-500/10 text-red-400' }
+  const ms = new Date(k.expiresAt).getTime() - Date.now()
+  const hours = ms / 3600000
+  if (hours < 24) {
+    return { label: `剩 ${Math.max(1, Math.round(hours))} 小時`, cls: 'border-amber-500/50 bg-amber-500/10 text-amber-400' }
+  }
+  const days = Math.round(hours / 24)
+  if (days <= 3) return { label: `剩 ${days} 天`, cls: 'border-amber-500/50 bg-amber-500/10 text-amber-400' }
+  return { label: `剩 ${days} 天`, cls: 'border-emerald-500/40 bg-emerald-500/10 text-emerald-400' }
+}
+
 export function KeysPanel() {
   const { toast } = useToast()
   const [keys, setKeys] = useState<ApiKeyItem[]>([])
@@ -65,6 +81,8 @@ export function KeysPanel() {
   const [createOpen, setCreateOpen] = useState(false)
   const [newName, setNewName] = useState('')
   const [newRole, setNewRole] = useState<'admin' | 'operator' | 'viewer'>('operator')
+  const [newExpiry, setNewExpiry] = useState('never') // never | 1 | 7 | 30 | 90 | custom
+  const [customDays, setCustomDays] = useState('14')
   const [creating, setCreating] = useState(false)
 
   // 新 key 一次性顯示
@@ -97,15 +115,32 @@ export function KeysPanel() {
     }
     setCreating(true)
     try {
+      let expiresInDays: number | null = null
+      if (newExpiry === 'custom') {
+        const d = Number(customDays)
+        if (!Number.isFinite(d) || d <= 0 || d > 3650) {
+          toast({ title: '自訂天數必須為 0–3650', variant: 'destructive' })
+          return
+        }
+        expiresInDays = d
+      } else if (newExpiry !== 'never') {
+        expiresInDays = Number(newExpiry)
+      }
       const res = await fetch('/api/keys', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: newName.trim(), role: newRole }),
+        body: JSON.stringify({ name: newName.trim(), role: newRole, expiresInDays }),
       })
       const body = await res.json()
       if (body.ok) {
         setCreateOpen(false)
         setFreshKey({ name: body.data.name, apiKey: body.data.apiKey })
+        if (body.data.expiresAt) {
+          toast({
+            title: '⏳ Key 已建立（限期）',
+            description: `有效期至 ${new Date(body.data.expiresAt).toLocaleString('zh-HK', { hour12: false })}`,
+          })
+        }
         setNewName('')
         await loadKeys()
       } else {
@@ -113,6 +148,36 @@ export function KeysPanel() {
       }
     } finally {
       setCreating(false)
+    }
+  }
+
+  /** 延期 / 設為永久 */
+  const extendKey = async (k: ApiKeyItem, action: string) => {
+    let payload: Record<string, unknown>
+    if (action === 'never') payload = { expiresInDays: null }
+    else payload = { extendDays: Number(action) }
+    const res = await fetch(`/api/keys/${k.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
+    const body = await res.json()
+    if (body.ok) {
+      setKeys((prev) =>
+        prev.map((x) =>
+          x.id === k.id
+            ? { ...x, expiresAt: body.data.expiresAt, expired: false }
+            : x
+        )
+      )
+      toast({
+        title: `${k.name} 已${action === 'never' ? '設為永久' : `延期 +${action} 天`}`,
+        description: body.data.expiresAt
+          ? `新到期：${new Date(body.data.expiresAt).toLocaleString('zh-HK', { hour12: false })}`
+          : undefined,
+      })
+    } else {
+      toast({ title: '操作失敗', description: body.error, variant: 'destructive' })
     }
   }
 
@@ -250,10 +315,14 @@ export function KeysPanel() {
                 >
                   {/* 名稱 + key */}
                   <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <span className="text-sm font-medium text-zinc-200 truncate">{k.name}</span>
                       <Badge variant="outline" className={cn('text-[9px] px-1.5 py-0', ROLE_STYLE[k.role])}>
                         {k.role}
+                      </Badge>
+                      <Badge variant="outline" className={cn('text-[9px] px-1.5 py-0 gap-0.5', expiryInfo(k).cls)}>
+                        <Clock className="h-2.5 w-2.5" aria-hidden />
+                        {expiryInfo(k).label}
                       </Badge>
                       {!k.active && (
                         <Badge variant="outline" className="text-[9px] px-1.5 py-0 border-zinc-600 text-zinc-500">
@@ -269,8 +338,35 @@ export function KeysPanel() {
                           ? `最後使用 ${new Date(k.lastUsedAt).toLocaleString('zh-HK', { hour12: false })}`
                           : '從未使用'}
                       </span>
+                      {k.expiresAt && (
+                        <>
+                          <span className="mx-2 text-zinc-700">·</span>
+                          <span className={k.expired ? 'text-red-400' : 'text-zinc-600'}>
+                            到期 {new Date(k.expiresAt).toLocaleString('zh-HK', { hour12: false })}
+                          </span>
+                        </>
+                      )}
                     </div>
                   </div>
+
+                  {/* 有效期操作 */}
+                  <Select value="" onValueChange={(v) => v && void extendKey(k, v)}>
+                    <SelectTrigger
+                      className="h-8 w-[96px] text-[11px] border-zinc-700 bg-zinc-900 text-zinc-400"
+                      title="有效期管理"
+                    >
+                      <div className="flex items-center gap-1">
+                        <Clock className="h-3 w-3" aria-hidden />
+                        <span>有效期</span>
+                      </div>
+                    </SelectTrigger>
+                    <SelectContent className="bg-zinc-900 border-zinc-700">
+                      <SelectItem value="1" className="text-xs">延期 +1 天</SelectItem>
+                      <SelectItem value="7" className="text-xs">延期 +7 天</SelectItem>
+                      <SelectItem value="30" className="text-xs">延期 +30 天</SelectItem>
+                      <SelectItem value="never" className="text-xs">改為永久</SelectItem>
+                    </SelectContent>
+                  </Select>
 
                   {/* 角色 */}
                   <Select value={k.role} onValueChange={(v) => void changeRole(k, v)}>
@@ -352,6 +448,39 @@ export function KeysPanel() {
                   <SelectItem value="admin">admin（全部）</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs text-zinc-400">
+                有效期
+                <span className="text-zinc-600 ml-1">— 過期後認證即時失效（401）</span>
+              </Label>
+              <Select value={newExpiry} onValueChange={setNewExpiry}>
+                <SelectTrigger className="h-9 bg-zinc-950 border-zinc-700 text-sm">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-zinc-900 border-zinc-700">
+                  <SelectItem value="never">永久有效</SelectItem>
+                  <SelectItem value="1">1 天</SelectItem>
+                  <SelectItem value="7">7 天</SelectItem>
+                  <SelectItem value="30">30 天</SelectItem>
+                  <SelectItem value="90">90 天</SelectItem>
+                  <SelectItem value="custom">自訂天數…</SelectItem>
+                </SelectContent>
+              </Select>
+              {newExpiry === 'custom' && (
+                <div className="flex items-center gap-2 pt-1">
+                  <Input
+                    type="number"
+                    min={1}
+                    max={3650}
+                    value={customDays}
+                    onChange={(e) => setCustomDays(e.target.value)}
+                    className="h-8 bg-zinc-950 border-zinc-700 text-sm w-24"
+                    aria-label="自訂天數"
+                  />
+                  <span className="text-xs text-zinc-500">天（支援小數：0.04 ≈ 1 小時）</span>
+                </div>
+              )}
             </div>
           </div>
           <DialogFooter>

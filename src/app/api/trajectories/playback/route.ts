@@ -22,7 +22,11 @@ export async function GET() {
       trajectoryName: pb.trajectoryName,
       point: pb.point,
       total: pb.total,
+      cycle: pb.cycle,
+      totalCycles: pb.totalCycles,
+      infinite: pb.totalCycles === 0,
       speed: pb.speed,
+      // 總體進度：當前輪內點進度（循環模式下為當前輪進度）
       progress: pb.total > 0 ? Math.round((pb.point / pb.total) * 100) / 100 : 0,
       startedAt: pb.startedAt,
       endedAt: pb.endedAt,

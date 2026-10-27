@@ -19,6 +19,8 @@ model ApiUser {
   active      Boolean      @default(true)
   apiKey      String       @unique @default(cuid())
   lastUsedAt  DateTime?
+  // Key 有效期（null = 永久有效）— 過期後認證一律 401
+  expiresAt   DateTime?
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
   commandLogs CommandLog[]
