@@ -24,3 +24,20 @@ Stage Summary:
 - 關鍵決策：(1) 三驅動 HAL 統一接口，沙盒用 simulation、真機推薦 bridge（C++ 包裝 SDK 避免 Node 重寫 IM6014 協議）；(2) ROS2 概念完整映射（topic=WS rooms、service=REST、lifecycle=configure/activate、parameter=Settings）；(3) 安全層全部指令必經（限制驗證+去抖+E-stop 聯鎖）
 - 兩個深度 bug 已修復並驗證：FOC 保持目標同步、WS topic 訂閱前綴
 - 後續真機部署：clone r1-7a_sdk → 按 TODO(r1a_sdk) 標註對接 ArmMotorBus API → 編譯 bridge → systemd + udev → Web Settings 切換 bridge 模式
+
+---
+Task ID: 2
+Agent: Main Agent (Z.ai)
+Task: 會話恢復後嘅端到端驗證 — 確認三服務運作 + 安全層 + WS 串流 + 審計日誌
+
+Work Log:
+- 檢查服務狀態：:3000 Next.js / :3002 Control / :3003 WS Gateway 全部運行中
+- 冒煙測試 goto（7 元素陣列 [0.5,0.1,-0.8,0.55,0,0,0.3]）→ 1.2s 後精確到位（誤差 0）
+- 安全層測試：超出限位（J1 9.9 rad）正確拒絕、E-stop 觸發後 goto 被聯鎖阻擋、clear 後恢復
+- 審計日誌：estop/clear/goto/home 全部記錄（Next.js API → Prisma SQLite）
+- WS Gateway 正確協議驗證：subscribe {topics:[...]} → topic:/joint_states 串流 ≈9.6Hz、topic:/robot_state、command ack 轉發全部正常
+- Web 頁面載入 HTTP 200（R1-7A 機械臂控制平台）
+
+Stage Summary:
+- 平台完整運作：三服務架構、底層控制指令鏈、ROS2 式 topic/service 模型、安全聯鎖、審計追蹤
+- 交付就緒：預覽面板可即時體驗；download/r1a-deploy/ 提供真機部署路徑
