@@ -1,0 +1,12 @@
+# R1-7A 機械臂 USB 串列裝置規則
+# 固定裝置名（避免 ttyUSB 編號變動）+ 權限
+# 安裝: sudo cp 99-r1a-arm.rules /etc/udev/rules.d/ && sudo udevadm control --reload && sudo udevadm trigger
+
+# Unitree R1 手臂調試器（IM6014 匯流排）— 按實際 VID:PID 修改
+# 查詢: lsusb 或 udevadm info -a -n /dev/ttyUSB0 | grep -E "idVendor|idProduct"
+SUBSYSTEM=="tty", ATTRS{idVendor}=="0483", ATTRS{idProduct}=="5740", \
+  SYMLINK+="r1a_arm", MODE="0664", GROUP="dialout", \
+  TAG+="systemd", ENV{SYSTEMD_WANTS}+="r1a-bridge.service"
+
+# 後備：所有 ttyUSB 裝置撥予 dialout 群組存取權
+SUBSYSTEM=="tty", KERNEL=="ttyUSB[0-9]*", MODE="0664", GROUP="dialout"

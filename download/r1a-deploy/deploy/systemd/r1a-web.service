@@ -1,0 +1,22 @@
+# R1-7A Web Platform (:3000) — Next.js Web UI + REST API
+# 首次部署先執行: bun run build（產生 .next/standalone）
+[Unit]
+Description=R1-7A Web Platform (Next.js :3000)
+After=network.target r1a-control.service r1a-gateway.service
+Wants=r1a-control.service
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/r1a/web
+ExecStart=/usr/bin/bun .next/standalone/server.js
+Environment=NODE_ENV=production
+Environment=PORT=3000
+Environment=HOSTNAME=0.0.0.0
+Environment=ROBOT_CONTROL_URL=http://localhost:3002
+Environment=DATABASE_URL=file:/opt/r1a/web/db/custom.db
+Restart=always
+RestartSec=3
+User=r1a
+
+[Install]
+WantedBy=multi-user.target

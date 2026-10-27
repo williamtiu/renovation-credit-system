@@ -1,0 +1,18 @@
+# WebSocket Gateway (:3003) — rosbridge 風格即時遙測閘道
+[Unit]
+Description=R1-7A WebSocket Gateway (socket.io, :3003)
+After=network.target r1a-control.service
+Requires=r1a-control.service
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/r1a/web/mini-services/ws-gateway
+ExecStart=/usr/bin/bun run start
+Environment=NODE_ENV=production
+Environment=ROBOT_CONTROL_URL=http://localhost:3002
+Restart=always
+RestartSec=3
+User=r1a
+
+[Install]
+WantedBy=multi-user.target

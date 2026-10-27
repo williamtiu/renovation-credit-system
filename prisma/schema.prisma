@@ -1,0 +1,62 @@
+// R1-7A Robot Control Platform — Prisma Schema
+// 基於 ROS2 架構概念嘅數據模型
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// API 使用者（外部系統調用者）
+model ApiUser {
+  id          String       @id @default(cuid())
+  name        String       @unique
+  email       String?
+  role        String       @default("operator") // admin | operator | viewer
+  active      Boolean      @default(true)
+  apiKey      String       @unique @default(cuid())
+  lastUsedAt  DateTime?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  commandLogs CommandLog[]
+}
+
+// 指令日誌（對應 ROS2 嘅 rosout / audit trail）
+model CommandLog {
+  id          String   @id @default(cuid())
+  source      String   @default("web") // web | api | websocket | system
+  command     String   // foc | home | goto | stop | zero_torque | clear | reset | ...
+  params      String   @default("{}") // JSON string
+  status      String   @default("ok") // ok | rejected | error
+  message     String?  // 詳細訊息
+  latencyMs   Float?   // 指令延遲
+  apiUserId   String?
+  apiUser     ApiUser? @relation(fields: [apiUserId], references: [id])
+  createdAt   DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([command])
+}
+
+// 姿勢預設庫（對應 ROS2 嘅 stored trajectories / pose library）
+model PosePreset {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  category    String   @default("custom") // home | working | safe | custom
+  joints      String   // JSON: [q1..q7] 單位 rad (URDF frame)
+  duration    Float    @default(2.0) // 執行時間 (秒)
+  isSystem    Boolean  @default(false) // 系統內建唔可以刪
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// 系統參數（對應 ROS2 Parameter Server）
+model SystemParam {
+  key       String   @id
+  value     String   // JSON encoded
+  updatedAt DateTime @updatedAt
+}

@@ -1,0 +1,13 @@
+{
+  "name": "robot-control-service",
+  "version": "1.0.0",
+  "private": true,
+  "description": "R1-7A Robot Control Service — HAL + Safety + Controller (ROS2-style node). 真機串口模式需另裝: bun add serialport",
+  "scripts": {
+    "dev": "bun --hot index.ts",
+    "start": "bun index.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  }
+}

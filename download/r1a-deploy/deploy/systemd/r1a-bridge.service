@@ -1,0 +1,24 @@
+# R1-7A Hardware Bridge 服務
+# 安裝: sudo cp r1a-bridge.service /etc/systemd/system/
+# 啟用: sudo systemctl daemon-reload && sudo systemctl enable --now r1a-bridge
+[Unit]
+Description=R1-7A Hardware Bridge (r1-7a_sdk wrapper, UDP JSON-RPC :15000)
+After=network.target dev-ttyUSB0.device
+Wants=dev-ttyUSB0.device
+
+[Service]
+Type=simple
+# 按實際安裝路徑修改
+ExecStart=/opt/r1a/hardware-bridge/build/r1a_bridge /dev/ttyUSB0 6000000 15000
+Restart=always
+RestartSec=3
+User=r1a
+Group=dialout
+# 即時調度（機械人控制需要低延遲）
+CPUSchedulingPolicy=fifo
+CPUSchedulingPriority=70
+LimitRTPRIO=99
+LimitMEMLOCK=infinity
+
+[Install]
+WantedBy=multi-user.target

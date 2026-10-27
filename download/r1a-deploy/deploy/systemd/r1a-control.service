@@ -1,0 +1,21 @@
+# Robot Control Service (:3002) — HAL + Safety + Controller
+# 環境變數 ROBOT_CONTROL_URL 供 gateway 使用（預設 http://localhost:3002）
+[Unit]
+Description=R1-7A Robot Control Service (HAL + Safety + Controller, :3002)
+After=network.target r1a-bridge.service
+Wants=r1a-bridge.service
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/r1a/web/mini-services/robot-control
+ExecStart=/usr/bin/bun run start
+Environment=NODE_ENV=production
+# 預設 bridge 模式（真機）。開發機可改為 simulation
+Environment=R1A_DRIVER_MODE=bridge
+Restart=always
+RestartSec=3
+User=r1a
+Group=dialout
+
+[Install]
+WantedBy=multi-user.target

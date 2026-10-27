@@ -1,0 +1,16 @@
+{
+  "name": "ws-gateway",
+  "version": "1.0.0",
+  "private": true,
+  "description": "WebSocket Gateway — rosbridge 風格嘅即時遙測 pub/sub 轉發",
+  "scripts": {
+    "dev": "bun --hot index.ts",
+    "start": "bun index.ts"
+  },
+  "dependencies": {
+    "socket.io": "^4.8.0"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  }
+}
