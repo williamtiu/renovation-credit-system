@@ -41,3 +41,30 @@ Work Log:
 Stage Summary:
 - 平台完整運作：三服務架構、底層控制指令鏈、ROS2 式 topic/service 模型、安全聯鎖、審計追蹤
 - 交付就緒：預覽面板可即時體驗；download/r1a-deploy/ 提供真機部署路徑
+
+---
+Task ID: 3
+Agent: Main Agent (Z.ai)
+Task: 三大擴充功能 — 3D 可視化（Three.js）+ API Key 認證管理 + 軌跡錄製回放
+
+Work Log:
+- Prisma：新增 Trajectory model（points JSON 路徑點 + duration + pointCount）；修復 db push 相對路徑問題（正確 DATABASE_URL 絕對路徑）
+- API Key 認證：src/lib/api-auth.ts（generateApiKey r1a_sk_ 前綴、掩碼、X-API-Key header + body.apiKey 兼容、角色 rank 檢查）
+- Keys API：/api/keys（GET 掩碼列表/POST 建立一次性回傳完整 key）、[id] PATCH（角色/啟用）、DELETE、[id]/regenerate
+- 認證接入：command/estop/poses execute 強制角色檢查（viewer 唯讀、operator 控制、admin 含 zero_torque/reset 危險指令）；E-stop 任何角色可用（安全優先）；全部審計入庫（含 apiUserId 關聯）
+- 軌跡 API：/api/trajectories CRUD + [id]/execute 回放引擎（src/lib/playback-engine.ts：module 單例、逐點 goto、E-stop 每步檢查自動中止、cancel 即時 stop、完成/中止審計）+ playback 進度輪詢 + playback/cancel
+- 3D 可視化（arm-3d.tsx，three@0.171 動態 import）：7-DOF URDF 運動鏈（pitch→X/roll→Z/yaw→Y nested pivots）、軀幹+底座+網格場景、OrbitControls、末端軌跡追踪（20Hz 採樣綠線）、E-stop 關節球轉紅、視角預設（前/側/俯/45°）、線框模式切換、ResizeObserver
+- UI 新增 3 個 tab（總共 9 個）：3D 視圖、軌跡錄製回放（錄製計時/點數、保存對話框、速度選擇 0.5x/1x/2x、回放進度條、取消）、API Keys（建立/角色切換/啟用開關/重新生成/刪除、一次性 key 顯示+複製）
+- API 文檔更新：X-API-Key 章節、trajectories/keys 全部新端點示例
+
+驗證（API + agent-browser E2E + VLM 截圖分析）：
+- Key 認證：viewer 拒控制（403）、operator goto 成功、operator 拒 zero_torque（admin only）、無效 key 401、停用 key 403、lastUsedAt 更新、掩碼顯示
+- 軌跡：保存 3 點→2x 回放精確到位、並發回放 409、E-stop 中途自動中止（aborted）、cancel 即時停臂（max|dq|=0）、審計「開始/完成/中止」記錄
+- 3D：WebGL canvas 914x560 渲染（VLM 確認連桿/關節球/夾爪/軌跡線/控制面板）、home 指令後 VLM 讀數 [0,0.1,0,0.55,0,0,0] 與 ARM_HOME 完全一致
+- UI 流程：錄製按鈕→機械臂移動→停止→命名保存（38 點/18s toast）→UI 回放進度實時（4/38→23/38）→取消（aborted）
+- lint 0 errors 0 warnings；E2E 全程 0 console errors
+
+Stage Summary:
+- 平台升級至 9 tab 完整功能：底層控制 + 3D 即時可視化 + 軌跡錄製回放 + API Key 認證管理
+- 回放引擎為 module 單例（單進程單回放），E-stop 聯鎖每步檢查
+- Key 認證模型：無 key（Web UI 本地）全權限；有 key 強制角色；E-stop 永遠允許

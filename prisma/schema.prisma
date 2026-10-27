@@ -54,6 +54,19 @@ model PosePreset {
   updatedAt   DateTime @updatedAt
 }
 
+// 軌跡錄製（對應 ROS2 嘅 recorded trajectories — joint trajectory playback）
+model Trajectory {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  // JSON: [{ joints: [q1..q7], dt: 秒 }] — 相鄰路徑點時間間隔
+  points      String
+  duration    Float    // 總時長 (秒)
+  pointCount  Int      // 路徑點數量
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
 // 系統參數（對應 ROS2 Parameter Server）
 model SystemParam {
   key       String   @id

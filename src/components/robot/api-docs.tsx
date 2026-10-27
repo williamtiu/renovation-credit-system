@@ -46,22 +46,27 @@ for i, j in enumerate(state["joints"], 1):
   {
     method: 'POST',
     path: '/api/robot/command',
-    title: '發送控制指令',
-    desc: '核心指令入口。type: foc | home | goto | stop | zero_torque | clear | reset。goto 需要 joints (7 元素, rad) 同 duration (s)。可帶 apiKey 認證。',
+    title: '發送控制指令（支援 API Key 認證）',
+    desc: '核心指令入口。type: foc | home | goto | stop | zero_torque | clear | reset。goto 需要 joints (7 元素, rad) 同 duration (s)。帶 X-API-Key 時強制角色權限（zero_torque/reset 需 admin）。',
     body: `{
   "type": "goto",
   "joints": [0.5, 0.35, 0.0, 1.2, 0.0, 0.2, 0.0],
   "duration": 2.5
 }`,
-    curl: `curl -X POST http://<host>:3000/api/robot/command \\
+    curl: `# 帶 API key（X-API-Key header）
+curl -X POST http://<host>:3000/api/robot/command \\
+  -H "X-API-Key: r1a_sk_xxxxxxxxxxxx" \\
   -H "Content-Type: application/json" \\
   -d '{"type":"goto","joints":[0.5,0.35,0,1.2,0,0.2,0],"duration":2.5}'`,
     python: `import requests
-r = requests.post("http://<host>:3000/api/robot/command", json={
-    "type": "goto",
-    "joints": [0.5, 0.35, 0.0, 1.2, 0.0, 0.2, 0.0],
-    "duration": 2.5,
-})
+r = requests.post("http://<host>:3000/api/robot/command",
+    headers={"X-API-Key": "r1a_sk_xxxxxxxxxxxx"},
+    json={
+        "type": "goto",
+        "joints": [0.5, 0.35, 0.0, 1.2, 0.0, 0.2, 0.0],
+        "duration": 2.5,
+    },
+)
 print(r.json())  # {"ok": true, "message": "指令 goto 已執行", ...}`,
     response: `{
   "ok": true,
@@ -159,6 +164,129 @@ requests.post("http://<host>:3000/api/robot/estop")`,
 }`,
   },
   {
+    method: 'GET',
+    path: '/api/trajectories',
+    title: '軌跡庫列表',
+    desc: '已錄製嘅軌跡（名稱、點數、時長）。對應 ROS2 joint trajectory 概念。',
+    curl: 'curl http://<host>:3000/api/trajectories',
+    response: `{
+  "ok": true,
+  "data": [
+    { "id": "...", "name": "pick-and-place", "pointCount": 42,
+      "duration": 4.1, "createdAt": "..." },
+    ...
+  ]
+}`,
+  },
+  {
+    method: 'POST',
+    path: '/api/trajectories',
+    title: '儲存軌跡',
+    desc: '保存路徑點序列。points: [{ joints: number[7], dt: 秒 }] — dt 為到下一點嘅時間間隔。',
+    body: `{
+  "name": "wave-hello",
+  "description": "演示揮手動作",
+  "points": [
+    { "joints": [0, 0.1, 0, 0.55, 0, 0, 0], "dt": 0.5 },
+    { "joints": [0.4, 0.9, 0, 1.4, 0, 0.3, 0.6], "dt": 1.2 },
+    { "joints": [0.4, 0.9, 0, 1.0, 0, -0.3, -0.6], "dt": 0.8 }
+  ]
+}`,
+    curl: `curl -X POST http://<host>:3000/api/trajectories \\
+  -H "Content-Type: application/json" \\
+  -d '{"name":"wave","points":[{"joints":[0,0.1,0,0.55,0,0,0],"dt":0.5},{"joints":[0.4,0.9,0,1.4,0,0.3,0.6],"dt":1.0}]}'`,
+    response: `{
+  "ok": true,
+  "data": { "id": "cm...", "name": "wave-hello", "pointCount": 3, "duration": 2.5 }
+}`,
+  },
+  {
+    method: 'POST',
+    path: '/api/trajectories/{id}/execute',
+    title: '回放軌跡',
+    desc: '逐點 goto + cosine 插補回放。speed: 0.25–2.0 倍率。E-stop / 指令被拒時自動中止；同時只容許一個回放。',
+    body: `{
+  "speed": 1.0
+}`,
+    curl: `curl -X POST http://<host>:3000/api/trajectories/<traj_id>/execute \\
+  -H "Content-Type: application/json" \\
+  -d '{"speed":1.0}'`,
+    response: `{
+  "ok": true,
+  "data": { "trajectoryId": "...", "name": "wave-hello", "pointCount": 3, "speed": 1.0 }
+}`,
+  },
+  {
+    method: 'GET',
+    path: '/api/trajectories/playback',
+    title: '回放進度查詢',
+    desc: '輪詢回放狀態：當前點 / 總點數 / 進度百分比 / 中止原因。',
+    curl: 'curl http://<host>:3000/api/trajectories/playback',
+    response: `{
+  "ok": true,
+  "data": {
+    "running": true, "status": "running",
+    "trajectoryName": "wave-hello",
+    "point": 2, "total": 3, "progress": 0.67
+  }
+}`,
+  },
+  {
+    method: 'POST',
+    path: '/api/trajectories/playback/cancel',
+    title: '取消回放',
+    desc: '取消進行中嘅回放 — 即時發送 stop 指令停低機械臂。',
+    curl: 'curl -X POST http://<host>:3000/api/trajectories/playback/cancel',
+    response: `{
+  "ok": true,
+  "data": { "message": "已請求取消，機械臂即將停止" }
+}`,
+  },
+  {
+    method: 'POST',
+    path: '/api/keys',
+    title: '建立 API Key',
+    desc: '角色：viewer（唯讀）/ operator（一般控制）/ admin（全部含危險指令）。完整 key 只回傳一次。',
+    body: `{
+  "name": "python-script",
+  "role": "operator"
+}`,
+    curl: `curl -X POST http://<host>:3000/api/keys \\
+  -H "Content-Type: application/json" \\
+  -d '{"name":"python-script","role":"operator"}'`,
+    response: `{
+  "ok": true,
+  "data": {
+    "id": "cm...", "name": "python-script", "role": "operator",
+    "apiKey": "r1a_sk_a1b2c3d4e5f6..."
+  }
+}`,
+  },
+  {
+    method: 'PATCH',
+    path: '/api/keys/{id}',
+    title: '更新 API Key',
+    desc: '改名 / 切換角色 / 啟用停用。身體：{ name?, role?, active? }。',
+    curl: `curl -X PATCH http://<host>:3000/api/keys/<key_id> \\
+  -H "Content-Type: application/json" \\
+  -d '{"active":false}'`,
+    response: `{
+  "ok": true,
+  "data": { "id": "...", "name": "python-script", "role": "operator", "active": false }
+}`,
+  },
+  {
+    method: 'POST',
+    path: '/api/keys/{id}/regenerate',
+    title: '重新生成 API Key',
+    desc: '生成新 key，舊 key 即時失效。',
+    curl: 'curl -X POST http://<host>:3000/api/keys/<key_id>/regenerate',
+    response: `{
+  "ok": true,
+  "data": { "apiKey": "r1a_sk_newkey..." }
+}`,
+  },
+  {
     method: 'POST',
     path: '/api/system/configure',
     title: '驅動模式配置',
@@ -247,6 +375,8 @@ export function ApiDocs() {
             平台提供兩類介面：<strong className="text-zinc-300">REST API</strong>（一次性請求，適合整合）
             同 <strong className="text-zinc-300">WebSocket API</strong>（即時遙測 @10Hz，rosbridge 風格 pub/sub）。
             所有關節數值使用 <span className="font-mono text-amber-400/90">URDF frame (rad)</span>。
+            外部程序調用時以 <code className="font-mono text-amber-400/90">X-API-Key</code> header 認證
+            （到 API Keys 頁建立），角色權限：viewer 唯讀 · operator 一般控制 · admin 全部。
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -254,7 +384,7 @@ export function ApiDocs() {
             <div className="rounded-lg border border-zinc-800 bg-zinc-950/50 p-3">
               <div className="text-xs font-semibold text-zinc-200 mb-1">REST API</div>
               <p className="text-[11px] text-zinc-500 leading-relaxed">
-                埠 3000，JSON over HTTP。控制、狀態、姿勢、日誌全功能。
+                埠 3000，JSON over HTTP。控制、狀態、姿勢、軌跡、金鑰管理、日誌全功能。
               </p>
             </div>
             <div className="rounded-lg border border-zinc-800 bg-zinc-950/50 p-3">

@@ -13,14 +13,17 @@
  */
 
 import { useEffect } from 'react'
-import { LayoutDashboard, SlidersHorizontal, Library, ScrollText, BookOpen, Settings2, Github } from 'lucide-react'
+import { LayoutDashboard, SlidersHorizontal, Box, Library, History, ScrollText, KeyRound, BookOpen, Settings2, Github } from 'lucide-react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useRobot } from '@/hooks/use-robot'
 import { StatusHeader } from '@/components/robot/status-header'
 import { Dashboard } from '@/components/robot/dashboard'
 import { ControlPanel } from '@/components/robot/control-panel'
+import { Arm3D } from '@/components/robot/arm-3d'
 import { PosesPanel } from '@/components/robot/poses-panel'
+import { TrajectoriesPanel } from '@/components/robot/trajectories-panel'
 import { LogsPanel } from '@/components/robot/logs-panel'
+import { KeysPanel } from '@/components/robot/keys-panel'
 import { ApiDocs } from '@/components/robot/api-docs'
 import { SettingsPanel } from '@/components/robot/settings-panel'
 import { useToast } from '@/hooks/use-toast'
@@ -68,8 +71,11 @@ export default function Home() {
           <TabsList className="mb-4 h-11 w-full justify-start overflow-x-auto bg-zinc-900/80 border border-zinc-800 rounded-xl p-1 custom-scroll">
             <TabTrigger icon={<LayoutDashboard className="h-4 w-4" />} label="Dashboard 總覽" value="dashboard" />
             <TabTrigger icon={<SlidersHorizontal className="h-4 w-4" />} label="Control 控制" value="control" />
+            <TabTrigger icon={<Box className="h-4 w-4" />} label="3D 視圖" value="view3d" />
             <TabTrigger icon={<Library className="h-4 w-4" />} label="Poses 姿勢庫" value="poses" />
+            <TabTrigger icon={<History className="h-4 w-4" />} label="軌跡錄製回放" value="trajectories" />
             <TabTrigger icon={<ScrollText className="h-4 w-4" />} label="Logs 日誌" value="logs" />
+            <TabTrigger icon={<KeyRound className="h-4 w-4" />} label="API Keys" value="keys" />
             <TabTrigger icon={<BookOpen className="h-4 w-4" />} label="API 文檔" value="api" />
             <TabTrigger icon={<Settings2 className="h-4 w-4" />} label="Settings 設定" value="settings" />
           </TabsList>
@@ -80,11 +86,20 @@ export default function Home() {
           <TabsContent value="control">
             <ControlPanel robot={robot} />
           </TabsContent>
+          <TabsContent value="view3d">
+            <Arm3D robot={robot} />
+          </TabsContent>
           <TabsContent value="poses">
             <PosesPanel robot={robot} />
           </TabsContent>
+          <TabsContent value="trajectories">
+            <TrajectoriesPanel robot={robot} />
+          </TabsContent>
           <TabsContent value="logs">
             <LogsPanel robot={robot} />
+          </TabsContent>
+          <TabsContent value="keys">
+            <KeysPanel />
           </TabsContent>
           <TabsContent value="api">
             <ApiDocs />
