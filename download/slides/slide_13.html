@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1280, initial-scale=1">
+<title>13 · 真機部署 — R1-7A 機械臂控制平台</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="global.css">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+  html, body { margin:0; padding:0; background:var(--bg); }
+  .dep-row { display:flex; gap:14px; align-items:center; flex:1; min-height:0; border-bottom:1px solid var(--line); }
+  .dep-row:last-child { border-bottom:none; }
+  .dep-ico { width:36px; height:36px; border-radius:10px; background:var(--surface-2); border:1px solid var(--line); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .step-num { font-family:var(--font-num); font-size:42px; font-weight:600; color:var(--accent); line-height:.9; }
+</style>
+</head>
+<body>
+<div class="slide">
+  <div style="height:100%; display:flex; flex-direction:column; padding:52px 64px 50px;">
+
+    <!-- ── header ── -->
+    <div style="margin-bottom:24px;">
+      <div class="kicker">10 · DEPLOYMENT</div>
+      <h1 style="font-family:var(--font-heading); font-size:var(--fs-h1); font-weight:700; line-height:1.15; margin-top:10px;">從沙盒到真機，三步落地</h1>
+    </div>
+
+    <!-- ── body ── -->
+    <div style="flex:1; min-height:0; display:flex; gap:26px;">
+
+      <!-- left : image column ~40% -->
+      <div style="width:40%; flex-shrink:0; display:flex; flex-direction:column; min-height:0;">
+        <div class="shot" style="flex:1; min-height:0;">
+          <img src="https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/37e9db9eab0c.jpg" alt="生產線場景" style="object-position:center;">
+        </div>
+        <div class="text-muted" style="font-size:var(--fs-small); margin-top:12px; display:flex; align-items:center; gap:9px;">
+          <span data-decor aria-hidden="true" style="width:18px; height:2px; background:var(--accent); border-radius:2px; flex-shrink:0;"></span>
+          生產線場景 — 平台直接對接
+        </div>
+      </div>
+
+      <!-- right : deploy package + steps ~60% -->
+      <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:20px;">
+
+        <!-- deploy package card -->
+        <div class="card" style="flex:1; min-height:0; padding:20px 24px 12px; display:flex; flex-direction:column;">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <i class="material-icons" style="font-size:19px; color:var(--accent);">archive</i>
+              <span style="font-family:var(--font-heading); font-size:var(--fs-h3); font-weight:700;"><span class="num">r1a-deploy</span> 部署包</span>
+            </div>
+            <span class="chip chip-accent num" style="font-size:var(--fs-micro); letter-spacing:.08em;">已隨交付提供</span>
+          </div>
+          <div style="flex:1; min-height:0; display:flex; flex-direction:column;">
+            <div class="dep-row">
+              <div class="dep-ico"><i class="material-icons" style="font-size:18px; color:var(--cyan);">memory</i></div>
+              <div>
+                <div style="font-size:var(--fs-body); font-weight:600;">C++ Hardware Bridge</div>
+                <div class="text-muted" style="font-size:var(--fs-small); line-height:1.5; margin-top:2px;"><span class="num">269</span> 行可編譯骨架 · <span class="num">UDP JSON-RPC</span> 協議層 · SDK 對接點全部標註 <span class="num">TODO(r1a_sdk)</span></div>
+              </div>
+            </div>
+            <div class="dep-row">
+              <div class="dep-ico"><i class="material-icons" style="font-size:18px; color:var(--cyan);">miscellaneous_services</i></div>
+              <div>
+                <div style="font-size:var(--fs-body); font-weight:600;"><span class="num">systemd × 4</span> 服務</div>
+                <div class="text-muted" style="font-size:var(--fs-small); line-height:1.5; margin-top:2px;"><span class="num">bridge</span> 即時調度優先級（<span class="num">real-time</span>）</div>
+              </div>
+            </div>
+            <div class="dep-row">
+              <div class="dep-ico"><i class="material-icons" style="font-size:18px; color:var(--cyan);">usb</i></div>
+              <div>
+                <div style="font-size:var(--fs-body); font-weight:600;"><span class="num">udev</span> 規則</div>
+                <div class="text-muted" style="font-size:var(--fs-small); line-height:1.5; margin-top:2px;">固定裝置名，插拔不漂移</div>
+              </div>
+            </div>
+            <div class="dep-row">
+              <div class="dep-ico"><i class="material-icons" style="font-size:18px; color:var(--cyan);">description</i></div>
+              <div>
+                <div style="font-size:var(--fs-body); font-weight:600;"><span class="num">DEPLOY.md</span></div>
+                <div class="text-muted" style="font-size:var(--fs-small); line-height:1.5; margin-top:2px;">Ubuntu 全流程部署 + 安全規範 + 故障排查</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3-step horizontal band -->
+        <div style="height:184px; flex-shrink:0; display:flex; align-items:stretch; gap:10px;">
+          <div class="card-2" style="flex:1; min-width:0; padding:18px 18px 14px; display:flex; flex-direction:column;">
+            <div style="display:flex; align-items:center; gap:13px;">
+              <span class="step-num">1</span>
+              <div>
+                <div class="num text-muted" style="font-size:var(--fs-micro); letter-spacing:.2em;">STEP 1</div>
+                <div style="font-family:var(--font-heading); font-size:17px; font-weight:700; margin-top:3px;">對接</div>
+              </div>
+            </div>
+            <div class="text-muted" style="font-size:var(--fs-small); line-height:1.6; margin-top:12px;"><span class="num" style="color:var(--primary);">clone r1a-7a_sdk</span> → 按 <span class="num" style="color:var(--primary);">TODO</span> 標註接上 <span class="num" style="color:var(--primary);">ArmMotorBus API</span></div>
+          </div>
+          <div style="display:flex; align-items:center; flex-shrink:0;"><span style="font-family:var(--font-num); font-size:26px; color:var(--accent);">→</span></div>
+          <div class="card-2" style="flex:1; min-width:0; padding:18px 18px 14px; display:flex; flex-direction:column;">
+            <div style="display:flex; align-items:center; gap:13px;">
+              <span class="step-num">2</span>
+              <div>
+                <div class="num text-muted" style="font-size:var(--fs-micro); letter-spacing:.2em;">STEP 2</div>
+                <div style="font-family:var(--font-heading); font-size:17px; font-weight:700; margin-top:3px;">編譯上線</div>
+              </div>
+            </div>
+            <div class="text-muted" style="font-size:var(--fs-small); line-height:1.6; margin-top:12px;">編譯 <span class="num" style="color:var(--primary);">bridge</span> · <span class="num" style="color:var(--primary);">systemd + udev</span> 安裝</div>
+          </div>
+          <div style="display:flex; align-items:center; flex-shrink:0;"><span style="font-family:var(--font-num); font-size:26px; color:var(--accent);">→</span></div>
+          <div class="card-2" style="flex:1; min-width:0; padding:18px 18px 14px; display:flex; flex-direction:column;">
+            <div style="display:flex; align-items:center; gap:13px;">
+              <span class="step-num">3</span>
+              <div>
+                <div class="num text-muted" style="font-size:var(--fs-micro); letter-spacing:.2em;">STEP 3</div>
+                <div style="font-family:var(--font-heading); font-size:17px; font-weight:700; margin-top:3px;">切換</div>
+              </div>
+            </div>
+            <div class="text-muted" style="font-size:var(--fs-small); line-height:1.6; margin-top:12px;"><span class="num" style="color:var(--primary);">Web Settings</span> 切到 <span class="num" style="color:var(--primary);">bridge</span> 模式 — 業務代碼零改動</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

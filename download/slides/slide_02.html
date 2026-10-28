@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<title>挑戰與目標 · R1-7A 控制平台</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="global.css">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+  html,body{margin:0;padding:0;background:var(--bg);}
+  .kicker{font-size:var(--fs-small);}
+  .mono{font-family:var(--font-num);}
+  .pagetitle{margin:9px 0 0;font-family:var(--font-heading);font-weight:700;font-size:var(--fs-h1);line-height:1.15;color:var(--primary);letter-spacing:.01em;}
+  .pagesub{margin:9px 0 0;font-size:var(--fs-body);color:var(--muted);}
+  .collabel{display:flex;align-items:center;gap:10px;}
+  .collabel .bar{width:4px;height:15px;border-radius:2px;background:var(--accent);}
+  .collabel .txt{font-family:var(--font-cn);font-weight:700;font-size:14.5px;color:var(--primary);letter-spacing:.05em;}
+  .pain{display:flex;align-items:center;gap:16px;padding:12px 18px;}
+  .pain .ico{flex:0 0 44px;width:44px;height:44px;border-radius:11px;background:rgba(248,113,113,.09);border:1px solid rgba(248,113,113,.22);display:flex;align-items:center;justify-content:center;}
+  .pain .ico i{font-size:22px;color:var(--red);}
+  .pain h3{margin:0;font-family:var(--font-cn);font-weight:700;font-size:15.5px;color:var(--primary);}
+  .pain p{margin:5px 0 0;font-family:var(--font-body);font-size:var(--fs-small);line-height:1.55;color:var(--muted);}
+  .pain .idx{margin-left:auto;align-self:flex-start;font-family:var(--font-num);font-size:var(--fs-micro);color:var(--muted);opacity:.65;padding-top:2px;}
+  .goal{display:flex;gap:13px;align-items:flex-start;padding:16px 0;}
+  .goal i{font-size:21px;color:var(--green);flex:0 0 auto;margin-top:1px;}
+  .goal h4{margin:0;font-family:var(--font-cn);font-weight:700;font-size:15.5px;color:var(--primary);}
+  .goal p{margin:4px 0 0;font-size:var(--fs-small);line-height:1.55;color:var(--muted);}
+</style>
+</head>
+<body>
+<div class="slide" style="padding:54px 56px 48px;display:flex;flex-direction:column;">
+
+  <header>
+    <div class="kicker">01 · THE CHALLENGE</div>
+    <h1 class="pagetitle">為什麼需要一個平台？</h1>
+    <p class="pagesub">直接操作 <span class="mono">r1-7a_sdk</span>，等於在裸串口上盲飛</p>
+  </header>
+
+  <div style="display:flex;gap:26px;margin-top:22px;flex:1;min-height:0;">
+
+    <!-- 左欄：SDK 直操的四大痛點 -->
+    <section style="flex:0 0 622px;display:flex;flex-direction:column;min-height:0;">
+      <div class="collabel"><span class="bar" data-decor aria-hidden="true"></span><span class="txt">SDK 直操的四大痛點</span></div>
+      <div style="display:flex;flex-direction:column;gap:12px;margin-top:12px;flex:1;min-height:0;">
+
+        <div class="card pain" style="flex:1;">
+          <div class="ico"><i class="material-icons">cable</i></div>
+          <div style="min-width:0;">
+            <h3>裸串口協議</h3>
+            <p><span class="mono">IM6014</span> 串列匯流排、<span class="mono" style="color:var(--primary);">/dev/ttyUSB0 · 6,000,000 baud</span>，還要做 URDF 幀轉換</p>
+            <div style="margin-top:7px;"><span style="display:inline-block;font-family:var(--font-num);font-size:var(--fs-small);font-weight:500;color:var(--accent);background:var(--surface-2);border:1px solid var(--line);border-radius:7px;padding:3px 10px;white-space:nowrap;">urdf = dir × scale × motor + offset</span></div>
+          </div>
+          <span class="idx">01</span>
+        </div>
+
+        <div class="card pain" style="flex:1;">
+          <div class="ico"><i class="material-icons">visibility_off</i></div>
+          <div style="min-width:0;">
+            <h3>零可視化</h3>
+            <p>沒有 3D 態勢、沒有遙測面板，工程師只能盲操作高扭矩硬體</p>
+          </div>
+          <span class="idx">02</span>
+        </div>
+
+        <div class="card pain" style="flex:1;">
+          <div class="ico"><i class="material-icons">gpp_maybe</i></div>
+          <div style="min-width:0;">
+            <h3>無安全層</h3>
+            <p>指令直達馬達 — 限位驗證、指令去抖、急停聯鎖全部缺席</p>
+          </div>
+          <span class="idx">03</span>
+        </div>
+
+        <div class="card pain" style="flex:1;">
+          <div class="ico"><i class="material-icons">fact_check</i></div>
+          <div style="min-width:0;">
+            <h3>無審計無權限</h3>
+            <p>操作不留痕、無角色隔離，出了事無從追溯</p>
+          </div>
+          <span class="idx">04</span>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 右欄：我們的目標 -->
+    <aside class="card-2" style="flex:1;min-width:0;align-self:stretch;padding:26px 28px 24px;display:flex;flex-direction:column;justify-content:space-between;">
+      <div class="collabel"><span class="bar" data-decor aria-hidden="true"></span><span class="txt">我們的目標</span></div>
+      <div style="margin-top:18px;font-family:var(--font-cn);font-weight:900;font-size:30px;line-height:1.3;color:var(--primary);">一個生產級 Web 控制平台</div>
+
+      <div style="flex:1;display:flex;flex-direction:column;justify-content:space-between;margin-top:4px;padding-bottom:8px;">
+        <div class="goal" style="border-bottom:1px solid var(--line);">
+          <i class="material-icons">check_circle</i>
+          <div><h4>安全</h4><p>每一條指令必經安全層：限位 + 去抖 + E-stop 聯鎖</p></div>
+        </div>
+        <div class="goal" style="border-bottom:1px solid var(--line);">
+          <i class="material-icons">check_circle</i>
+          <div><h4>可視</h4><p>3D 即時渲染、<span class="mono">50Hz</span> 遙測趨勢、事件流一眼看清</p></div>
+        </div>
+        <div class="goal">
+          <i class="material-icons">check_circle</i>
+          <div><h4>可整合</h4><p>REST + WS 開放介面、金鑰角色控權、部署包直達真機</p></div>
+        </div>
+      </div>
+
+      <div>
+        <span class="chip chip-accent" style="padding:8px 16px;font-size:12.5px;font-weight:600;gap:8px;">
+          <i class="material-icons" style="font-size:16px;">swap_horiz</i>模擬即真機 — 同一套代碼路徑
+        </span>
+      </div>
+    </aside>
+
+  </div>
+</div>
+</body>
+</html>

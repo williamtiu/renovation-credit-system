@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<title>系統架構 · R1-7A 控制平台</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="global.css">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+  html,body{margin:0;padding:0;background:var(--bg);}
+  .kicker{font-size:var(--fs-small);}
+  .mono{font-family:var(--font-num);}
+  .pagetitle{margin:9px 0 0;font-family:var(--font-heading);font-weight:700;font-size:var(--fs-h1);line-height:1.15;color:var(--primary);letter-spacing:.01em;}
+  .collabel{display:flex;align-items:center;gap:10px;}
+  .collabel .bar{width:4px;height:15px;border-radius:2px;background:var(--accent);}
+  .collabel .txt{font-family:var(--font-cn);font-weight:700;font-size:14.5px;color:var(--primary);letter-spacing:.05em;}
+  .band{height:76px;display:flex;align-items:center;gap:14px;padding:0 18px;flex:0 0 auto;}
+  .band .tag{flex:0 0 34px;height:34px;border:1px solid var(--line);border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:var(--font-num);font-size:12.5px;color:var(--muted);}
+  .band .name{font-family:var(--font-heading);font-weight:700;font-size:16.5px;color:var(--primary);flex:0 0 auto;letter-spacing:.01em;}
+  .band .vline{width:1px;height:32px;background:var(--line);flex:0 0 auto;}
+  .tchip{display:inline-flex;align-items:center;white-space:nowrap;border:1px solid var(--line);border-radius:999px;background:var(--surface-2);padding:4px 11px;font-family:var(--font-num);font-size:12.5px;color:var(--primary);}
+  .conn{display:flex;justify-content:center;align-items:center;height:14px;flex:0 0 auto;}
+  .conn span{color:var(--accent);font-size:20px;font-weight:700;line-height:1;}
+  .dcard{padding:15px 18px;display:flex;flex-direction:column;justify-content:center;gap:8px;}
+  .dcard .hrow{display:flex;align-items:center;gap:11px;}
+  .dcard .icobox{width:32px;height:32px;border-radius:9px;background:var(--accent-soft);border:1px solid var(--accent-line);display:flex;align-items:center;justify-content:center;flex:0 0 auto;}
+  .dcard h4{margin:0;font-family:var(--font-cn);font-weight:700;font-size:15px;color:var(--primary);}
+  .dcard p{margin:0;font-size:var(--fs-small);line-height:1.65;color:var(--muted);}
+</style>
+</head>
+<body>
+<div class="slide" style="padding:54px 56px 50px;display:flex;flex-direction:column;">
+
+  <header>
+    <div class="kicker">03 · ARCHITECTURE</div>
+    <h1 class="pagetitle">五層分離，單向數據流</h1>
+  </header>
+
+  <div style="display:flex;gap:26px;margin-top:24px;flex:1;min-height:0;">
+
+    <!-- 左：五層堆疊 -->
+    <section style="flex:0 0 724px;display:flex;flex-direction:column;justify-content:center;min-height:0;">
+
+      <div class="card band">
+        <span class="tag">L1</span>
+        <span class="name">Presentation</span>
+        <span class="vline" data-decor aria-hidden="true"></span>
+        <div style="display:flex;flex-wrap:wrap;gap:7px;align-items:center;min-width:0;">
+          <span class="tchip">Web UI</span><span class="tchip">9 tabs</span><span class="tchip">即時遙測</span><span class="tchip">3D 渲染</span>
+        </div>
+      </div>
+      <div class="conn"><span>▾</span></div>
+
+      <div class="card band">
+        <span class="tag">L2</span>
+        <span class="name">API Gateway</span>
+        <span class="vline" data-decor aria-hidden="true"></span>
+        <div style="display:flex;flex-wrap:wrap;gap:7px;align-items:center;min-width:0;">
+          <span class="tchip">REST /api/*</span><span class="tchip">WS topics</span><span class="tchip">X-API-Key 認證</span><span class="tchip">審計入庫</span>
+        </div>
+      </div>
+      <div class="conn"><span>▾</span></div>
+
+      <div class="card band">
+        <span class="tag">L3</span>
+        <span class="name">Control Service</span>
+        <span class="vline" data-decor aria-hidden="true"></span>
+        <div style="display:flex;flex-wrap:wrap;gap:7px;align-items:center;min-width:0;">
+          <span class="tchip">Lifecycle Node</span><span class="tchip">安全層</span><span class="tchip">餘弦插補</span><span class="tchip">回放引擎</span>
+        </div>
+      </div>
+      <div class="conn"><span>▾</span></div>
+
+      <div class="card band">
+        <span class="tag">L4</span>
+        <span class="name">HAL 硬體抽象</span>
+        <span class="vline" data-decor aria-hidden="true"></span>
+        <div style="display:flex;flex-wrap:wrap;gap:7px;align-items:center;min-width:0;">
+          <span style="font-size:12.5px;color:var(--muted);white-space:nowrap;">三驅動：</span>
+          <span class="tchip">simulation</span><span class="tchip">serial</span><span class="tchip">bridge</span>
+          <span style="font-size:12.5px;color:var(--muted);white-space:nowrap;">（統一介面，切換零改碼）</span>
+        </div>
+      </div>
+      <div class="conn"><span>▾</span></div>
+
+      <div class="card band" style="border-color:var(--accent-line);box-shadow:0 0 0 1px rgba(255,107,26,.10);">
+        <span class="tag" style="border-color:var(--accent-line);background:var(--accent-soft);color:var(--accent);">L5</span>
+        <span class="name">Hardware</span>
+        <span class="vline" data-decor aria-hidden="true"></span>
+        <div style="display:flex;flex-wrap:wrap;gap:7px;align-items:center;min-width:0;">
+          <span class="tchip">R1-7A SDK</span><span class="tchip">C++ Bridge</span><span class="tchip">/dev/ttyUSB0 @ 6 Mbaud</span>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- 右：三個關鍵設計決策 -->
+    <aside style="flex:1;min-width:0;display:flex;flex-direction:column;min-height:0;">
+      <div class="collabel"><span class="bar" data-decor aria-hidden="true"></span><span class="txt">三個關鍵設計決策</span></div>
+      <div style="display:flex;flex-direction:column;gap:18px;margin-top:12px;flex:1;min-height:0;">
+
+        <div class="card dcard" style="flex:1;">
+          <div class="hrow">
+            <span class="icobox"><i class="material-icons" style="font-size:17px;color:var(--accent);">tune</i></span>
+            <h4>三驅動 HAL</h4>
+          </div>
+          <p>沙盒跑 <span class="mono">simulation</span>、真機跑 <span class="mono">bridge</span>，切換只動配置不動代碼</p>
+        </div>
+
+        <div class="card dcard" style="flex:1;">
+          <div class="hrow">
+            <span class="icobox"><i class="material-icons" style="font-size:17px;color:var(--accent);">south</i></span>
+            <h4>單向數據流</h4>
+          </div>
+          <p>遙測 <span class="mono">50Hz</span> 上行、指令下行必經安全層，路徑唯一可審計</p>
+        </div>
+
+        <div class="card dcard" style="flex:1;">
+          <div class="hrow">
+            <span class="icobox"><i class="material-icons" style="font-size:17px;color:var(--accent);">replay</i></span>
+            <h4>模組單例回放</h4>
+          </div>
+          <p>單進程單回放，E-stop 每步檢查，杜絕並發衝突</p>
+        </div>
+
+      </div>
+    </aside>
+
+  </div>
+</div>
+</body>
+</html>

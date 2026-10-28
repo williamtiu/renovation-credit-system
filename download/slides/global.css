@@ -1,0 +1,123 @@
+/* ═══════════════════════════════════════════════════════════════
+   R1-7A 機械臂控制平台 — Deck Design System "Industrial Dark Premium"
+   ═══════════════════════════════════════════════════════════════ */
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
+
+:root {
+  /* ── palette ── */
+  --bg: #0B0E13;
+  --surface: #141A23;
+  --surface-2: #1B2330;
+  --line: #2A3444;
+  --primary: #E8EDF4;
+  --muted: #97A3B6;
+  --accent: #FF6B1A;
+  --accent-soft: rgba(255, 107, 26, 0.12);
+  --accent-line: rgba(255, 107, 26, 0.45);
+  --cyan: #4CC9F0;
+  --cyan-soft: rgba(76, 201, 240, 0.10);
+  --green: #34D399;
+  --red: #F87171;
+
+  /* ── typography tokens (families + sizes ONLY) ── */
+  --font-heading: 'Space Grotesk', 'Noto Sans TC', sans-serif;
+  --font-body: 'IBM Plex Sans', 'Noto Sans TC', sans-serif;
+  --font-cn: 'Noto Sans TC', sans-serif;
+  --font-num: 'IBM Plex Mono', 'Noto Sans TC', monospace;
+  --fs-display: 62px;
+  --fs-h1: 38px;
+  --fs-h2: 25px;
+  --fs-h3: 18px;
+  --fs-body: 15px;
+  --fs-small: 12.5px;
+  --fs-micro: 10.5px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+/* ── slide canvas ── */
+.slide {
+  width: 1280px;
+  height: 720px;
+  overflow: hidden;
+  position: relative;
+  background: var(--bg);
+  color: var(--primary);
+  font-family: var(--font-body);
+}
+
+/* ── surfaces ── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+.card-2 {
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+
+/* ── color utilities ── */
+.text-accent { color: var(--accent); }
+.text-cyan { color: var(--cyan); }
+.text-muted { color: var(--muted); }
+.text-green { color: var(--green); }
+.text-red { color: var(--red); }
+
+/* ── chips / tags ── */
+.chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  border: 1px solid var(--line); border-radius: 999px;
+  background: var(--surface-2);
+  padding: 4px 12px;
+}
+.chip-accent {
+  border-color: var(--accent-line);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+/* ── kicker (section eyebrow label) ── */
+.kicker {
+  font-family: var(--font-num);
+  font-size: var(--fs-micro);
+  letter-spacing: .24em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+/* ── divider ── */
+.rule { height: 1px; background: var(--line); }
+
+/* ── engineering grid backdrop (absolute overlay) ── */
+.grid-bg {
+  position: absolute; inset: 0; pointer-events: none;
+  background-image:
+    linear-gradient(var(--line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size: 64px 64px;
+  opacity: .13;
+}
+
+/* ── product screenshot frame ── */
+.shot {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+  background: #0D1117;
+  box-shadow: 0 18px 44px rgba(0, 0, 0, .55);
+}
+.shot img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top; }
+
+/* ── mono numerals ── */
+.num { font-family: var(--font-num); }
+
+/* ── code block ── */
+.code-block {
+  background: #0D1117;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  font-family: var(--font-num);
+  color: #C9D6E8;
+}

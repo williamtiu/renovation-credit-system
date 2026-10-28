@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<title>平台總覽 · R1-7A 控制平台</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="global.css">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+  html,body{margin:0;padding:0;background:var(--bg);}
+  .kicker{font-size:var(--fs-small);}
+  .mono{font-family:var(--font-num);}
+  .pagetitle{margin:9px 0 0;font-family:var(--font-heading);font-weight:700;font-size:var(--fs-h1);line-height:1.15;color:var(--primary);letter-spacing:.01em;}
+  .pagesub{margin:9px 0 0;font-size:var(--fs-body);color:var(--muted);}
+  .btitle{font-family:var(--font-heading);font-weight:700;font-size:17px;color:var(--primary);letter-spacing:.01em;}
+  .port{margin-left:auto;display:inline-flex;align-items:center;padding:3px 11px;border:1px solid rgba(76,201,240,.35);border-radius:999px;background:var(--cyan-soft);font-family:var(--font-num);font-size:11px;font-weight:500;color:var(--cyan);}
+  .item{display:flex;align-items:baseline;gap:9px;}
+  .item .mk{width:5px;height:5px;border-radius:1.5px;background:var(--accent);flex:0 0 auto;transform:translateY(-2px);}
+  .item .tx{font-size:13px;color:var(--primary);line-height:1.55;}
+  .pagechip{display:inline-flex;align-items:center;white-space:nowrap;border:1px solid var(--line);border-radius:999px;background:var(--surface-2);padding:3px 11px;font-family:var(--font-num);font-size:11px;color:var(--primary);}
+  .map{font-family:var(--font-num);font-size:12px;white-space:nowrap;}
+  .map .k{color:var(--muted);}
+  .map .a{color:var(--accent);font-size:14.5px;font-weight:600;}
+  .map .v{color:var(--primary);font-weight:500;}
+  .vdiv{width:1px;height:32px;background:var(--accent-line);flex:0 0 auto;}
+  .dotsep{color:var(--accent);font-weight:600;font-size:14px;line-height:0;}
+</style>
+</head>
+<body>
+<div class="slide" style="padding:54px 56px 48px;display:flex;flex-direction:column;">
+
+  <header>
+    <div class="kicker">02 · THE PLATFORM</div>
+    <h1 class="pagetitle">三服務架構，一個控制平面</h1>
+    <p class="pagesub">每個服務單一職責，ROS 2 概念完整映射</p>
+  </header>
+
+  <!-- 2×2 Bento -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;grid-template-rows:208px 180px;gap:14px;margin-top:22px;">
+
+    <!-- ① Web UI 前端 -->
+    <div class="card" style="padding:16px 20px 14px;display:flex;flex-direction:column;min-height:0;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span class="btitle">Web UI 前端</span>
+        <span class="port">:3000</span>
+      </div>
+      <div class="mono" style="margin-top:9px;font-size:13px;color:var(--muted);">Next.js 16 · React 19</div>
+      <div style="margin-top:10px;font-size:13px;color:var(--muted);letter-spacing:.06em;">9 個功能頁面</div>
+      <div style="display:flex;flex-wrap:wrap;gap:7px;margin-top:8px;flex:1;align-content:center;">
+        <span class="pagechip">Dashboard 總覽</span><span class="pagechip">Control 控制</span><span class="pagechip">3D 視圖</span><span class="pagechip">Poses 姿勢庫</span><span class="pagechip">軌跡錄製回放</span><span class="pagechip">Logs 日誌</span><span class="pagechip">API Keys</span><span class="pagechip">API 文檔</span><span class="pagechip">Settings 設定</span>
+      </div>
+    </div>
+
+    <!-- ② Robot Control Service（橙色強調） -->
+    <div class="card" style="padding:16px 20px 14px;display:flex;flex-direction:column;min-height:0;border-color:var(--accent-line);box-shadow:0 0 0 1px rgba(255,107,26,.10);">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span class="btitle">Robot Control Service</span>
+        <span class="port" style="border-color:var(--accent-line);background:var(--accent-soft);color:var(--accent);">:3002</span>
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column;justify-content:space-evenly;margin-top:6px;">
+        <div class="item"><span class="mk" data-decor aria-hidden="true"></span><span class="tx">Lifecycle Node 架構</span></div>
+        <div class="item"><span class="mk" data-decor aria-hidden="true"></span><span class="tx"><span class="mono">200Hz</span> 模擬物理引擎</span></div>
+        <div class="item"><span class="mk" data-decor aria-hidden="true"></span><span class="tx">餘弦軌跡插補</span></div>
+        <div class="item"><span class="mk" data-decor aria-hidden="true"></span><span class="tx">安全層（限位 / 去抖 / E-stop）</span></div>
+        <div class="item"><span class="mk" data-decor aria-hidden="true"></span><span class="tx">三驅動 HAL</span></div>
+      </div>
+    </div>
+
+    <!-- ③ WS Gateway -->
+    <div class="card" style="padding:16px 20px 14px;display:flex;flex-direction:column;min-height:0;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span class="btitle">WS Gateway</span>
+        <span class="port">:3003</span>
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column;justify-content:space-evenly;margin-top:6px;">
+        <div class="item"><span class="mk" data-decor aria-hidden="true"></span><span class="tx"><span class="mono">rosbridge</span> 風格 topic 訂閱</span></div>
+        <div class="item"><span class="mk" data-decor aria-hidden="true"></span><span class="tx"><span class="mono">socket.io</span> rooms 廣播</span></div>
+        <div class="item"><span class="mk" data-decor aria-hidden="true"></span><span class="tx">指令轉發帶 <span class="mono">ack</span></span></div>
+      </div>
+    </div>
+
+    <!-- ④ Hardware Bridge -->
+    <div class="card" style="padding:16px 20px 14px;display:flex;flex-direction:column;min-height:0;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span class="btitle">Hardware Bridge（部署包）</span>
+        <span style="margin-left:auto;width:30px;height:30px;border-radius:9px;background:var(--accent-soft);border:1px solid var(--accent-line);display:flex;align-items:center;justify-content:center;"><i class="material-icons" style="font-size:17px;color:var(--accent);">precision_manufacturing</i></span>
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column;justify-content:space-evenly;margin-top:6px;">
+        <div class="item"><span class="mk" data-decor aria-hidden="true"></span><span class="tx"><span class="mono">C++</span></span></div>
+        <div class="item"><span class="mk" data-decor aria-hidden="true"></span><span class="tx"><span class="mono">UDP JSON-RPC</span></span></div>
+        <div class="item"><span class="mk" data-decor aria-hidden="true"></span><span class="tx">SDK 對接點全部標註 <span class="mono" style="color:var(--accent);">TODO(r1a_sdk)</span></span></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ROS 2 概念映射（kicker 標籤列，貼合上方 Bento） -->
+  <div class="card" style="margin-top:14px;flex:1;min-height:0;display:flex;flex-direction:column;justify-content:center;gap:3px;padding:7px 22px;">
+    <div style="display:flex;align-items:center;gap:7px;flex:0 0 auto;">
+      <i class="material-icons" style="font-size:14px;color:var(--accent);">sync_alt</i>
+      <span style="font-family:var(--font-cn);font-weight:700;font-size:11px;letter-spacing:.16em;color:var(--muted);">ROS 2 概念映射</span>
+    </div>
+    <div style="flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;gap:18px;min-width:0;">
+      <div>
+        <div class="map"><span class="k">topic</span> <span class="a">→</span> <span class="v">WS rooms</span></div>
+        <div class="mono" style="font-size:10.5px;color:var(--muted);margin-top:2px;">（/joint_states <span class="dotsep">·</span> /robot_state <span class="dotsep">·</span> /events）</div>
+      </div>
+      <div class="vdiv" data-decor aria-hidden="true"></div>
+      <div class="map"><span class="k">service</span> <span class="a">→</span> <span class="v">REST /api/*</span></div>
+      <div class="vdiv" data-decor aria-hidden="true"></div>
+      <div class="map"><span class="k">lifecycle</span> <span class="a">→</span> <span class="v">configure / activate</span></div>
+      <div class="vdiv" data-decor aria-hidden="true"></div>
+      <div class="map"><span class="k">parameter</span> <span class="a">→</span> <span class="v">Settings</span></div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

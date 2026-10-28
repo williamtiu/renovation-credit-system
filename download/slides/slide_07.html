@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<title>R1-7A · 05 · 3D VISUALIZATION</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="global.css">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+  body { margin:0; background:var(--bg); }
+  .feature-title { font-family:var(--font-cn); font-weight:700; font-size:16px; color:var(--primary); letter-spacing:.01em; }
+  .feature-desc { font-size:var(--fs-small); line-height:1.6; color:var(--muted); margin-top:5px; }
+  .tile { width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0; background:var(--accent-soft); border:1px solid var(--accent-line); }
+</style>
+</head>
+<body>
+<div class="slide" style="padding:48px 64px 44px; display:flex; flex-direction:column;">
+
+  <header style="margin-bottom:22px;">
+    <div class="kicker">05 · 3D VISUALIZATION</div>
+    <h1 style="font-family:var(--font-heading); font-weight:900; font-size:var(--fs-h1); line-height:1.15; margin-top:10px; color:var(--primary);">看得見，才敢操作</h1>
+  </header>
+
+  <div style="flex:1; min-height:0; display:flex; gap:26px;">
+
+    <!-- 左欄 59%：3D 截圖 hero -->
+    <div style="width:59%; display:flex; flex-direction:column; min-width:0;">
+      <div class="shot" style="flex:1; min-height:0;">
+        <img src="shot-3d.png" alt="3D 視圖產品截圖 — 七軸運動鏈即時渲染" style="object-position:center; filter:brightness(1.28) contrast(1.06) saturate(1.05);">
+      </div>
+      <div class="card-2" style="flex-shrink:0; margin-top:12px; padding:10px 16px; display:flex; align-items:center; gap:10px;">
+        <i class="material-icons" style="font-size:17px; color:var(--green); flex-shrink:0;">verified</i>
+        <p style="font-size:var(--fs-small); line-height:1.55; color:var(--muted);"><span class="num" style="color:var(--primary);">home</span> 指令後 3D 讀數 <span class="num" style="color:var(--cyan); white-space:nowrap;">[0, 0.10, 0, 0.55, 0, 0, 0]</span> — 與 <span class="num" style="color:var(--primary);">ARM_HOME</span> 一致（VLM 視覺驗證）</p>
+      </div>
+    </div>
+
+    <!-- 右欄 41%：四張功能卡 -->
+    <div style="width:41%; display:flex; flex-direction:column; gap:12px; min-width:0;">
+
+      <div class="card" style="flex:1; padding:0 18px; display:flex; align-items:center; gap:14px;">
+        <div class="tile"><i class="material-icons" style="font-size:22px; color:var(--accent);">account_tree</i></div>
+        <div style="min-width:0;">
+          <div class="feature-title">7-DOF 運動鏈</div>
+          <p class="feature-desc">three.js <span class="num">0.171</span> 重建 URDF 嵌套樞軸：<span class="num" style="color:var(--cyan);">pitch→X / roll→Z / yaw→Y</span></p>
+        </div>
+      </div>
+
+      <div class="card" style="flex:1; padding:0 18px; display:flex; align-items:center; gap:14px;">
+        <div class="tile"><i class="material-icons" style="font-size:22px; color:var(--accent);">timeline</i></div>
+        <div style="min-width:0;">
+          <div class="feature-title">末端軌跡追蹤</div>
+          <p class="feature-desc"><span class="num">20Hz</span> 採樣 TCP 路徑，綠色軌跡線即時描繪</p>
+        </div>
+      </div>
+
+      <div class="card" style="flex:1; padding:0 18px; display:flex; align-items:center; gap:14px;">
+        <div class="tile" style="background:rgba(248,113,113,.10); border-color:rgba(248,113,113,.40);"><i class="material-icons" style="font-size:22px; color:var(--red);">stop_circle</i></div>
+        <div style="min-width:0;">
+          <div class="feature-title">E-stop 視覺聯動</div>
+          <p class="feature-desc">急停觸發 <span style="color:var(--accent); font-weight:600;">→</span> 關節球即時轉紅，狀態一目了然</p>
+        </div>
+      </div>
+
+      <div class="card" style="flex:1; padding:0 18px; display:flex; align-items:center; gap:14px;">
+        <div class="tile"><i class="material-icons" style="font-size:22px; color:var(--accent);">3d_rotation</i></div>
+        <div style="min-width:0;">
+          <div class="feature-title">視角控制</div>
+          <p class="feature-desc"><span class="num">OrbitControls</span> + 前/側/俯/<span class="num">45°</span> 預設 + 線框模式切換</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+</body>
+</html>

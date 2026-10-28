@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<title>R1-7A · 08 · OPEN API</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="global.css">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+  body { margin:0; background:var(--bg); }
+  .code-label { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+  .code-label span.t { font-size:13px; font-weight:600; color:var(--primary); font-family:var(--font-cn); }
+  .code-label span.ext { flex:1; height:1px; background:var(--line); }
+  .kw { color:var(--accent); }
+  .str { color:var(--cyan); }
+  .cmt { color:var(--muted); }
+  .chip-row { display:flex; align-items:center; gap:10px; border:1px solid var(--line); border-radius:999px; background:var(--surface-2); padding:11px 18px; }
+  .role-row { display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid var(--line); }
+</style>
+</head>
+<body>
+<div class="slide" style="padding:48px 64px 44px; display:flex; flex-direction:column;">
+
+  <header style="margin-bottom:16px;">
+    <div class="kicker">08 · OPEN API</div>
+    <h1 style="font-family:var(--font-heading); font-weight:900; font-size:var(--fs-h1); line-height:1.15; margin-top:9px; color:var(--primary);"><span class="num" style="color:var(--accent);">18</span> 個 REST 端點 · <span class="num" style="color:var(--accent);">3</span> 個 WS Topics</h1>
+    <p style="font-size:var(--fs-body); color:var(--muted); margin-top:6px;">把機械臂變成任何系統都可調用的服務</p>
+  </header>
+
+  <div style="flex:1; min-height:0; display:flex; gap:26px;">
+
+    <!-- 左欄 55%：code 示例 + chips -->
+    <div style="width:55%; display:flex; flex-direction:column; justify-content:space-between; min-width:0;">
+
+      <div>
+        <div class="code-label"><i class="material-icons" style="font-size:16px; color:var(--accent);">terminal</i><span class="t">REST — 帶金鑰下指令</span><span class="ext"></span></div>
+        <div class="code-block" style="padding:16px 22px; font-size:14.5px; line-height:2.15;">
+          <div style="white-space:pre-wrap;"><span class="kw">curl -X POST</span> <span class="str">http://host:3000/api/robot/command</span></div>
+          <div style="white-space:pre-wrap;"><span class="kw">-H</span> <span class="str">"X-API-Key: r1a_sk_…"</span></div>
+          <div style="white-space:pre-wrap;"><span class="kw">-d</span> <span class="str">'{"type":"goto","joints":[0.5,0.1,-0.8,0.55,0,0,0.3]}'</span></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="code-label"><i class="material-icons" style="font-size:16px; color:var(--accent);">podcasts</i><span class="t">WS — 訂閱遙測流</span><span class="ext"></span></div>
+        <div class="code-block" style="padding:16px 22px; font-size:14.5px; line-height:2.15;">
+          <div style="white-space:pre-wrap;"><span class="kw">socket.emit</span>(<span class="str">'subscribe'</span>, { topics: [<span class="str">'/joint_states'</span>] })</div>
+          <div style="white-space:pre-wrap;"><span class="cmt">// 實測 ≈ <span class="num">9.6 Hz</span> 串流</span></div>
+        </div>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <div class="chip-row">
+          <i class="material-icons" style="font-size:16px; color:var(--accent);">category</i>
+          <span style="font-size:12.5px; color:var(--primary);"><span class="num" style="color:var(--cyan);">robot / poses / trajectories / keys / system</span> 五組資源</span>
+        </div>
+        <div class="chip-row">
+          <i class="material-icons" style="font-size:16px; color:var(--accent);">vpn_key</i>
+          <span style="font-size:12.5px; color:var(--primary);"><span class="num">r1a_sk_</span> 前綴 · 一次性完整顯示 · 掩碼存儲</span>
+        </div>
+        <div class="chip-row">
+          <i class="material-icons" style="font-size:16px; color:var(--accent);">autorenew</i>
+          <span style="font-size:12.5px; color:var(--primary);">重新生成 · 啟用開關</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 右欄 45%：API Keys 截圖 + 角色矩陣 -->
+    <div style="width:45%; display:flex; flex-direction:column; min-width:0;">
+      <div class="shot" style="height:300px; flex-shrink:0;">
+        <img src="shot-keys.png" alt="API Keys 管理台產品截圖">
+      </div>
+      <div class="card-2" style="margin-top:10px; padding:9px 16px; display:flex; align-items:center; gap:10px; flex-shrink:0;">
+        <i class="material-icons" style="font-size:17px; color:var(--accent); flex-shrink:0;">key</i>
+        <span style="font-size:13px; font-weight:600; color:var(--primary); font-family:var(--font-cn);">API Keys 管理台</span>
+      </div>
+      <div class="card" style="margin-top:12px; flex:1; padding:6px 18px; display:flex; flex-direction:column; justify-content:space-evenly; min-height:0;">
+        <div class="role-row">
+          <span class="num" style="font-size:12px; font-weight:600; color:var(--muted); width:76px; flex-shrink:0;">viewer</span>
+          <span class="num" style="color:var(--accent); font-size:13px;">→</span>
+          <span style="font-size:12.5px; color:var(--muted);">唯讀遙測/查詢</span>
+        </div>
+        <div class="role-row">
+          <span class="num" style="font-size:12px; font-weight:600; color:var(--cyan); width:76px; flex-shrink:0;">operator</span>
+          <span class="num" style="color:var(--accent); font-size:13px;">→</span>
+          <span style="font-size:12.5px; color:var(--muted);">運動指令 + 姿勢/軌跡執行</span>
+        </div>
+        <div class="role-row" style="border-bottom:none;">
+          <span class="num" style="font-size:12px; font-weight:600; color:var(--accent); width:76px; flex-shrink:0;">admin</span>
+          <span class="num" style="color:var(--accent); font-size:13px;">→</span>
+          <span style="font-size:12.5px; color:var(--muted);">全部含 <span class="num" style="color:var(--primary);">zero_torque / reset</span></span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

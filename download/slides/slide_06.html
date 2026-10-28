@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<title>即時控制 · R1-7A 控制平台</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="global.css">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+  html,body{margin:0;padding:0;background:var(--bg);}
+  .kicker{font-size:var(--fs-small);}
+  .mono{font-family:var(--font-num);}
+  .pagetitle{margin:10px 0 0;font-family:var(--font-heading);font-weight:700;font-size:var(--fs-h1);line-height:1.15;color:var(--primary);letter-spacing:.01em;}
+  .pagesub{margin:10px 0 0;font-size:var(--fs-body);color:var(--muted);}
+  .collabel{display:flex;align-items:center;gap:10px;}
+  .collabel .bar{width:4px;height:15px;border-radius:2px;background:var(--accent);}
+  .collabel .txt{font-family:var(--font-cn);font-weight:700;font-size:14.5px;color:var(--primary);letter-spacing:.05em;}
+  .cmd{padding:7px 14px;}
+  .cmd .v{font-family:var(--font-num);font-size:13px;color:var(--primary);white-space:nowrap;}
+  .trow{flex:1;display:grid;grid-template-columns:44px 1fr 142px 88px;align-items:center;border-bottom:1px solid var(--line);}
+  .trow:last-child{border-bottom:none;}
+  .th{font-family:var(--font-body);font-size:var(--fs-micro);letter-spacing:.14em;color:var(--muted);}
+  .tj{font-family:var(--font-num);font-size:12.5px;font-weight:600;color:var(--primary);}
+  .tname{font-size:13px;color:var(--primary);white-space:nowrap;}
+  .tname .en{font-family:var(--font-num);font-size:10.5px;color:var(--muted);margin-left:5px;}
+  .trange{font-family:var(--font-num);font-size:12.5px;color:var(--primary);white-space:nowrap;}
+  .ttq{font-family:var(--font-num);font-size:13px;font-weight:600;color:var(--primary);text-align:right;white-space:nowrap;}
+  .ttq .u{color:var(--muted);font-weight:500;font-size:11.5px;}
+</style>
+</head>
+<body>
+<div class="slide" style="padding:56px 64px 64px;display:flex;flex-direction:column;">
+
+  <header style="flex:0 0 auto;">
+    <div class="kicker">04 · REAL-TIME CONTROL</div>
+    <h1 class="pagetitle">七軸滑條，毫秒級回應</h1>
+    <p class="pagesub"><span class="mono">200Hz</span> 物理引擎 + 餘弦軌跡插補，指令集與 SDK 完全對齊</p>
+  </header>
+
+  <div style="display:flex;gap:26px;margin-top:34px;flex:1;min-height:0;align-items:stretch;">
+
+    <!-- 左：滑條特寫（近原生比例）+ 指令集 -->
+    <section style="flex:0 0 620px;display:flex;flex-direction:column;min-height:0;">
+      <div class="shot" style="height:358px;flex:0 0 auto;">
+        <img src="shot-control-detail.png" alt="Control 控制頁 — 七軸滑條近原生比例特寫" style="object-position:center;">
+      </div>
+      <div class="card-2" style="margin-top:16px;padding:12px;flex:0 0 auto;">
+        <div style="font-family:var(--font-num);font-size:var(--fs-micro);letter-spacing:.18em;color:var(--muted);padding:0 4px 8px;">指令集 · 7 COMMANDS</div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:nowrap;">
+          <span class="chip cmd"><span class="v">foc</span></span>
+          <span class="chip cmd"><span class="v">home</span></span>
+          <span class="chip chip-accent cmd" style="gap:7px;"><span class="v" style="font-weight:600;">goto</span><span style="font-size:11px;">最常用</span></span>
+          <span class="chip cmd"><span class="v">stop</span></span>
+          <span class="chip cmd"><span class="v">zero_torque</span></span>
+          <span class="chip cmd"><span class="v">clear</span></span>
+          <span class="chip cmd"><span class="v">reset</span></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 右：關節規格表 -->
+    <aside style="flex:1;min-width:0;display:flex;flex-direction:column;min-height:0;">
+      <div class="collabel">
+        <span class="bar" data-decor aria-hidden="true"></span>
+        <span class="txt">關節規格 <span class="mono" style="color:var(--muted);font-weight:500;font-size:12px;">（節選自 robot-model.ts）</span></span>
+      </div>
+
+      <div class="card" style="margin-top:12px;flex:1;min-height:0;padding:8px 18px;display:flex;flex-direction:column;">
+        <div style="display:grid;grid-template-columns:44px 1fr 142px 88px;align-items:center;padding:10px 0 9px;border-bottom:1px solid var(--line);flex:0 0 auto;">
+          <span class="th">軸</span><span class="th">名稱</span><span class="th">行程 rad</span><span class="th" style="text-align:right;">峰值扭矩</span>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;min-height:0;">
+          <div class="trow">
+            <span class="tj">J1</span>
+            <span class="tname">肩俯仰<span class="en">arm_pitch</span></span>
+            <span class="trange">−2.87 ~ +2.87</span>
+            <span class="ttq">88 <span class="u">N·m</span></span>
+          </div>
+          <div class="trow">
+            <span class="tj">J2</span>
+            <span class="tname">肩側擺<span class="en">arm_roll</span></span>
+            <span class="trange">−0.61 ~ +3.14</span>
+            <span class="ttq">88 <span class="u">N·m</span></span>
+          </div>
+          <div class="trow">
+            <span class="tj">J3</span>
+            <span class="tname">肩旋轉<span class="en">arm_yaw</span></span>
+            <span class="trange">−2.35 ~ +2.35</span>
+            <span class="ttq">50 <span class="u">N·m</span></span>
+          </div>
+          <div class="trow">
+            <span class="tj">J4</span>
+            <span class="tname">肘屈伸<span class="en">forearm_pitch</span></span>
+            <span class="trange">−0.52 ~ +2.44</span>
+            <span class="ttq">50 <span class="u">N·m</span></span>
+          </div>
+          <div class="trow">
+            <span class="tj">J5</span>
+            <span class="tname">前臂旋轉<span class="en">forearm_yaw</span></span>
+            <span class="trange">−2.61 ~ +2.61</span>
+            <span class="ttq">28 <span class="u">N·m</span></span>
+          </div>
+          <div class="trow">
+            <span class="tj">J6</span>
+            <span class="tname">腕俯仰<span class="en">hand_pitch</span></span>
+            <span class="trange">−1.57 ~ +1.05</span>
+            <span class="ttq">28 <span class="u">N·m</span></span>
+          </div>
+          <div class="trow">
+            <span class="tj">J7</span>
+            <span class="tname">腕旋轉<span class="en">hand_yaw</span></span>
+            <span class="trange">−1.57 ~ +1.57</span>
+            <span class="ttq">28 <span class="u">N·m</span></span>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:12px;margin-top:14px;flex:0 0 auto;">
+        <div class="card-2" style="flex:1;display:flex;align-items:center;gap:10px;padding:11px 14px;">
+          <i class="material-icons" style="font-size:18px;color:var(--accent);">touch_app</i>
+          <span style="font-size:12px;line-height:1.5;"><span style="font-weight:700;color:var(--primary);">dirty 偵測</span><span style="color:var(--muted);"> — 滑條偏離即標記</span></span>
+        </div>
+        <div class="card-2" style="flex:1;display:flex;align-items:center;gap:10px;padding:11px 14px;">
+          <i class="material-icons" style="font-size:18px;color:var(--accent);">show_chart</i>
+          <span style="font-size:12px;line-height:1.5;"><span class="mono" style="font-weight:600;color:var(--primary);">50Hz</span> <span style="font-weight:700;color:var(--primary);">遙測</span><span style="color:var(--muted);"> → UI 趨勢圖</span></span>
+        </div>
+      </div>
+    </aside>
+
+  </div>
+</div>
+</body>
+</html>

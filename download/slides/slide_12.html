@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1280, initial-scale=1">
+<title>12 · 驗證結果 — R1-7A 機械臂控制平台</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="global.css">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+  html, body { margin:0; padding:0; background:var(--bg); }
+  .stat-val { font-family:var(--font-num); color:var(--accent); font-weight:600; font-size:50px; line-height:1; letter-spacing:-.01em; }
+  .stat-unit { font-size:22px; font-weight:500; margin-left:5px; letter-spacing:0; }
+  .mx-row { display:flex; align-items:center; justify-content:space-between; gap:16px; border-bottom:1px solid var(--line); flex:1; min-height:0; }
+  .mx-row:last-child { border-bottom:none; }
+  .mx-item { font-size:var(--fs-small); color:var(--primary); line-height:1.4; opacity:.92; }
+  .mx-res-wrap { display:flex; align-items:center; gap:7px; flex-shrink:0; }
+  .mx-res { font-size:var(--fs-small); color:var(--green); font-weight:600; line-height:1.4; white-space:nowrap; }
+</style>
+</head>
+<body>
+<div class="slide">
+  <div style="height:100%; display:flex; flex-direction:column; padding:52px 64px 48px;">
+
+    <!-- ── header ── -->
+    <div style="display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:24px;">
+      <div>
+        <div class="kicker">09 · VERIFICATION</div>
+        <h1 style="font-family:var(--font-heading); font-size:var(--fs-h1); font-weight:700; line-height:1.15; margin-top:10px;">全部實測，不是承諾</h1>
+      </div>
+      <div class="chip" style="border-color:rgba(52,211,153,.38); background:rgba(52,211,153,.08); color:var(--green); font-family:var(--font-num); font-size:var(--fs-small); font-weight:600; padding:6px 14px; gap:7px;">
+        <i class="material-icons" style="font-size:15px;">check_circle</i>10 / 10 PASS
+      </div>
+    </div>
+
+    <!-- ── 4 big stat cards ── -->
+    <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:18px; margin-bottom:20px;">
+      <div class="card" style="position:relative; padding:24px 22px 20px;">
+        <i class="material-icons" data-decor aria-hidden="true" style="position:absolute; top:18px; right:18px; font-size:19px; color:var(--muted); opacity:.5;">my_location</i>
+        <div class="stat-val">0<span class="stat-unit">rad</span></div>
+        <div class="text-muted" style="font-size:var(--fs-small); line-height:1.5; margin-top:12px;"><span class="num">goto</span> 定位誤差（<span class="num">7</span> 關節全部為零）</div>
+      </div>
+      <div class="card" style="position:relative; padding:24px 22px 20px;">
+        <i class="material-icons" data-decor aria-hidden="true" style="position:absolute; top:18px; right:18px; font-size:19px; color:var(--muted); opacity:.5;">wifi_tethering</i>
+        <div class="stat-val">9.6<span class="stat-unit">Hz</span></div>
+        <div class="text-muted" style="font-size:var(--fs-small); line-height:1.5; margin-top:12px;"><span class="num">/joint_states</span> WS 串流實測</div>
+      </div>
+      <div class="card" style="position:relative; padding:24px 22px 20px;">
+        <i class="material-icons" data-decor aria-hidden="true" style="position:absolute; top:18px; right:18px; font-size:19px; color:var(--muted); opacity:.5;">bug_report</i>
+        <div class="stat-val">0</div>
+        <div class="text-muted" style="font-size:var(--fs-small); line-height:1.5; margin-top:12px;">E2E 全程 console errors + ESLint 錯誤</div>
+      </div>
+      <div class="card" style="position:relative; padding:24px 22px 20px;">
+        <i class="material-icons" data-decor aria-hidden="true" style="position:absolute; top:18px; right:18px; font-size:19px; color:var(--muted); opacity:.5;">receipt_long</i>
+        <div class="stat-val">100<span class="stat-unit">%</span></div>
+        <div class="text-muted" style="font-size:var(--fs-small); line-height:1.5; margin-top:12px;">指令審計入庫率</div>
+      </div>
+    </div>
+
+    <!-- ── E2E verification matrix ── -->
+    <div class="card" style="flex:1; min-height:0; display:flex; flex-direction:column; padding:18px 26px 10px;">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:4px;">
+        <div style="display:flex; align-items:center; gap:9px;">
+          <i class="material-icons" style="font-size:17px; color:var(--accent);">fact_check</i>
+          <span style="font-family:var(--font-heading); font-size:var(--fs-h3); font-weight:700;">E2E 驗證矩陣</span>
+        </div>
+        <span class="text-muted num" style="font-size:var(--fs-micro); letter-spacing:.14em;">✓ = 實測通過</span>
+      </div>
+      <div style="flex:1; min-height:0; display:grid; grid-template-columns:1fr 1fr;">
+        <!-- column 1 : rows 1-5 -->
+        <div style="display:flex; flex-direction:column; padding-right:30px;">
+          <div class="mx-row">
+            <div class="mx-item"><span class="num">goto</span> <span class="num">7</span> 元素陣列到位</div>
+            <div class="mx-res-wrap"><i class="material-icons" style="font-size:15px; color:var(--green);">check</i><span class="mx-res">誤差 <span class="num">0</span></span></div>
+          </div>
+          <div class="mx-row">
+            <div class="mx-item"><span class="num">J1</span> 超限指令 <span class="num">9.9 rad</span></div>
+            <div class="mx-res-wrap"><i class="material-icons" style="font-size:15px; color:var(--green);">check</i><span class="mx-res">正確拒絕</span></div>
+          </div>
+          <div class="mx-row">
+            <div class="mx-item"><span class="num">E-stop</span> 後下 <span class="num">goto</span></div>
+            <div class="mx-res-wrap"><i class="material-icons" style="font-size:15px; color:var(--green);">check</i><span class="mx-res">聯鎖阻擋</span></div>
+          </div>
+          <div class="mx-row">
+            <div class="mx-item"><span class="num">clear</span> 後恢復</div>
+            <div class="mx-res-wrap"><i class="material-icons" style="font-size:15px; color:var(--green);">check</i><span class="mx-res">正常運動</span></div>
+          </div>
+          <div class="mx-row">
+            <div class="mx-item"><span class="num">viewer</span> 下控制指令</div>
+            <div class="mx-res-wrap"><i class="material-icons" style="font-size:15px; color:var(--green);">check</i><span class="mx-res"><span class="num">403</span></span></div>
+          </div>
+        </div>
+        <!-- column 2 : rows 6-10 -->
+        <div style="display:flex; flex-direction:column; padding-left:30px; border-left:1px solid var(--line);">
+          <div class="mx-row">
+            <div class="mx-item"><span class="num">operator</span> 下 <span class="num">zero_torque</span></div>
+            <div class="mx-res-wrap"><i class="material-icons" style="font-size:15px; color:var(--green);">check</i><span class="mx-res"><span class="num">403</span>（admin 專屬）</span></div>
+          </div>
+          <div class="mx-row">
+            <div class="mx-item">回放中 <span class="num">E-stop</span></div>
+            <div class="mx-res-wrap"><i class="material-icons" style="font-size:15px; color:var(--green);">check</i><span class="mx-res">自動中止（<span class="num">aborted</span>）</span></div>
+          </div>
+          <div class="mx-row">
+            <div class="mx-item">回放 <span class="num">cancel</span></div>
+            <div class="mx-res-wrap"><i class="material-icons" style="font-size:15px; color:var(--green);">check</i><span class="mx-res"><span class="num">max|dq| = 0</span> 即停</span></div>
+          </div>
+          <div class="mx-row">
+            <div class="mx-item">並發回放請求</div>
+            <div class="mx-res-wrap"><i class="material-icons" style="font-size:15px; color:var(--green);">check</i><span class="mx-res"><span class="num">409</span> 拒絕</span></div>
+          </div>
+          <div class="mx-row">
+            <div class="mx-item">3D 視圖 <span class="num">home</span> 讀數</div>
+            <div class="mx-res-wrap"><i class="material-icons" style="font-size:15px; color:var(--green);">check</i><span class="mx-res">與 <span class="num">ARM_HOME</span> 一致</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

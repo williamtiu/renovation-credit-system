@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<title>R1-7A 機械臂控制平台 · 封面</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="global.css">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+  html,body{margin:0;padding:0;background:var(--bg);}
+  .kicker{font-size:var(--fs-small);}
+  .stat{padding:0 28px;border-left:1px solid var(--line);}
+  .stat:first-child{padding-left:0;border-left:none;}
+  .stat .n{font-family:var(--font-num);font-weight:600;font-size:42px;line-height:1;color:var(--accent);letter-spacing:-.01em;}
+  .stat .u{font-family:var(--font-num);font-weight:500;font-size:19px;color:var(--accent);margin-left:3px;}
+  .stat .l{margin-top:9px;font-family:var(--font-body);font-size:var(--fs-small);color:var(--muted);letter-spacing:.04em;}
+</style>
+</head>
+<body>
+<div class="slide">
+  <!-- 工程網格背景 -->
+  <div class="grid-bg" data-decor aria-hidden="true"></div>
+
+  <!-- 右側滿高圖片（42%）— Unitree R1 -->
+  <div style="position:absolute;top:0;right:0;width:538px;height:720px;">
+    <img src="https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/f07cb2545fef.png" alt="Unitree R1 人形機器人直立照" style="display:block;width:100%;height:100%;object-fit:cover;object-position:center;">
+    <div data-decor aria-hidden="true" style="position:absolute;inset:0;background:linear-gradient(90deg, #0B0E13 0%, rgba(11,14,19,0.85) 18%, rgba(11,14,19,0) 45%);"></div>
+  </div>
+
+  <!-- 左欄（58%） -->
+  <div style="position:absolute;left:0;top:0;width:742px;height:720px;padding:68px 30px 46px 64px;display:flex;flex-direction:column;">
+    <div style="margin:auto 0;padding-bottom:28px;">
+      <div class="kicker">UNITREE R1 · 7-DOF ROBOT ARM</div>
+      <h1 style="margin:26px 0 0;">
+        <span style="display:block;font-family:var(--font-heading);font-weight:700;font-size:var(--fs-display);line-height:1;letter-spacing:.02em;color:var(--primary);">R1-7A</span>
+        <span style="display:block;margin-top:12px;font-family:var(--font-cn);font-weight:900;font-size:var(--fs-display);line-height:1.12;color:var(--primary);">機械臂<span style="color:var(--accent);">控制平台</span></span>
+      </h1>
+      <p style="margin:24px 0 0;font-family:var(--font-body);font-weight:500;font-size:18px;color:var(--muted);letter-spacing:.015em;">Robot Arm Control Platform — 從裸 SDK 到生產級控制平台</p>
+      <p style="margin:15px 0 0;font-family:var(--font-body);font-size:15.5px;line-height:1.6;">
+        <span style="color:var(--primary);font-weight:600;">安全內建<span style="color:var(--accent);"> · </span>即時可視<span style="color:var(--accent);"> · </span>開放整合</span><span style="color:var(--muted);"> 的 Web 化機械臂底層控制系統</span>
+      </p>
+    </div>
+
+    <!-- 底部數據點 -->
+    <div style="border-top:1px solid var(--line);padding-top:26px;display:flex;align-items:flex-start;">
+      <div class="stat"><div><span class="n">7</span></div><div class="l">自由度 DOF</div></div>
+      <div class="stat"><div><span class="n">200</span><span class="u">Hz</span></div><div class="l">模擬引擎</div></div>
+      <div class="stat"><div><span class="n">3</span></div><div class="l">微服務架構</div></div>
+      <div class="stat" style="padding-right:0;"><div><span class="n">9</span></div><div class="l">功能頁面</div></div>
+    </div>
+
+    <div style="margin-top:24px;font-family:var(--font-num);font-size:var(--fs-micro);letter-spacing:.16em;color:var(--muted);">Engineering Review · 2026.10 · Linux / ROS 2-style / Next.js 16</div>
+  </div>
+</div>
+</body>
+</html>

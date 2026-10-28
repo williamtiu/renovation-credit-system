@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<title>R1-7A · 07 · SAFETY</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="global.css">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+  body { margin:0; background:var(--bg); }
+  .def-card { background:var(--surface); border:1px solid var(--line); border-radius:14px; height:140px; padding:15px 16px; display:flex; flex-direction:column; min-width:0; flex:1; }
+  .def-head { display:flex; align-items:center; justify-content:space-between; }
+  .def-num { font-family:var(--font-num); font-size:var(--fs-small); font-weight:600; letter-spacing:.16em; color:var(--muted); }
+  .def-title { font-family:var(--font-cn); font-weight:700; font-size:15.5px; color:var(--primary); margin-top:10px; white-space:nowrap; }
+  .def-desc { font-size:var(--fs-micro); line-height:1.55; color:var(--muted); margin-top:6px; }
+</style>
+</head>
+<body>
+<div class="slide" style="padding:48px 64px 44px; display:flex; flex-direction:column;">
+
+  <header style="margin-bottom:16px; flex:0 0 auto;">
+    <div class="kicker">07 · SAFETY</div>
+    <div style="display:flex; align-items:flex-end; justify-content:space-between; margin-top:8px;">
+      <h1 style="font-family:var(--font-heading); font-weight:900; font-size:var(--fs-h1); line-height:1.15; color:var(--primary);">安全是內建，不是外掛</h1>
+      <p style="font-size:var(--fs-body); color:var(--muted); padding-bottom:5px;">每一條指令，下發前必須穿過五層防護</p>
+    </div>
+  </header>
+
+  <!-- 五層防護：橫排緊湊卡片 -->
+  <div style="display:flex; gap:14px; flex:0 0 auto;">
+    <div class="def-card">
+      <div class="def-head"><span class="def-num">01</span><i class="material-icons" style="font-size:20px; color:var(--muted);">rule</i></div>
+      <div class="def-title">限位驗證</div>
+      <p class="def-desc">每軸 <span class="num">min/max/vMax/tauMax</span> — J1 <span class="num">9.9 rad</span> 當場拒絕</p>
+    </div>
+    <div class="def-card">
+      <div class="def-head"><span class="def-num">02</span><i class="material-icons" style="font-size:20px; color:var(--muted);">waves</i></div>
+      <div class="def-title">指令去抖</div>
+      <p class="def-desc">抑制指令風暴，防通信異常抖動</p>
+    </div>
+    <div class="def-card">
+      <div class="def-head"><span class="def-num">03</span><i class="material-icons" style="font-size:20px; color:var(--muted);">emergency</i></div>
+      <div class="def-title">E-stop 聯鎖</div>
+      <p class="def-desc">急停後運動指令全擋，<span class="num">clear</span> 才恢復</p>
+    </div>
+    <div class="def-card">
+      <div class="def-head"><span class="def-num">04</span><i class="material-icons" style="font-size:20px; color:var(--muted);">admin_panel_settings</i></div>
+      <div class="def-title">角色權限</div>
+      <p class="def-desc"><span class="num">viewer</span> 唯讀 · <span class="num">operator</span> 操作 · <span class="num">admin</span> 危險指令</p>
+    </div>
+    <div class="def-card">
+      <div class="def-head"><span class="def-num">05</span><i class="material-icons" style="font-size:20px; color:var(--muted);">fact_check</i></div>
+      <div class="def-title">審計追蹤</div>
+      <p class="def-desc">全指令入庫 · 關聯 <span class="num">ApiUser</span> 可追責</p>
+    </div>
+  </div>
+
+  <!-- 審計日誌：全寬截圖（原生比例 3.07:1） -->
+  <div style="flex:1; min-height:0; display:flex; flex-direction:column; margin-top:16px;">
+    <div class="shot" style="height:360px; width:1104px; margin:0 auto; flex:0 0 auto;">
+      <img src="shot-logs-hero.png" alt="審計日誌產品截圖 — 指令全程留痕">
+    </div>
+    <p style="margin-top:8px; text-align:center; font-size:var(--fs-small); color:var(--muted); flex:0 0 auto;"><span style="color:var(--primary); font-weight:600;">審計日誌</span> — <span class="num" style="color:var(--primary);">estop / clear / goto / home</span> 全程留痕</p>
+  </div>
+
+</div>
+</body>
+</html>

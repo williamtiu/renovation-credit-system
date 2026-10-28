@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1280, initial-scale=1">
+<title>14 · 技術棧 — R1-7A 機械臂控制平台</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="global.css">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+  html, body { margin:0; padding:0; background:var(--bg); }
+  .stack-ico { width:44px; height:44px; border-radius:11px; background:var(--cyan-soft); border:1px solid rgba(76,201,240,.25); display:flex; align-items:center; justify-content:center; }
+  .tech-item { display:flex; gap:9px; font-size:var(--fs-body); line-height:1.45; color:var(--primary); }
+  .tech-item .tick { color:var(--accent); font-weight:700; flex-shrink:0; }
+</style>
+</head>
+<body>
+<div class="slide">
+  <div style="height:100%; display:flex; flex-direction:column; padding:52px 64px 50px;">
+
+    <!-- ── header ── -->
+    <div style="margin-bottom:8px;">
+      <div class="kicker">11 · TECH STACK</div>
+      <h1 style="font-family:var(--font-heading); font-size:var(--fs-h1); font-weight:700; line-height:1.15; margin-top:10px;">現代全棧，工程品味</h1>
+      <p class="text-muted" style="font-size:var(--fs-h3); line-height:1.4; margin-top:8px;">每個選型都為了可維護與可移植</p>
+    </div>
+
+    <!-- ── four-column stack grid (top-aligned, equal-height cards) ── -->
+    <div style="flex:1; min-height:0; display:flex; align-items:stretch;">
+      <div style="display:grid; grid-template-columns:repeat(4, 1fr); grid-template-rows:1fr; gap:18px; width:100%; height:100%; align-items:start;">
+
+        <!-- Frontend -->
+        <div class="card" style="padding:24px 22px; height:100%; display:flex; flex-direction:column;">
+          <div style="height:44px; display:flex; align-items:center;">
+            <div class="stack-ico"><i class="material-icons" style="font-size:22px; color:var(--cyan);">web</i></div>
+          </div>
+          <div style="font-family:var(--font-heading); font-size:21px; font-weight:700; margin-top:16px; letter-spacing:.01em;">Frontend</div>
+          <div class="rule" style="margin:14px 0 16px;"></div>
+          <div style="flex:1; min-height:0; display:flex; flex-direction:column; justify-content:space-evenly;">
+            <div class="tech-item"><span class="tick">‣</span><span>Next.js <span class="num">16</span></span></div>
+            <div class="tech-item"><span class="tick">‣</span><span>React <span class="num">19</span></span></div>
+            <div class="tech-item"><span class="tick">‣</span><span>TypeScript</span></div>
+            <div class="tech-item"><span class="tick">‣</span><span>Tailwind CSS <span class="num">4</span></span></div>
+            <div class="tech-item"><span class="tick">‣</span><span>three.js <span class="num">0.171</span></span></div>
+            <div class="tech-item"><span class="tick">‣</span><span>recharts</span></div>
+          </div>
+        </div>
+
+        <!-- Backend -->
+        <div class="card" style="padding:24px 22px; height:100%; display:flex; flex-direction:column;">
+          <div style="height:44px; display:flex; align-items:center;">
+            <div class="stack-ico"><i class="material-icons" style="font-size:22px; color:var(--cyan);">dns</i></div>
+          </div>
+          <div style="font-family:var(--font-heading); font-size:21px; font-weight:700; margin-top:16px; letter-spacing:.01em;">Backend</div>
+          <div class="rule" style="margin:14px 0 16px;"></div>
+          <div style="flex:1; min-height:0; display:flex; flex-direction:column; justify-content:space-evenly;">
+            <div class="tech-item"><span class="tick">‣</span><span>Node.js 微服務</span></div>
+            <div class="tech-item"><span class="tick">‣</span><span>socket.io</span></div>
+            <div class="tech-item"><span class="tick">‣</span><span>Express</span></div>
+            <div class="tech-item"><span class="tick">‣</span><span>Prisma <span class="num">6</span> + SQLite</span></div>
+            <div class="tech-item"><span class="tick">‣</span><span>zod <span class="num">4</span> 驗證</span></div>
+          </div>
+        </div>
+
+        <!-- Hardware -->
+        <div class="card" style="padding:24px 22px; height:100%; display:flex; flex-direction:column;">
+          <div style="height:44px; display:flex; align-items:center;">
+            <div class="stack-ico"><i class="material-icons" style="font-size:22px; color:var(--cyan);">precision_manufacturing</i></div>
+          </div>
+          <div style="font-family:var(--font-heading); font-size:21px; font-weight:700; margin-top:16px; letter-spacing:.01em;">Hardware</div>
+          <div class="rule" style="margin:14px 0 16px;"></div>
+          <div style="flex:1; min-height:0; display:flex; flex-direction:column; justify-content:space-evenly;">
+            <div class="tech-item"><span class="tick">‣</span><span>C++</span></div>
+            <div class="tech-item"><span class="tick">‣</span><span>CMake</span></div>
+            <div class="tech-item"><span class="tick">‣</span><span>UDP JSON-RPC</span></div>
+            <div class="tech-item"><span class="tick">‣</span><span><span class="num">IM6014</span> 串列匯流排</span></div>
+            <div class="tech-item"><span class="tick">‣</span><span><span class="num">6 Mbaud</span></span></div>
+          </div>
+        </div>
+
+        <!-- Quality -->
+        <div class="card" style="padding:24px 22px; height:100%; display:flex; flex-direction:column;">
+          <div style="height:44px; display:flex; align-items:center;">
+            <div class="stack-ico"><i class="material-icons" style="font-size:22px; color:var(--cyan);">verified</i></div>
+          </div>
+          <div style="font-family:var(--font-heading); font-size:21px; font-weight:700; margin-top:16px; letter-spacing:.01em;">Quality</div>
+          <div class="rule" style="margin:14px 0 16px;"></div>
+          <div style="flex:1; min-height:0; display:flex; flex-direction:column; justify-content:space-evenly;">
+            <div class="tech-item"><span class="tick">‣</span><span>ESLint <span class="num">0</span> 錯誤</span></div>
+            <div class="tech-item"><span class="tick">‣</span><span>agent-browser E2E</span></div>
+            <div class="tech-item"><span class="tick">‣</span><span>VLM 視覺驗證</span></div>
+            <div class="tech-item"><span class="tick">‣</span><span>單元測試（軌跡/訂閱修復項）</span></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── bottom line ── -->
+    <div class="card-2" style="flex-shrink:0; padding:15px 28px; display:flex; align-items:center; justify-content:center;">
+      <span class="text-muted" style="font-size:var(--fs-body); line-height:1.5;"><span class="num" style="color:var(--primary);">TypeScript</span> 貫穿前後端 <span style="color:var(--accent); font-family:var(--font-num); padding:0 6px;">→</span> 硬體層 <span class="num" style="color:var(--primary);">C++</span> 隔離 <span style="color:var(--accent); font-family:var(--font-num); padding:0 6px;">→</span> 上層永不碰串口細節</span>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

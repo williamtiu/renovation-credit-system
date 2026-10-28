@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1280, initial-scale=1">
+<title>15 · 路線圖 — R1-7A 機械臂控制平台</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="global.css">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+  html, body { margin:0; padding:0; background:var(--bg); }
+  .rm-entry { display:flex; gap:12px; align-items:flex-start; }
+  .rm-title { font-size:var(--fs-body); font-weight:700; color:var(--primary); }
+  .rm-desc { font-size:var(--fs-small); line-height:1.55; color:var(--muted); margin-top:3px; }
+  .rm-simple { flex:1; min-height:0; display:flex; align-items:center; gap:12px; border-bottom:1px solid var(--line); }
+  .rm-simple:last-child { border-bottom:none; }
+  .col-head { font-family:var(--font-heading); font-size:var(--fs-h3); font-weight:700; }
+</style>
+</head>
+<body>
+<div class="slide">
+  <div style="height:100%; display:flex; flex-direction:column; padding:52px 64px 46px;">
+
+    <!-- ── header ── -->
+    <div style="margin-bottom:16px;">
+      <div class="kicker">12 · ROADMAP</div>
+      <h1 style="font-family:var(--font-heading); font-size:var(--fs-h1); font-weight:700; line-height:1.15; margin-top:10px;">下一個迭代，已經在圖紙上</h1>
+    </div>
+
+    <!-- ── direction strip: 近期 → 中期 → 遠期 ── -->
+    <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:20px; align-items:center; margin-bottom:14px;">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <span style="font-family:var(--font-heading); font-size:15px; font-weight:700; color:var(--primary); white-space:nowrap;">近期 <span class="num" style="font-size:11px; letter-spacing:.14em; color:var(--accent);">NEXT</span></span>
+        <span data-decor aria-hidden="true" style="flex:1; height:2px; border-radius:1px; background:linear-gradient(90deg, var(--accent-line), rgba(255,107,26,.14));"></span>
+        <span style="font-family:var(--font-num); font-size:20px; font-weight:600; color:var(--accent); line-height:1;">→</span>
+      </div>
+      <div style="display:flex; align-items:center; gap:12px;">
+        <span style="font-family:var(--font-heading); font-size:15px; font-weight:700; color:var(--primary); white-space:nowrap;">中期 <span class="num" style="font-size:11px; letter-spacing:.14em; color:var(--accent);">MID</span></span>
+        <span data-decor aria-hidden="true" style="flex:1; height:2px; border-radius:1px; background:linear-gradient(90deg, var(--accent-line), rgba(255,107,26,.14));"></span>
+        <span style="font-family:var(--font-num); font-size:20px; font-weight:600; color:var(--accent); line-height:1;">→</span>
+      </div>
+      <div style="display:flex; align-items:center; gap:12px;">
+        <span style="font-family:var(--font-heading); font-size:15px; font-weight:700; color:var(--primary); white-space:nowrap;">遠期 <span class="num" style="font-size:11px; letter-spacing:.14em; color:var(--accent);">FUTURE</span></span>
+        <span data-decor aria-hidden="true" style="flex:1; height:2px; border-radius:1px; background:linear-gradient(90deg, var(--line), transparent);"></span>
+      </div>
+    </div>
+
+    <!-- ── three-column roadmap ── -->
+    <div style="flex:1; min-height:0; display:grid; grid-template-columns:repeat(3, 1fr); gap:20px;">
+
+      <!-- col 1 : next release (accent border) -->
+      <div class="card" style="border:1.5px solid var(--accent-line); background:linear-gradient(180deg, rgba(255,107,26,.05), rgba(255,107,26,0) 32%), var(--surface); padding:22px 22px 18px; display:flex; flex-direction:column;">
+        <div style="display:flex; align-items:center; justify-content:space-between;">
+          <span class="col-head">下一版</span>
+          <span class="chip chip-accent num" style="font-size:var(--fs-micro); letter-spacing:.1em;">進行中</span>
+        </div>
+        <div class="rule" style="margin:14px 0 4px;"></div>
+        <div style="flex:1; min-height:0; display:flex; flex-direction:column; justify-content:space-evenly;">
+          <div class="rm-entry">
+            <i class="material-icons" style="font-size:19px; color:var(--accent); margin-top:2px;">open_with</i>
+            <div>
+              <div class="rm-title">3D IK 拖動</div>
+              <div class="rm-desc">在 3D 視圖拖曳 <span class="num">TCP</span> 末端執行器，即時逆運動學求解（對標 <span class="num">UR Teach Pendant / RoboDK</span>）</div>
+            </div>
+          </div>
+          <div class="rm-entry">
+            <i class="material-icons" style="font-size:19px; color:var(--accent); margin-top:2px;">loop</i>
+            <div>
+              <div class="rm-title">循環回放</div>
+              <div class="rm-desc">軌跡支持設定次數或無限循環 · 循環間隔可調</div>
+            </div>
+          </div>
+          <div class="rm-entry">
+            <i class="material-icons" style="font-size:19px; color:var(--accent); margin-top:2px;">event_available</i>
+            <div>
+              <div class="rm-title">API Key 有效期</div>
+              <div class="rm-desc"><span class="num">expiry</span> 欄位 · 到期自動失效 · 續期提醒</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- col 2 : mid-term -->
+      <div class="card" style="padding:22px 22px 14px; display:flex; flex-direction:column;">
+        <div class="col-head">中期</div>
+        <div class="rule" style="margin:14px 0 0;"></div>
+        <div style="flex:1; min-height:0; display:flex; flex-direction:column;">
+          <div class="rm-simple">
+            <i class="material-icons" style="font-size:19px; color:var(--cyan);">pan_tool</i>
+            <div style="min-width:0;">
+              <div class="rm-title" style="font-weight:600;">夾爪控制整合</div>
+              <div class="rm-desc">開合/力道回報整合到指令集</div>
+            </div>
+          </div>
+          <div class="rm-simple">
+            <i class="material-icons" style="font-size:19px; color:var(--cyan);">speed</i>
+            <div style="min-width:0;">
+              <div class="rm-title" style="font-weight:600;">力控 / 阻抗模式</div>
+              <div class="rm-desc">接觸式任務安全基礎</div>
+            </div>
+          </div>
+          <div class="rm-simple">
+            <i class="material-icons" style="font-size:19px; color:var(--cyan);">playlist_play</i>
+            <div style="min-width:0;">
+              <div class="rm-title" style="font-weight:600;">姿勢庫排程執行</div>
+              <div class="rm-desc">序列編排 + 定時觸發</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- col 3 : long-term -->
+      <div class="card" style="padding:22px 22px 14px; display:flex; flex-direction:column;">
+        <div class="col-head">遠期</div>
+        <div class="rule" style="margin:14px 0 0;"></div>
+        <div style="flex:1; min-height:0; display:flex; flex-direction:column;">
+          <div class="rm-simple">
+            <i class="material-icons" style="font-size:19px; color:var(--muted);">device_hub</i>
+            <div style="min-width:0;">
+              <div class="rm-title" style="font-weight:600;">多臂協作編排</div>
+              <div class="rm-desc">統一任務圖調度</div>
+            </div>
+          </div>
+          <div class="rm-simple">
+            <i class="material-icons" style="font-size:19px; color:var(--muted);">cloud</i>
+            <div style="min-width:0;">
+              <div class="rm-title" style="font-weight:600;">雲端集中監控</div>
+              <div class="rm-desc">多站點遙測聚合</div>
+            </div>
+          </div>
+          <div class="rm-simple">
+            <i class="material-icons" style="font-size:19px; color:var(--muted);">center_focus_strong</i>
+            <div style="min-width:0;">
+              <div class="rm-title" style="font-weight:600;">視覺引導抓取</div>
+              <div class="rm-desc">相機標定 + 視覺伺服</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── bottom note ── -->
+    <div style="flex-shrink:0; margin-top:18px; display:flex; align-items:center; justify-content:center; gap:8px;">
+      <i class="material-icons" style="font-size:15px; color:var(--muted);">layers</i>
+      <span class="text-muted" style="font-size:var(--fs-small); line-height:1.5;">IK 求解器將基於既有 <span class="num">DH</span> 參數與正運動學（<span class="num">robot-model.ts</span>）擴展 — 地基已備好</span>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

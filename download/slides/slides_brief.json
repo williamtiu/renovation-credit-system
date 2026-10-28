@@ -1,0 +1,111 @@
+{
+  "design": {
+    "title": "R1-7A 機械臂控制平台",
+    "style_name": "Industrial Dark Premium",
+    "palette": { "background": "#0B0E13", "primary": "#E8EDF4", "accent": "#FF6B1A" },
+    "typography": { "heading": "Space Grotesk + Noto Sans TC", "body": "IBM Plex Sans + Noto Sans TC", "numeric": "IBM Plex Mono" },
+    "reference": "Boston Dynamics product deck × Vercel keynote — 深色石墨底、大號工程數據、安全橙點綴、遙測青輔助"
+  },
+  "global_css_path": "/home/z/my-project/download/slides/global.css",
+  "slides_dir": "/home/z/my-project/download/slides",
+  "language": "zh-Hant",
+  "speaker_notes": "none",
+  "slides": [
+    {
+      "title": "封面 Cover",
+      "layout": "cover",
+      "output_path": "/home/z/my-project/download/slides/slide_01.html",
+      "task_brief": "封面頁，左文右圖分欄（左約 58% 文字、右 42% 滿高圖片）。右側圖片（滿高、object-fit:cover）：https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/f07cb2545fef.png（Unitree 人形機器人直立照），圖片左緣用 linear-gradient(90deg, #0B0E13 0%, transparent 30%) 融入背景。左欄內容（垂直置中）：kicker『UNITREE R1 · 7-DOF ROBOT ARM』→ 主標題『R1-7A 機械臂控制平台』（--fs-display，Noto Sans TC 900 字重，『控制平台』四字用 --accent 橙色）→ 副標題『Robot Arm Control Platform — 從裸 SDK 到生產級控制平台』（--muted）→ 一句定位語『安全內建 · 即時可視 · 開放整合 的 Web 化機械臂底層控制系統』。底部橫向 4 個數據點（num 字體，橙色大數字 + muted 小標籤，以細豎線分隔）：『7 自由度 DOF』『200 Hz 模擬引擎』『3 微服務架構』『9 功能頁面』。最底一行 micro 字：『Engineering Review · 2026.10 · Linux / ROS 2-style / Next.js 16』。背景加 .grid-bg 工程網格。"
+    },
+    {
+      "title": "挑戰與目標",
+      "layout": "two-column problem→goal",
+      "output_path": "/home/z/my-project/download/slides/slide_02.html",
+      "task_brief": "頁首：kicker『01 · THE CHALLENGE』+ 標題『為什麼需要一個平台？』+ 副句『直接操作 r1-7a_sdk，等於在裸串口上盲飛』。左欄（約 55%）『SDK 直操的四大痛點』——4 張橫向卡片，各含紅色/橙色 Material icon + 粗體短標 + 一句說明：① icon『cable』『裸串口協議』IM6014 串列匯流排、/dev/ttyUSB0、6,000,000 baud，還要做 URDF 幀轉換 urdf = dir × scale × motor + offset；② icon『visibility_off』『零可視化』沒有 3D 態勢、沒有遙測面板，工程師只能盲操作高扭矩硬體；③ icon『gpp_maybe』『無安全層』指令直達馬達 — 限位驗證、指令去抖、急停聯鎖全部缺席；④ icon『fact_check』『無審計無權限』操作不留痕、無角色隔離，出了事無從追溯。右欄（約 45%）一張深色 card-2『我們的目標』：大字『一個生產級 Web 控制平台』+ 三個帶勾（check_circle 綠 icon）目標：『安全 — 每一條指令必經安全層：限位 + 去抖 + E-stop 聯鎖』『可視 — 3D 即時渲染、50Hz 遙測趨勢、事件流一眼看清』『可整合 — REST + WS 開放介面、金鑰角色控權、部署包直達真機』。右欄底部一個 chip-accent：『模擬即真機 — 同一套代碼路徑』。"
+    },
+    {
+      "title": "平台總覽",
+      "layout": "bento grid",
+      "output_path": "/home/z/my-project/download/slides/slide_03.html",
+      "task_brief": "頁首：kicker『02 · THE PLATFORM』+ 標題『三服務架構，一個控制平面』+ 副句『每個服務單一職責，ROS 2 概念完整映射』。主體 2×2 bento：卡片①（帶 :3000 端口徽章）『Web UI 前端』— Next.js 16 · React 19；9 個功能頁面：Dashboard 總覽 / Control 控制 / 3D 視圖 / Poses 姿勢庫 / 軌跡錄製回放 / Logs 日誌 / API Keys / API 文檔 / Settings 設定。卡片②（:3002，橙色強調邊框）『Robot Control Service』— Lifecycle Node 架構 · 200Hz 模擬物理引擎 · 餘弦軌跡插補 · 安全層（限位/去抖/E-stop）· 三驅動 HAL。卡片③（:3003）『WS Gateway』— rosbridge 風格 topic 訂閱 · socket.io rooms 廣播 · 指令轉發帶 ack。卡片④（實體 icon）『Hardware Bridge（部署包）』— C++ · UDP JSON-RPC · SDK 對接點全部標註 TODO(r1a_sdk)。底部一條橫向 card：標籤『ROS 2 概念映射』+ 4 組對照（mono 字體）：topic → WS rooms（/joint_states · /robot_state · /events）｜service → REST /api/*｜lifecycle → configure / activate｜parameter → Settings。"
+    },
+    {
+      "title": "章節頁 一",
+      "layout": "section header",
+      "output_path": "/home/z/my-project/download/slides/slide_04.html",
+      "task_brief": "章節分隔頁，超大留白設計。左上 kicker『SECTION』。中央偏左：巨型章節編號『01』（Space Grotesk 700，約 200px，橙色描邊或半透明橙）+『/ 02』muted；章節標題『系統設計與實現』（--fs-display 級別）；副句『分層架構 · 三大功能支柱 · 安全內建於每一層』。右下角三個小 chip 預告本章內容：『系統架構』『即時控制與 3D』『軌跡 · 安全 · API』。背景 .grid-bg + 左側一條 4px 橙色豎線裝飾。"
+    },
+    {
+      "title": "系統架構",
+      "layout": "layered stack + decisions rail",
+      "output_path": "/home/z/my-project/download/slides/slide_05.html",
+      "task_brief": "頁首：kicker『03 · ARCHITECTURE』+ 標題『五層分離，單向數據流』。左欄（約 62%）垂直堆疊 5 條層帶（由上至下，每條 card 含層名 + 內容 chips；層帶間用向下箭頭字符 ▾ 或細線銜接，禁止 SVG）：①『Presentation』Web UI · 9 tabs · 即時遙測 · 3D 渲染；②『API Gateway』REST /api/* · WS topics · X-API-Key 認證 · 審計入庫；③『Control Service』Lifecycle Node · 安全層 · 餘弦插補 · 回放引擎；④『HAL 硬體抽象』三驅動：simulation / serial / bridge（統一介面，切換零改碼）；⑤（橙色邊框強調）『Hardware』R1-7A SDK · C++ Bridge · /dev/ttyUSB0 @ 6 Mbaud。右欄（約 38%）『三個關鍵設計決策』3 張小卡：『三驅動 HAL — 沙盒跑 simulation、真機跑 bridge，切換只動配置不動代碼』『單向數據流 — 遙測 50Hz 上行、指令下行必經安全層，路徑唯一可審計』『模組單例回放 — 單進程單回放，E-stop 每步檢查，杜絕並發衝突』。"
+    },
+    {
+      "title": "即時控制",
+      "layout": "split screenshot + spec table",
+      "output_path": "/home/z/my-project/download/slides/slide_06.html",
+      "task_brief": "頁首：kicker『04 · REAL-TIME CONTROL』+ 標題『七軸滑條，毫秒級回應』+ 副句『200Hz 物理引擎 + 餘弦軌跡插補，指令集與 SDK 完全對齊』。左欄（約 52%）：產品截圖 shot-control-detail.png（相對路徑，.shot 框，720×423 原生比例放大展示，高約 360px）+ 圖下一排 7 個指令 chip（mono，至少 13px）：foc / home / goto / stop / zero_torque / clear / reset，其中 goto 用 chip-accent 標記『最常用』。右欄（約 48%）『關節規格（節選自 robot-model.ts）』緊湊表格 7 行 4 列（表頭：軸 / 名稱 / 行程 rad / 峰值扭矩）：J1 肩俯仰 arm_pitch −2.87 ~ +2.87 / 88 N·m；J2 肩側擺 arm_roll −0.61 ~ +3.14 / 88 N·m；J3 肩旋轉 arm_yaw −2.35 ~ +2.35 / 50 N·m；J4 肘屈伸 forearm_pitch −0.52 ~ +2.44 / 50 N·m；J5 前臂旋轉 forearm_yaw −2.61 ~ +2.61 / 28 N·m；J6 腕俯仰 hand_pitch −1.57 ~ +1.05 / 28 N·m；J7 腕旋轉 hand_yaw −1.57 ~ +1.57 / 28 N·m。表格下方兩個小徽章：『dirty 偵測 — 滑條偏離即標記』『50Hz 遙測 → UI 趨勢圖』。"
+    },
+    {
+      "title": "3D 即時可視化",
+      "layout": "screenshot hero + feature rail",
+      "output_path": "/home/z/my-project/download/slides/slide_07.html",
+      "task_brief": "頁首：kicker『05 · 3D VISUALIZATION』+ 標題『看得見，才敢操作』。左欄（約 60%）：大幅產品截圖 shot-3d.png（.shot 框，高約 460px，object-position: center）+ 圖下小字註（muted）：『home 指令後 3D 讀數 [0, 0.10, 0, 0.55, 0, 0, 0] — 與 ARM_HOME 定義完全一致（VLM 視覺驗證）』。右欄（約 40%）4 張功能卡（icon + 短標 + 一句說明）：①『7-DOF 運動鏈』three.js 0.171 重建 URDF 嵌套樞軸：pitch→X / roll→Z / yaw→Y；②『末端軌跡追蹤』20Hz 採樣 TCP 路徑，綠色軌跡線即時描繪；③『E-stop 視覺聯動』急停觸發 → 關節球即時轉紅，狀態一目了然；④『視角控制』OrbitControls + 前/側/俯/45° 預設 + 線框模式切換。"
+    },
+    {
+      "title": "軌跡錄製與回放",
+      "layout": "dual screenshot + pipeline",
+      "output_path": "/home/z/my-project/download/slides/slide_08.html",
+      "task_brief": "頁首：kicker『06 · TRAJECTORY』+ 標題『錄一次，回放無限次』+ 副句『從示教到量產循環，一條龍完成』。上半部單張全寬 hero 截圖：shot-traj-hero.png（1425×270 寬幅裁切，相對路徑，.shot 框，全寬約 1140px 展示，接近原生清晰度），標籤『錄製中 — 計時 / 點數 / 20Hz 採樣即時顯示』。下半部橫向三段流程卡（以 → 字符銜接，禁止 SVG）：『① 錄製』20Hz 採樣關節路徑點，實測 38 點 / 18 秒 →『② 保存』Trajectory 入庫（Prisma SQLite），點數/時長自動記錄 →『③ 回放』0.5× / 1× / 2× 速度，逐點 goto + 進度條即時回報。底部一條安全提示帶（紅色 icon shield）：『回放安全 — E-stop 每步檢查自動中止 · cancel 即時停臂（max|dq| = 0）· 並發回放請求 409 拒絕』。"
+    },
+    {
+      "title": "安全設計",
+      "layout": "five-layer defense + audit screenshot",
+      "output_path": "/home/z/my-project/download/slides/slide_09.html",
+      "task_brief": "頁首：kicker『07 · SAFETY』+ 標題『安全是內建，不是外掛』+ 副句『每一條指令，下發前必須穿過五層防護』。主體上下兩段：上半段橫向 5 張緊湊防護卡（等寬並排，每張：編號 01-05 + icon + 粗體短標 + 一句極短說明），下半段全寬 hero 截圖 shot-logs-hero.png（1325×432 審計表裁切，相對路徑，.shot 框，全寬約 1100px 展示）+ 標籤『審計日誌 — estop / clear / goto / home 全程留痕』。5 層防護內容：01『限位驗證』每軸 min/max/vMax/tauMax 逐項檢查 — 實測 J1 指令 9.9 rad（超過 ±2.87）當場拒絕；02『指令去抖』抑制指令風暴，防止通信異常引發抖動；03『E-stop 聯鎖』急停觸發後所有運動指令被阻擋，clear 後才恢復 — 實測驗證；04『角色權限』viewer 唯讀 / operator 操作 / admin 才能下 zero_torque、reset — E-stop 任何角色都可用；05『審計追蹤』全部指令入庫，關聯 ApiUser，可追責到人。"
+    },
+    {
+      "title": "API 生態",
+      "layout": "screenshot + code + roles",
+      "output_path": "/home/z/my-project/download/slides/slide_10.html",
+      "task_brief": "頁首：kicker『08 · OPEN API』+ 標題『18 個 REST 端點 · 3 個 WS Topics』+ 副句『把機械臂變成任何系統都可調用的服務』。左欄（約 55%）上下兩塊 code-block（mono 小字，語法高亮用橙/青）：塊一標籤『REST — 帶金鑰下指令』：curl -X POST http://host:3000/api/robot/command ⏎ -H \"X-API-Key: r1a_sk_…\" ⏎ -d '{\"type\":\"goto\",\"joints\":[0.5,0.1,-0.8,0.55,0,0,0.3]}'；塊二標籤『WS — 訂閱遙測流』：socket.emit('subscribe', { topics: ['/joint_states'] }) ⏎ // 實測 ≈ 9.6 Hz 串流。code 下方三個 chips：『robot / poses / trajectories / keys / system 五組資源』『r1a_sk_ 前綴 · 一次性完整顯示 · 掩碼存儲』『重新生成 · 啟用開關』。右欄（約 45%）：產品截圖 shot-keys.png（.shot 框，object-position: top）+ 標籤『API Keys 管理台』+ 下方三行角色矩陣（小表格）：viewer → 唯讀遙測/查詢；operator → 運動指令 + 姿勢/軌跡執行；admin → 全部含 zero_torque / reset。"
+    },
+    {
+      "title": "章節頁 二",
+      "layout": "section header",
+      "output_path": "/home/z/my-project/download/slides/slide_11.html",
+      "task_brief": "章節分隔頁，與 slide_04 同款版式（巨型編號 + 標題 + chip 預告）。巨型編號『02』+『/ 02』；章節標題『驗證與落地』；副句『實測數據説話 · 真機部署路徑已鋪好』。右下角三個 chip：『E2E 驗證矩陣』『真機部署包』『路線圖』。背景 .grid-bg + 左側 4px 橙色豎線。"
+    },
+    {
+      "title": "驗證結果",
+      "layout": "stats + test matrix",
+      "output_path": "/home/z/my-project/download/slides/slide_12.html",
+      "task_brief": "頁首：kicker『09 · VERIFICATION』+ 標題『全部實測，不是承諾』。上半部 4 個大數據卡（橙色巨型數字 num 字體 + 小標籤）：『0 rad』goto 定位誤差（7 關節全部為零）；『9.6 Hz』/joint_states WS 串流實測；『0』E2E 全程 console errors + ESLint 錯誤；『100%』指令審計入庫率。下半部『E2E 驗證矩陣』兩欄緊湊表格（10 行，每行：測項 → 結果，結果用綠色 check 圖標或 ✓）：goto 7 元素陣列到位 → 誤差 0；J1 超限指令 9.9 rad → 正確拒絕；E-stop 後下 goto → 聯鎖阻擋；clear 後恢復 → 正常運動；viewer 下控制指令 → 403；operator 下 zero_torque → 403（admin 專屬）；回放中 E-stop → 自動中止（aborted）；回放 cancel → max|dq| = 0 即停；並發回放請求 → 409 拒絕；3D 視圖 home 讀數 → 與 ARM_HOME 一致。表格分兩欄各 5 行排佈以節省高度。"
+    },
+    {
+      "title": "真機部署",
+      "layout": "image + deploy package + 3 steps",
+      "output_path": "/home/z/my-project/download/slides/slide_13.html",
+      "task_brief": "頁首：kicker『10 · DEPLOYMENT』+ 標題『從沙盒到真機，三步落地』。左欄（約 40%）：圖片 https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/37e9db9eab0c.jpg（.shot 框滿高約 420px，object-fit:cover）+ 圖註『生產線場景 — 平台直接對接』。右欄（約 60%）上卡片『r1a-deploy 部署包（已隨交付提供）』4 行清單（icon + 項目 + 説明）：『C++ Hardware Bridge — 269 行可編譯骨架 · UDP JSON-RPC 協議層 · SDK 對接點全部標註 TODO(r1a_sdk)』『systemd × 4 服務 — bridge 即時調度優先級（real-time）』『udev 規則 — 固定裝置名，插拔不漂移』『DEPLOY.md — Ubuntu 全流程部署 + 安全規範 + 故障排查』。下方橫向三步驟帶（編號大字 + 短句 + → 銜接）：STEP 1『對接』clone r1a-7a_sdk → 按 TODO 標註接上 ArmMotorBus API → STEP 2『編譯上線』編譯 bridge · systemd + udev 安裝 → STEP 3『切換』Web Settings 切到 bridge 模式 — 業務代碼零改動。"
+    },
+    {
+      "title": "技術棧",
+      "layout": "four-column stack grid",
+      "output_path": "/home/z/my-project/download/slides/slide_14.html",
+      "task_brief": "頁首：kicker『11 · TECH STACK』+ 標題『現代全棧，工程品味』+ 副句『每個選型都為了可維護與可移植』。主體 4 張直卡（等寬橫排）：卡①『Frontend』Next.js 16 · React 19 · TypeScript · Tailwind CSS 4 · three.js 0.171 · recharts；卡②『Backend』Node.js 微服務 · socket.io · Express · Prisma 6 + SQLite · zod 4 驗證；卡③『Hardware』C++ · CMake · UDP JSON-RPC · IM6014 串列匯流排 · 6 Mbaud；卡④『Quality』ESLint 0 錯誤 · agent-browser E2E · VLM 視覺驗證 · 單元測試（軌跡/訂閱修復項）。每卡：頂部 icon（web / dns / precision_manufacturing / verified）+ 類別名 + 逐行技術項（每行前綴橙色 ‣）。底部橫向一句（muted）：『TypeScript 貫穿前後端 → 硬體層 C++ 隔離 → 上層永不碰串口細節』。"
+    },
+    {
+      "title": "路線圖",
+      "layout": "three-column roadmap",
+      "output_path": "/home/z/my-project/download/slides/slide_15.html",
+      "task_brief": "頁首：kicker『12 · ROADMAP』+ 標題『下一個迭代，已經在圖紙上』。三欄直卡（左→右 = 近→遠，近者橙色強調邊框）：欄①『下一版 · 進行中』3 個條目（各配 icon + 粗體 + 一句）：『3D IK 拖動』在 3D 視圖直接拖曳 TCP 末端執行器 → 即時逆運動學求解 → 下發關節指令（對標 UR Teach Pendant / RoboDK 交互體驗）；『循環回放』軌跡支持設定次數或無限循環 · 循環間隔可調；『API Key 有效期』expiry 欄位 · 到期自動失效 · 續期提醒。欄②『中期』：『夾爪控制整合』『力控 / 阻抗模式』『姿勢庫排程執行』。欄③『遠期』：『多臂協作編排』『雲端集中監控』『視覺引導抓取』。底部註（muted 小字）：『IK 求解器將基於既有 DH 參數與正運動學（robot-model.ts）擴展 — 地基已備好』。"
+    },
+    {
+      "title": "結語",
+      "layout": "closing + takeaways",
+      "output_path": "/home/z/my-project/download/slides/slide_16.html",
+      "task_brief": "結語頁，左文右圖（右約 36% 滿高圖）：https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/461fd834356b.jpg（機械臂焊接火花，深色戲劇光），左緣漸變融入背景。左欄：kicker『CLOSING』+ 大標『從網頁滑條，到 6 Mbaud 串口』（--fs-h1 以上，『6 Mbaud』橙色）+ 副句『一條已驗證、可落地、可擴展的控制鏈路』。三個帶編號 takeaway（01/02/03 橙色 num + 粗體 + 一句）：01『安全內建而非外掛』每條指令穿過五層防護，急停聯鎖實測有效；02『ROS 2 概念完整落地』topic / service / lifecycle / parameter 全部映射到 Web 世界；03『模擬到真機零改碼』三驅動 HAL + r1a-deploy 部署包，路徑已鋪好。底部一行 CTA 帶（card-2 橫條）：『立即體驗 — Web UI :3000 · 部署包 download/r1a-deploy · API 文檔內建於平台』+ 右端『Thank You』（Space Grotesk，橙色）。"
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1280, initial-scale=1">
+<title>16 · 結語 — R1-7A 機械臂控制平台</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="global.css">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+  html, body { margin:0; padding:0; background:var(--bg); }
+  .tk-num { font-family:var(--font-num); font-size:24px; font-weight:600; color:var(--accent); line-height:1.15; flex-shrink:0; width:44px; }
+  .tk-title { font-family:var(--font-heading); font-size:17px; font-weight:700; color:var(--primary); }
+  .tk-desc { font-size:var(--fs-small); line-height:1.55; color:var(--muted); margin-top:4px; }
+</style>
+</head>
+<body>
+<div class="slide">
+
+  <!-- engineering grid backdrop -->
+  <div class="grid-bg" data-decor aria-hidden="true"></div>
+
+  <!-- right ~36% full-height image, left-edge gradient blend -->
+  <div style="position:absolute; top:0; right:0; bottom:0; width:36%;">
+    <img src="https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/461fd834356b.jpg" alt="機械臂焊接火花" style="width:100%; height:100%; object-fit:cover; object-position:center; display:block;">
+    <div data-decor aria-hidden="true" style="position:absolute; inset:0; background:rgba(11,14,19,.35);"></div>
+    <div data-decor aria-hidden="true" style="position:absolute; inset:0; background:linear-gradient(90deg, #0B0E13 0%, #0B0E13 32%, rgba(11,14,19,0) 60%);"></div>
+  </div>
+
+  <!-- content layer -->
+  <div style="position:relative; z-index:10; height:100%; display:flex; flex-direction:column; padding:58px 64px 52px;">
+
+    <!-- statement -->
+    <div style="max-width:720px;">
+      <div class="kicker">CLOSING</div>
+      <h1 style="font-family:var(--font-heading); font-size:46px; font-weight:700; line-height:1.22; margin-top:14px; letter-spacing:.005em;">從網頁滑條，到 <span class="num" style="color:var(--accent); font-weight:600;">6 Mbaud</span> 串口</h1>
+      <p class="text-muted" style="font-size:16px; line-height:1.5; margin-top:14px;">一條已驗證、可落地、可擴展的控制鏈路</p>
+    </div>
+
+    <!-- 3 numbered takeaways -->
+    <div style="flex:1; min-height:0; display:flex; flex-direction:column; justify-content:center; gap:26px; max-width:730px; padding-top:8px;">
+      <div style="display:flex; align-items:flex-start; gap:16px;">
+        <span class="tk-num">01</span>
+        <div>
+          <div class="tk-title">安全內建而非外掛</div>
+          <div class="tk-desc">每條指令穿過五層防護，急停聯鎖實測有效</div>
+        </div>
+      </div>
+      <div style="display:flex; align-items:flex-start; gap:16px;">
+        <span class="tk-num">02</span>
+        <div>
+          <div class="tk-title">ROS 2 概念完整落地</div>
+          <div class="tk-desc"><span class="num">topic / service / lifecycle / parameter</span> 全部映射到 Web 世界</div>
+        </div>
+      </div>
+      <div style="display:flex; align-items:flex-start; gap:16px;">
+        <span class="tk-num">03</span>
+        <div>
+          <div class="tk-title">模擬到真機零改碼</div>
+          <div class="tk-desc">三驅動 <span class="num">HAL</span> + <span class="num">r1a-deploy</span> 部署包，路徑已鋪好</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- bottom CTA band (full width) -->
+    <div style="position:relative; z-index:20; flex-shrink:0; display:flex; align-items:center; justify-content:space-between; gap:24px; padding:19px 28px; background:var(--surface); border:1px solid var(--line); border-radius:14px;">
+      <div style="font-size:var(--fs-small); line-height:1.5; min-width:0;">
+        <span style="font-size:15px; font-weight:700; color:var(--primary);">立即體驗</span>
+        <span class="text-muted"> — Web UI <span class="num" style="color:var(--primary);">:3000</span> · 部署包 <span class="num" style="color:var(--primary);">download/r1a-deploy</span> · API 文檔內建於平台</span>
+      </div>
+      <div style="font-family:'Space Grotesk', 'Noto Sans TC', sans-serif; font-size:30px; font-weight:700; color:var(--accent); letter-spacing:.01em; white-space:nowrap;">Thank You</div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<title>章節一 · 系統設計與實現</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="global.css">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+  html,body{margin:0;padding:0;background:var(--bg);}
+  .kicker{font-size:var(--fs-small);}
+  .sec-chip{display:inline-flex;align-items:center;gap:9px;padding:9px 16px;font-size:13px;color:var(--primary);letter-spacing:.03em;}
+  .sec-chip .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);}
+</style>
+</head>
+<body>
+<div class="slide">
+  <!-- 工程網格背景 -->
+  <div class="grid-bg" data-decor aria-hidden="true"></div>
+  <!-- 左側 4px 橙色豎線 -->
+  <div data-decor aria-hidden="true" style="position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(180deg,var(--accent) 0%,rgba(255,107,26,.18) 100%);"></div>
+
+  <div class="kicker" style="position:absolute;left:64px;top:62px;">SECTION</div>
+
+  <!-- 中央偏左主體 -->
+  <div style="position:absolute;left:100px;top:168px;max-width:960px;">
+    <div style="display:flex;align-items:flex-end;gap:22px;">
+      <div style="font-family:var(--font-heading);font-weight:700;font-size:212px;line-height:.8;letter-spacing:.01em;color:rgba(255,107,26,.05);-webkit-text-stroke:2.5px var(--accent);">01</div>
+      <div style="font-family:var(--font-heading);font-weight:500;font-size:46px;line-height:1;color:var(--muted);padding-bottom:12px;">/ 02</div>
+    </div>
+    <h1 style="margin:38px 0 0;font-family:var(--font-cn);font-weight:900;font-size:var(--fs-display);line-height:1.14;letter-spacing:.015em;color:var(--primary);">系統設計與實現</h1>
+    <p style="margin:20px 0 0;font-family:var(--font-body);font-size:17px;letter-spacing:.06em;color:var(--muted);">分層架構 · 三大功能支柱 · 安全內建於每一層</p>
+  </div>
+
+  <!-- 右下角本章預告 -->
+  <div style="position:absolute;right:64px;bottom:64px;display:flex;gap:12px;">
+    <span class="chip sec-chip"><span class="dot" data-decor aria-hidden="true"></span>系統架構</span>
+    <span class="chip sec-chip"><span class="dot" data-decor aria-hidden="true"></span>即時控制與 3D</span>
+    <span class="chip sec-chip"><span class="dot" data-decor aria-hidden="true"></span>軌跡 · 安全 · API</span>
+  </div>
+</div>
+</body>
+</html>
