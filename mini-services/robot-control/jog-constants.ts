@@ -25,7 +25,12 @@ export const KEEPALIVE_HZ = 20.0
 
 // speed and gain ceilings
 export const MAX_JOG_SPEED = 1.0   // rad/s, measured
-export const MAX_JOG_KP = 60.0     // Nm/rad
+// Gains are split so the operating default stays conservative while an
+// operator-authorized run can go higher: torque is kp × lead, and measured on
+// this arm kp=60 delivered only 1.82 Nm — just under the ~2.6 Nm a bound joint
+// needs. The hard cap is the safety boundary, not the default.
+export const MAX_JOG_KP = 120.0    // Nm/rad hard ceiling
+export const DEFAULT_JOG_KP_LIMIT = 60.0  // ceiling before an authorized raise
 export const MAX_JOG_KD = 5.0      // Nm/(rad/s)
 
 // defaults the operator starts with

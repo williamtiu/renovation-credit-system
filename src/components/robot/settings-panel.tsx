@@ -579,14 +579,15 @@ function GuardPanel({ robot }: { robot: RobotContext }) {
                 value={jogKp}
                 onChange={(e) => setJogKp(e.target.value)}
                 type="number"
-                step="5"
+                step="10"
                 min="0"
-                max="60"
+                max="120"
                 className="bg-zinc-950 border-zinc-700 font-mono h-9"
               />
               <p className="text-[10px] text-zinc-600">
-                上限 60（MAX_JOG_KP）。實測：卡住嘅關節要 ~2.6 Nm 先郁到，
-                kp=30 淨係給到 ~1.0–1.4 Nm，所以會 pin 住唔郁。
+                硬上限 120（MAX_JOG_KP）。torque = kp × lead，lead 被 0.03 rad clamp 住，
+                所以 kp=60 淨係給到 ~1.8 Nm，而卡住嘅關節實測要 ~2.6 Nm。
+                超過 60 屬操作者授權範圍，請留意繞組溫度。
               </p>
             </div>
             <div className="space-y-1.5">
