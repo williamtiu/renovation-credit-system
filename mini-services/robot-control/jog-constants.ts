@@ -33,6 +33,11 @@ export const MAX_JOG_KP = 120.0    // Nm/rad hard ceiling
 export const DEFAULT_JOG_KP_LIMIT = 60.0  // ceiling before an authorized raise
 export const MAX_JOG_KD = 5.0      // Nm/(rad/s)
 
+// Torque feed-forward ceiling (Nm, signed). The arm's stall current is 15 A and
+// the winding current ceiling is 10.9 A, so the usable bias band is kept inside
+// the torque the joint demonstrably holds (measured 2.8-3.4 Nm on J4).
+export const MAX_TAU_FF = 8.0
+
 // defaults the operator starts with
 export const DEFAULT_JOG_RATE = 0.25
 export const DEFAULT_JOG_KP = 30.0

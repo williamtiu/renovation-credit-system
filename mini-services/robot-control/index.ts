@@ -225,6 +225,14 @@ const server = createServer(async (req, res) => {
         let appliedRate: number | null = null
         let appliedGains: { kp: number; kd: number } | null = null
         if (typeof body.rate === 'number') appliedRate = d.setJogRate(body.rate)
+        if (typeof body.tauFf === 'number') {
+          const v = d.setJogTorqueFeedforward(body.tauFf)
+          controller.logLifecycle(`jog: torque feed-forward=${v.toFixed(3)} Nm`)
+          return json(res, 200, {
+            ok: true, tauFf: v, gains: d.getJogGains(), rate: d.getJogRate(),
+            jog: d.jogStatus(), state: controller.getState(),
+          })
+        }
         if (typeof body.kp === 'number' || typeof body.kd === 'number') {
           const cur = d.getJogGains()
           appliedGains = d.setJogGains(

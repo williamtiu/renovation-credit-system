@@ -24,14 +24,15 @@
 import {
   MAX_JOG_LAG_RAD, ANCHOR_LEAD_RAD, ANCHOR_SLACK_RAD, JOG_SETTLE_EPS,
   STALL_RELEASE_S, JOG_TICK_DT, MAX_JOG_SPEED, MAX_JOG_KP, MAX_JOG_KD, KEEPALIVE_HZ,
+  MAX_TAU_FF,
 } from './jog-constants'
 import type { MotionGuard } from './motion-guard'
 
 export interface JogBus {
   /** URDF-frame relative angles, per joint index; present false = not answering. */
   snapshots: () => Array<{ joint: number; present: boolean; errorCode: number; q: number }>
-  /** One mode-1 jog packet: qAbs/dqAbs are URDF ABSOLUTE (encoder) frame. */
-  writeJog: (joint: number, qAbs: number, dqAbs: number, kp: number, kd: number) => Promise<boolean>
+  /** One mode-1 jog packet: qAbs/dqAbs are URDF ABSOLUTE (encoder) frame. tau is Nm, signed. */
+  writeJog: (joint: number, qAbs: number, dqAbs: number, kp: number, kd: number, tau: number) => Promise<boolean>
   zeroRef: () => number[]
 }
 
@@ -57,6 +58,7 @@ export class JogRunner {
   private rate: number
   private kp: number
   private kd: number
+  private tauFf = 0
   private halted: string[] = []
   // Keep-alive clock: while the ramp is settled we still have to ask the bus,
   // because on a polled bus the arm stops answering as soon as nothing asks it.
@@ -100,6 +102,29 @@ export class JogRunner {
 
   getGains(): { kp: number; kd: number } {
     return { kp: this.kp, kd: this.kd }
+  }
+
+  /**
+   * Torque feed-forward (Nm, signed) added to every jog/keep-alive packet.
+   *
+   * Measured on this arm: at kp=120 a +0.058971 rad target settled at 0.03592 and
+   * sat there for 111 s with tau steady at 2.786 Nm. kp × error = 120 × 0.02305 =
+   * 2.766 ≈ the measured torque, i.e. the whole control torque is being spent
+   * holding the load. That is a pure-P steady-state offset against a constant
+   * load: raising kp shrinks the error and the torque headroom together, so it
+   * never reaches zero. A constant bias term takes the load off the P term, so
+   * the P term can close the remaining angle.
+   *
+   * The sign follows the load direction at the joint, which is why it is
+   * operator-supplied rather than derived.
+   */
+  setTorqueFeedforward(tauFf: number): number {
+    this.tauFf = Math.max(-MAX_TAU_FF, Math.min(MAX_TAU_FF, tauFf))
+    return this.tauFf
+  }
+
+  getTorqueFeedforward(): number {
+    return this.tauFf
   }
 
   /** Why a jog is not allowed right now, or null when it is. */
@@ -184,6 +209,7 @@ export class JogRunner {
       rate: this.rate,
       kp: this.kp,
       kd: this.kd,
+      tauFf: this.tauFf,
       planCalls: this.planCalls,
     }
   }
@@ -201,7 +227,7 @@ export class JogRunner {
     let sent = 0
     for (const w of writes) {
       this.guard.beat()
-      void this.bus.writeJog(w.joint, w.qAbs, w.dqAbs, this.kp, this.kd)
+      void this.bus.writeJog(w.joint, w.qAbs, w.dqAbs, this.kp, this.kd, w.tau)
       sent++
     }
     return sent
@@ -295,6 +321,7 @@ export class JogRunner {
         joint,
         qAbs: position + (zero[joint] ?? 0),
         dqAbs: velocity,
+        tau: this.tauFf,
       })
     }
 
@@ -324,15 +351,19 @@ export class JogRunner {
   private planKeepalive(
     snaps: Map<number, { joint: number; present: boolean; errorCode: number; q: number }>,
     zero: number[]
-  ): Array<{ joint: number; qAbs: number; dqAbs: number }> {
-    const writes: Array<{ joint: number; qAbs: number; dqAbs: number }> = []
+  ): Array<{ joint: number; qAbs: number; dqAbs: number; tau: number }> {
+    const writes: Array<{ joint: number; qAbs: number; dqAbs: number; tau: number }> = []
     for (const s of [...snaps.values()].sort((a, b) => a.joint - b.joint)) {
       if (!s.present || s.errorCode !== 0) continue
       const target = this.targets.get(s.joint)
+      // The feed-forward is for joints fighting a load toward their target.
+      // Untargeted joints are asked their own measured angle: commanding the
+      // measured angle is a net-zero move, and biasing it would move the arm.
       writes.push({
         joint: s.joint,
         qAbs: (target ?? s.q) + (zero[s.joint] ?? 0),
         dqAbs: 0,
+        tau: target === undefined ? 0 : this.tauFf,
       })
     }
     return writes

@@ -302,6 +302,20 @@ export class RobotController {
     return this.getSerialDriver()?.getJogGains() ?? null
   }
 
+  /** Torque feed-forward (Nm, signed): the only way to close a pure-P offset. */
+  setJogTorqueFeedforward(tauFf: number): number | null {
+    const d = this.getSerialDriver()
+    if (!d) return null
+    const v = d.setJogTorqueFeedforward(tauFf)
+    this.log('info', `ramp torque feed-forward set: ${v.toFixed(3)} Nm`)
+    this.emitState()
+    return v
+  }
+
+  getJogTorqueFeedforward(): number | null {
+    return this.getSerialDriver()?.getJogTorqueFeedforward() ?? null
+  }
+
   private guardSnapshot() {
     const g = this.getGuard()
     if (!g) return undefined

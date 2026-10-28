@@ -285,16 +285,19 @@ export class SerialDriver implements HalDriver {
    * motor and moves nothing, which is exactly what made a first goto reach the
    * wire with the arm sitting still.
    */
-  writeJog = async (joint: number, qAbs: number, dqAbs: number, kp: number, kd: number): Promise<boolean> => {
+  writeJog = async (joint: number, qAbs: number, dqAbs: number, kp: number, kd: number, tau: number = 0): Promise<boolean> => {
     if (!this.transport.isOpen || !this.calib.length) return false
     // Jog and keepalive are motion-class writes: they carry a position the arm
     // will travel to, so a closed gate has to stop them like any other motion.
     this.guard.authorize(dqAbs === 0 ? 'keepalive' : 'jog', 'motion')
     const ratioQ = this.calib[joint].toMotor(qAbs)
     const ratioDq = this.calib[joint].vecToMotor(dqAbs)
+    // Torque feed-forward scales like a vector (matches bus.py's vec_to_motor),
+    // not like a position: it has no offset term.
+    const ratioTau = this.calib[joint].vecToMotor(tau)
     await this.write(buildControlPacket({
       motorId: this.motorIds[joint], mode: 1, timeout: false,
-      torque: 0, speed: ratioDq, position: ratioQ, kp, kd,
+      torque: ratioTau, speed: ratioDq, position: ratioQ, kp, kd,
     }))
     return true
   }
@@ -370,6 +373,20 @@ export class SerialDriver implements HalDriver {
 
   getJogGains(): { kp: number; kd: number } {
     return this.ensureJog().getGains()
+  }
+
+  /**
+   * Torque feed-forward (Nm, signed). Measured here: at kp=120 the joint settled
+   * 23 mrad short of target with tau steady at 2.786 Nm — kp × 0.02305 = 2.766,
+   * i.e. the whole control torque is spent holding the load. That offset cannot
+   * be closed by raising kp; it needs a constant bias term.
+   */
+  setJogTorqueFeedforward(tauFf: number): number {
+    return this.ensureJog().setTorqueFeedforward(tauFf)
+  }
+
+  getJogTorqueFeedforward(): number {
+    return this.ensureJog().getTorqueFeedforward()
   }
 
   zeroRefArray(): number[] | null {
