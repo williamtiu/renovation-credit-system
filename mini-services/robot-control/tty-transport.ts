@@ -27,6 +27,8 @@ export interface TtyOpenResult {
   /** baud 設定係咪成功（pty 冇 baud 概念，會回 false 但照樣可用） */
   baudConfigured: boolean
   baudMessage: string
+  /** 其他持有者（用過 allowSharedBus 開共享 bus 時要講出嚟） */
+  sharedWith?: string[]
 }
 
 export class TtyTransport {
@@ -37,11 +39,43 @@ export class TtyTransport {
     return this.fd !== null
   }
 
-  open(path: string, baudrate: number): TtyOpenResult {
+  open(path: string, baudrate: number, opts?: { allowSharedBus?: boolean }): TtyOpenResult {
+    // A tty is NOT exclusively owned by the OS — two processes can open the same
+    // char device and silently interleave bytes. Two controllers on the IM6014
+    // bus means two commanders for the same joints, so we refuse to open when
+    // somebody else already holds the device.
+    const holders = this.currentHolders(path)
+    if (holders.length && !opts?.allowSharedBus) {
+      throw new Error(
+        `${path} 已經俾其他程序開啟（PID ${holders.join(', ')}）。串口係多条馬達共用嘅匯流排，` +
+        `兩個控制器同時行會互相搶關節 — 請先停止對方（例如 ROS 2 嘅 arm_bridge / r17a-ros.service）。`
+      )
+    }
+
     const res = this.configurePort(path, baudrate)
     this.fd = openSync(path, OPEN_FLAGS)
     this.path = path
+    if (holders.length) res.sharedWith = holders
     return res
+  }
+
+  /** PIDs currently holding the device, excluding this process. */
+  private currentHolders(path: string): string[] {
+    let r
+    try {
+      r = spawnSync('fuser', [path], { encoding: 'utf8', timeout: 4000 })
+    } catch {
+      return []
+    }
+    if (r.status !== 0 && r.status !== 1) return []
+    const text = `${r.stdout ?? ''} ${r.stderr ?? ''}`
+    const pids = text
+      .split(/\s+/)
+      .map((t) => t.replace(/[^0-9]/g, ''))
+      .filter((t) => t.length > 0)
+      .map(Number)
+      .filter((n) => Number.isFinite(n) && n > 0 && n !== process.pid)
+    return Array.from(new Set(pids)).map(String)
   }
 
   /** raw mode + baud via pyserial (custom divisor for non-standard speeds). */

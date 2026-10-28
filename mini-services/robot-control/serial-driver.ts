@@ -218,7 +218,9 @@ export class SerialDriver implements HalDriver {
     const baudRate = this.config.baudrate ?? DEFAULT_BAUDRATE
     let openRes
     try {
-      openRes = this.transport.open(this.config.port, baudRate)
+      openRes = this.transport.open(this.config.port, baudRate, {
+        allowSharedBus: config.allowSharedBus === true,
+      })
     } catch (err) {
       throw new HalError(
         `無法打開 ${this.config.port} @ ${baudRate}: ${(err as Error).message}。` +
@@ -269,6 +271,17 @@ export class SerialDriver implements HalDriver {
   async sendCommand(cmd: LowLevelCommand): Promise<void> {
     if (!this.connected || !this.transport.isOpen) {
       throw new HalError('串口未連線', 23)
+    }
+
+    // Without a declared zero, the angles we report are raw absolute
+    // multi-turn encoder counts, not joint positions — a "valid" target is
+    // meaningless and a goto could command a wild move. Motion requires zero.
+    if ((cmd.type === 'goto' || cmd.type === 'home') && !this.zeroRef) {
+      throw new HalError(
+        '未宣告零位參考 — 運動指令被拒。編碼器報嘅係絕對多圈計數，冇零位就冇「關節角」呢個概念；' +
+        '請先喺安全姿勢宣告零位（Settings → 宣告現時姿勢為零位）。',
+        29
+      )
     }
 
     switch (cmd.type) {

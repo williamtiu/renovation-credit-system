@@ -41,6 +41,8 @@ const out: Record<string, unknown> = { events: [] as unknown[] }
 
 await driver.connect({
   port: slavePath, baudrate: 6000000, calibPath, zeroPath, rateHz: 50, holdKp: 20, holdKd: 0.5,
+  // The simulated bus is by definition a second holder of this pty.
+  allowSharedBus: true,
 })
 out.connected = driver.isConnected()
 out.guardLockedAfterConnect = driver.guard.isLocked()

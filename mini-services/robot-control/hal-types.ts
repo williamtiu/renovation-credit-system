@@ -51,6 +51,13 @@ export interface DriverConfig {
   /** hold 循環嘅 FOC 增益（kp=kd=0 唔會啟用 FOC） */
   holdKp?: number
   holdKd?: number
+  /**
+   * Test-only: allow opening a device another process already holds.
+   * Production must never set this — two controllers on the IM6014 bus means
+   * two commanders for the same joints. The virtual-bus harness needs it
+   * because its simulated bus is, by definition, a second holder.
+   */
+  allowSharedBus?: boolean
 }
 
 export interface DriverEvent {
