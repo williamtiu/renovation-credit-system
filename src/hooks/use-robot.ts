@@ -65,6 +65,7 @@ export interface RobotState {
   }
   guard?: GuardStatus
   bus?: BusStatus
+  jogRate?: number
   telemetryHz: number
   uptime: number
 }

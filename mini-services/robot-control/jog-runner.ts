@@ -86,6 +86,22 @@ export class JogRunner {
     return this.rate
   }
 
+  /**
+   * Ramp gains. kp is the torque lever that decides whether a bound joint moves
+   * at all — measured on this arm a bound joint held its command at 2.6 Nm, so
+   * the default 30 (≈1.0–1.4 Nm here) can pin a joint without moving it.
+   * Capped at MAX_JOG_KP for the same reason the rate is capped.
+   */
+  setGains(kp: number, kd: number): { kp: number; kd: number } {
+    this.kp = Math.max(0, Math.min(MAX_JOG_KP, kp))
+    this.kd = Math.max(0, Math.min(MAX_JOG_KD, kd))
+    return { kp: this.kp, kd: this.kd }
+  }
+
+  getGains(): { kp: number; kd: number } {
+    return { kp: this.kp, kd: this.kd }
+  }
+
   /** Why a jog is not allowed right now, or null when it is. */
   gate(): string | null {
     if (this.guard.isLocked()) return 'motion is LOCKED - unlock with the phrase and console code'
@@ -163,6 +179,11 @@ export class JogRunner {
       stalled: Array.from(this.stalled),
       halted: [...this.halted],
       keepaliveBursts: this.keepaliveBursts,
+      // Gains are read back so the UI can show what is actually applied —
+      // without these the kp/kd inputs have no verification path.
+      rate: this.rate,
+      kp: this.kp,
+      kd: this.kd,
       planCalls: this.planCalls,
     }
   }

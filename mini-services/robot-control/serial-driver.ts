@@ -361,6 +361,17 @@ export class SerialDriver implements HalDriver {
     return this.jogRate
   }
 
+  /** Ramp gains — kp decides whether a bound joint moves at all. */
+  setJogGains(kp: number, kd: number): { kp: number; kd: number } {
+    this.jogKp = kp
+    this.jogKd = kd
+    return this.ensureJog().setGains(kp, kd)
+  }
+
+  getJogGains(): { kp: number; kd: number } {
+    return this.ensureJog().getGains()
+  }
+
   zeroRefArray(): number[] | null {
     return this.zeroRef
   }

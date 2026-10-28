@@ -288,6 +288,20 @@ export class RobotController {
     return this.getSerialDriver()?.getJogRate() ?? null
   }
 
+  /** Ramp gains: kp 決定卡住嘅關節郁唔郁到（torque 杠杆） */
+  setJogGains(kp: number, kd: number): { kp: number; kd: number } | null {
+    const d = this.getSerialDriver()
+    if (!d) return null
+    const g = d.setJogGains(kp, kd)
+    this.log('info', `ramp gains set: kp=${g.kp} kd=${g.kd}`)
+    this.emitState()
+    return g
+  }
+
+  getJogGains(): { kp: number; kd: number } | null {
+    return this.getSerialDriver()?.getJogGains() ?? null
+  }
+
   private guardSnapshot() {
     const g = this.getGuard()
     if (!g) return undefined

@@ -87,6 +87,11 @@ const server = createServer(async (req, res) => {
         if (!g) return json(res, 200, { ok: true, data: null, note: 'guard 只喺 serial 模式存在' })
         return json(res, 200, { ok: true, data: g.status() })
       }
+      if (path === '/jog') {
+        const d = controller.getSerialDriver()
+        if (!d) return json(res, 200, { ok: true, data: null, note: 'jog 只喺 serial 模式存在' })
+        return json(res, 200, { ok: true, data: { rate: d.getJogRate(), ...d.jogStatus() } })
+      }
       if (path === '/events') {
         return json(res, 200, { ok: true, data: controller.getEventLog() })
       }
@@ -204,6 +209,43 @@ const server = createServer(async (req, res) => {
         const d = controller.getSerialDriver()
         if (!d) return json(res, 400, { ok: false, error: 'poller 只喺 serial 模式可用' })
         return json(res, 200, { ok: true, data: d.configurePoller(body), state: controller.getState() })
+      }
+      // ---------- 運動 ramp（jog）設定 ----------
+      if (path === '/jog') {
+        const body = await readBody(req)
+        const d = controller.getSerialDriver()
+        if (!d) return json(res, 400, { ok: false, error: 'jog 只喺 serial 模式可用' })
+        if (body.clear === true) {
+          const dropped = d.jogClear('operator clear')
+          controller.logLifecycle(`jog: cleared ${dropped} target(s)`)
+          return json(res, 200, { ok: true, dropped, state: controller.getState() })
+        }
+        // rate AND gains are applied independently: a request that carries both
+        // must not silently drop the rate (an early return here ate the rate).
+        let appliedRate: number | null = null
+        let appliedGains: { kp: number; kd: number } | null = null
+        if (typeof body.rate === 'number') appliedRate = d.setJogRate(body.rate)
+        if (typeof body.kp === 'number' || typeof body.kd === 'number') {
+          const cur = d.getJogGains()
+          appliedGains = d.setJogGains(
+            typeof body.kp === 'number' ? body.kp : cur.kp,
+            typeof body.kd === 'number' ? body.kd : cur.kd
+          )
+        }
+        if (appliedRate === null && appliedGains === null) {
+          return json(res, 400, { ok: false, error: '需要 rate (rad/s)、kp/kd，或 clear:true' })
+        }
+        controller.logLifecycle(
+          `jog: ${appliedRate !== null ? `rate=${appliedRate.toFixed(3)} rad/s ` : ''}` +
+          `${appliedGains ? `kp=${appliedGains.kp} kd=${appliedGains.kd}` : ''}`
+        )
+        return json(res, 200, {
+          ok: true,
+          rate: appliedRate ?? d.getJogRate(),
+          gains: appliedGains ?? d.getJogGains(),
+          jog: d.jogStatus(),
+          state: controller.getState(),
+        })
       }
       return json(res, 404, { ok: false, error: 'not found' })
     }

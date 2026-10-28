@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Settings2, FlaskConical, Cable, Boxes, Power } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useToast } from '@/hooks/use-toast'
 import { cn } from '@/lib/utils'
-import { ShieldCheck, ShieldX, Eye, RadioTower, LockOpen, Lock, Crosshair, Trash2 } from 'lucide-react'
+import { ShieldCheck, ShieldX, Eye, RadioTower, LockOpen, Lock, Crosshair, Trash2, Gauge } from 'lucide-react'
 import type { RobotContext } from '@/hooks/use-robot'
 
 type Mode = 'simulation' | 'serial' | 'bridge'
@@ -345,6 +345,62 @@ function GuardPanel({ robot }: { robot: RobotContext }) {
   const guard = state?.guard
   const bus = state?.bus
 
+  // 運動 ramp：rate 決定 lag 幾快逼近 abort 邊界，所以佢係操作參數
+  const [jogRate, setJogRate] = useState(String(state?.jogRate ?? 0.25))
+  const [jogKp, setJogKp] = useState('30')
+  const [jogKd, setJogKd] = useState('1.5')
+  const [jogInfo, setJogInfo] = useState<{
+    rate?: number; moving?: boolean; active?: boolean; keepaliveBursts?: number
+  } | null>(null)
+
+  useEffect(() => {
+    let stop = false
+    const pull = async () => {
+      const res = await api('/api/robot/jog')
+      if (!stop && res.ok && res.data) {
+        setJogInfo(res.data)
+        if (typeof res.data.rate === 'number') setJogRate(String(res.data.rate))
+      }
+    }
+    pull()
+    const t = setInterval(pull, 2000)
+    return () => { stop = true; clearInterval(t) }
+  }, [api])
+
+  const applyJog = async () => {
+    const rate = parseFloat(jogRate)
+    const kp = parseFloat(jogKp)
+    const kd = parseFloat(jogKd)
+    if (!Number.isFinite(rate) || rate < 0.01 || rate > 1.0) {
+      toast({ title: '✗ ramp 速度非法', description: '要喺 0.01 至 1.0 rad/s 之間', variant: 'destructive' })
+      return
+    }
+    if (!Number.isFinite(kp) || kp < 0 || kp > 60 || !Number.isFinite(kd) || kd < 0 || kd > 5) {
+      toast({ title: '✗ ramp gains 非法', description: 'kp 0–60、kd 0–5（MAX_JOG_KP / MAX_JOG_KD）', variant: 'destructive' })
+      return
+    }
+    setBusy('jog rate')
+    const res = await api('/api/robot/jog', { method: 'POST', body: JSON.stringify({ rate, kp, kd }) })
+    setBusy(null)
+    if (res.ok) {
+      toast({
+        title: `✓ ramp 已套用`,
+        description: `rate ${rate} rad/s · kp ${res.data?.gains?.kp ?? kp} · kd ${res.data?.gains?.kd ?? kd}`,
+      })
+      setJogInfo(res.data?.jog ?? jogInfo)
+    } else {
+      toast({ title: '✗ 設定失敗', description: res.error ?? 'jog 只喺 serial 模式可用', variant: 'destructive' })
+    }
+  }
+
+  const clearJog = async () => {
+    setBusy('jog clear')
+    const res = await api('/api/robot/jog', { method: 'POST', body: JSON.stringify({ clear: true }) })
+    setBusy(null)
+    if (res.ok) toast({ title: `✓ 已清除 ${res.dropped ?? 0} 個 ramp target`, description: '機械臂保持喺最後命令位置' })
+    else toast({ title: '✗ 清除失敗', description: res.error ?? '未知錯誤', variant: 'destructive' })
+  }
+
   const act = async (label: string, action: string, extra?: Record<string, string>) => {
     setBusy(label)
     const res = await api('/api/robot/guard', {
@@ -477,6 +533,89 @@ function GuardPanel({ robot }: { robot: RobotContext }) {
               className="gap-1.5 bg-zinc-800 text-zinc-100 hover:bg-zinc-700">
               <Trash2 className="h-4 w-4" aria-hidden />
               {busy === '清除零位參考' ? '處理中…' : '清除零位參考'}
+            </Button>
+          </div>
+        </div>
+
+        {/* 運動 ramp（jog）— rate 決定 lag 幾快逼近 abort 邊界 */}
+        <div className="rounded-xl border border-zinc-800 bg-zinc-950/50 p-4 space-y-3">
+          <div className="flex items-center gap-2 text-xs text-zinc-300">
+            <Gauge className="h-4 w-4 text-purple-400" aria-hidden />
+            運動 ramp（jog）
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="jog-rate" className="text-xs text-zinc-300">
+                ramp 速度 (rad/s)
+              </Label>
+              <Input
+                id="jog-rate"
+                value={jogRate}
+                onChange={(e) => setJogRate(e.target.value)}
+                type="number"
+                step="0.01"
+                min="0.01"
+                max="1"
+                className="bg-zinc-950 border-zinc-700 font-mono h-9"
+              />
+              <p className="text-[10px] text-zinc-600">
+                上限 1.0 rad/s（實測）。呢部機械臂實際追蹤約 0.01–0.02 rad/s，
+                rate 太高 lag 會逼到 0.05 rad abort 邊界。
+              </p>
+            </div>
+            <div className="space-y-1.5">
+              <span className="text-[9px] uppercase tracking-wide text-zinc-600">ramp 狀態</span>
+              <div className="grid gap-2 sm:grid-cols-2">
+                <Stat label="moving" value={state?.moving ? '郁緊' : '停'} tone={state?.moving ? 'warn' : 'safe'} />
+                <Stat label="keepalive" value={`${jogInfo?.keepaliveBursts ?? 0}`} tone="muted" />
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="jog-kp" className="text-xs text-zinc-300">
+                ramp kp (Nm/rad)
+              </Label>
+              <Input
+                id="jog-kp"
+                value={jogKp}
+                onChange={(e) => setJogKp(e.target.value)}
+                type="number"
+                step="5"
+                min="0"
+                max="60"
+                className="bg-zinc-950 border-zinc-700 font-mono h-9"
+              />
+              <p className="text-[10px] text-zinc-600">
+                上限 60（MAX_JOG_KP）。實測：卡住嘅關節要 ~2.6 Nm 先郁到，
+                kp=30 淨係給到 ~1.0–1.4 Nm，所以會 pin 住唔郁。
+              </p>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="jog-kd" className="text-xs text-zinc-300">
+                ramp kd (Nm/(rad/s))
+              </Label>
+              <Input
+                id="jog-kd"
+                value={jogKd}
+                onChange={(e) => setJogKd(e.target.value)}
+                type="number"
+                step="0.5"
+                min="0"
+                max="5"
+                className="bg-zinc-950 border-zinc-700 font-mono h-9"
+              />
+              <p className="text-[10px] text-zinc-600">上限 5（MAX_JOG_KD）</p>
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Button size="sm" disabled={busy !== null} onClick={applyJog}
+              className="gap-1.5 bg-purple-600 text-white hover:bg-purple-500 font-semibold">
+              <Gauge className="h-4 w-4" aria-hidden />
+              {busy === 'jog rate' ? '設定中…' : '套用 ramp 參數'}
+            </Button>
+            <Button size="sm" disabled={busy !== null} onClick={clearJog}
+              className="gap-1.5 bg-zinc-800 text-zinc-100 hover:bg-zinc-700">
+              <Trash2 className="h-4 w-4" aria-hidden />
+              {busy === 'jog clear' ? '處理中…' : '清除 ramp targets'}
             </Button>
           </div>
         </div>
