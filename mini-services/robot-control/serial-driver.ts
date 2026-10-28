@@ -37,6 +37,8 @@ import { loadJointCalibrationFile, ZeroReferenceStore } from './joint-calibratio
 import type { JointCalibration, ZeroReference } from './joint-calibration'
 import { MotionGuard, MAX_HOLD_STEP_RAD, MAX_HOLD_KP, MAX_HOLD_KD } from './motion-guard'
 import { TtyTransport } from './tty-transport'
+import { JogRunner } from './jog-runner'
+import { JOG_TICK_DT, DEFAULT_JOG_RATE, DEFAULT_JOG_KP, DEFAULT_JOG_KD } from './jog-constants'
 
 // serialport is deliberately NOT used: its native binding calls uv_poll_init,
 // which Bun does not support on this platform, so opening a port crashes the
@@ -149,6 +151,15 @@ export class SerialDriver implements HalDriver {
   private rateHz = 50
   private holdKp = 20.0
   private holdKd = 0.5
+
+  // The ramp is what moves the arm. A mode-1 packet whose velocity is zero is
+  // accepted by the motor and moves nothing, so goto/home run through this
+  // runner, which streams velocity-limited anchored steps at 60 Hz.
+  private jog: JogRunner | null = null
+  private jogTimer: ReturnType<typeof setInterval> | null = null
+  private jogRate = DEFAULT_JOG_RATE
+  private jogKp = DEFAULT_JOG_KP
+  private jogKd = DEFAULT_JOG_KD
 
   private rxBytes = 0
   private rxPackets = 0
@@ -266,6 +277,91 @@ export class SerialDriver implements HalDriver {
     return this.telemetry
   }
 
+  // ---------- 運動 ramp（goto / home 行呢度，唔係單個 packet） ----------
+
+  /**
+   * One mode-1 jog packet in the encoder absolute frame. The velocity is not
+   * decoration: a mode-1 packet with a zero speed limit is accepted by the
+   * motor and moves nothing, which is exactly what made a first goto reach the
+   * wire with the arm sitting still.
+   */
+  writeJog = async (joint: number, qAbs: number, dqAbs: number, kp: number, kd: number): Promise<boolean> => {
+    if (!this.transport.isOpen || !this.calib.length) return false
+    const ratioQ = this.calib[joint].toMotor(qAbs)
+    const ratioDq = this.calib[joint].vecToMotor(dqAbs)
+    await this.write(buildControlPacket({
+      motorId: this.motorIds[joint], mode: 1, timeout: false,
+      torque: 0, speed: ratioDq, position: ratioQ, kp, kd,
+    }))
+    return true
+  }
+
+  private ensureJog(): JogRunner {
+    if (!this.jog) {
+      this.jog = new JogRunner(
+        {
+          snapshots: () => this.snapshots.map((s) => ({
+            joint: s.joint, present: s.present, errorCode: s.errorCode, q: s.q,
+          })),
+          writeJog: this.writeJog,
+          zeroRef: () => this.zeroRef ?? [],
+        },
+        this.guard,
+        this.jogRate, this.jogKp, this.jogKd
+      )
+    }
+    return this.jog
+  }
+
+  private startJogTick(): void {
+    if (this.jogTimer) return
+    // Tick unconditionally. plan() clears state when there are no targets; the
+    // old "only tick while moving" gate was self-defeating, because moving is
+    // set BY plan() - so the first tick was skipped and the ramp never started.
+    this.jogTimer = setInterval(() => {
+      if (!this.jog) return
+      this.jog.tick(JOG_TICK_DT)
+    }, Math.round(1000 / 60))
+  }
+
+  /** Start a ramped move. Returns the refusal reason, or null when accepted. */
+  jogTo(targets: number[]): string | null {
+    const runner = this.ensureJog()
+    const why = runner.targetsAll(targets)
+    if (why) return why
+    this.startJogTick()
+    return null
+  }
+
+  jogClear(reason: string): number {
+    return this.jog?.clear(reason) ?? 0
+  }
+
+  isJogging(): boolean {
+    return this.jog?.isMoving() ?? false
+  }
+
+  jogRemaining(): number {
+    return this.jog?.remaining() ?? 0
+  }
+
+  jogStatus() {
+    return this.jog?.status() ?? null
+  }
+
+  setJogRate(v: number): number {
+    this.jogRate = this.ensureJog().setRate(v)
+    return this.jogRate
+  }
+
+  getJogRate(): number {
+    return this.jogRate
+  }
+
+  zeroRefArray(): number[] | null {
+    return this.zeroRef
+  }
+
   // ---------- 指令（所有傳輸必經 guard） ----------
 
   async sendCommand(cmd: LowLevelCommand): Promise<void> {
@@ -309,37 +405,20 @@ export class SerialDriver implements HalDriver {
         await this.holdCycle(this.holdKp, this.holdKd)
         return
       case 'goto': {
-        this.guard.authorize('goto', 'motion')
         if (cmd.joints.length !== JOINT_COUNT) throw new HalError(`goto 需要 ${JOINT_COUNT} 個關節值`, 24)
-        // Targets are URDF relative to the declared zero; the wire needs the
-        // absolute motor frame, so re-add the zero reference before conversion.
-        const zero = this.zeroRef ?? Array(JOINT_COUNT).fill(0)
-        for (let i = 0; i < JOINT_COUNT; i++) {
-          const urdfAbs = cmd.joints[i] + zero[i]
-          const motorQ = this.calib[i].toMotor(urdfAbs)
-          const motorDq = this.calib[i].vecToMotor(0)
-          await this.write(
-            buildControlPacket({
-              motorId: this.motorIds[i], mode: 1, timeout: false,
-              torque: 0, speed: motorDq, position: motorQ,
-              kp: this.holdKp, kd: this.holdKd,
-            })
-          )
-        }
+        // A single mode-1 packet with a zero speed limit is accepted by the
+        // motor and moves nothing. Motion is a ramp: velocity-limited,
+        // anchored to the measured angle, streamed at 60 Hz, beating the
+        // guard deadman as it goes.
+        this.guard.authorize('goto', 'motion')
+        const why = this.jogTo(cmd.joints)
+        if (why) throw new HalError(`goto 被拒: ${why}`, 29)
         return
       }
       case 'home': {
         this.guard.authorize('home', 'motion')
-        for (let i = 0; i < JOINT_COUNT; i++) {
-          const urdfAbs = JOINTS[i].home + (this.zeroRef?.[i] ?? 0)
-          await this.write(
-            buildControlPacket({
-              motorId: this.motorIds[i], mode: 1, timeout: false,
-              torque: 0, speed: 0, position: this.calib[i].toMotor(urdfAbs),
-              kp: this.holdKp, kd: this.holdKd,
-            })
-          )
-        }
+        const why = this.jogTo(JOINTS.map((j) => j.home))
+        if (why) throw new HalError(`home 被拒: ${why}`, 29)
         return
       }
       default:

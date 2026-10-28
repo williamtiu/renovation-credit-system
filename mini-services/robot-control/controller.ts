@@ -105,6 +105,17 @@ export class RobotController {
     if (this.lifecycle !== 'inactive') {
       throw new HalError(`activate 需要 inactive 狀態（當前: ${this.lifecycle}）`, 40)
     }
+    // Activation must not be able to force a motion write past a closed gate.
+    // serial while LOCKED: enter active with no effort requested; foc stays
+    // behind the guard, exactly like every other motion-class command.
+    if (this.driverMode === 'serial' && this.getGuard()?.isLocked()) {
+      this.lifecycle = 'active'
+      this.controlMode = 'stopped'
+      this.startLoops()
+      this.log('info', '控制器已激活 → active（motion LOCKED，暫避 FOC：冇要求任何出力）')
+      this.emitState()
+      return
+    }
     // 上電預設 FOC 保持
     await this.driver.sendCommand({ type: 'foc' })
     this.lifecycle = 'active'
@@ -161,8 +172,12 @@ export class RobotController {
         if (!v.ok) return reject(`關節目標非法: ${v.errors.join('; ')}`)
         const duration = clamp(req.duration ?? 2.0, 0.5, 30)
         lowCmd = { type: 'goto', joints: req.joints, duration }
-        this.moveRemaining = duration
-        this.moving = true
+        // serial: the ramp owns moving/remaining (60 Hz anchored steps).
+        // simulation: the fixed-duration trajectory owns them.
+        if (this.driverMode !== 'serial') {
+          this.moveRemaining = duration
+          this.moving = true
+        }
         break
       }
       case 'foc':
@@ -203,6 +218,9 @@ export class RobotController {
     this.estop = true
     this.moving = false
     this.moveRemaining = 0
+    // serial: drop the ramp first, so nothing keeps streaming toward targets
+    // after the stop packet. The Python program does the same (jog.clear).
+    this.getSerialDriver()?.jogClear('E-STOP')
     if (this.lifecycle === 'active') {
       try { await this.driver.sendCommand({ type: 'stop' }) } catch { /* best effort */ }
     }
@@ -225,8 +243,9 @@ export class RobotController {
       errorCode: tel.errorCode,
       errorMessage: tel.errorMessage,
       joints,
-      moving: this.moving,
-      moveRemaining: this.moveRemaining,
+      moving: this.jogState().moving,
+      moveRemaining: this.jogState().remaining,
+      jogRate: this.getJogRate() ?? undefined,
       serial: { ...this.serialConfig },
       guard: this.guardSnapshot(),
       bus: this.busSnapshot(),
@@ -244,6 +263,29 @@ export class RobotController {
 
   getSerialDriver(): SerialDriver | null {
     return this.driverMode === 'serial' && this.driver instanceof SerialDriver ? this.driver : null
+  }
+
+  /**
+   * serial 模式嘅運動狀態由 ramp 講，唔係由固定 duration 講。
+   * simulation 先會用自己嘅 trajectory 計數。
+   */
+  private jogState(): { moving: boolean; remaining: number } {
+    const d = this.getSerialDriver()
+    if (!d) return { moving: this.moving, remaining: this.moveRemaining }
+    return { moving: d.isJogging(), remaining: d.jogRemaining() }
+  }
+
+  setJogRate(v: number): number | null {
+    const d = this.getSerialDriver()
+    if (!d) return null
+    const rate = d.setJogRate(v)
+    this.log('info', `JOG rate set to ${rate.toFixed(2)} rad/s`)
+    this.emitState()
+    return rate
+  }
+
+  getJogRate(): number | null {
+    return this.getSerialDriver()?.getJogRate() ?? null
   }
 
   private guardSnapshot() {
