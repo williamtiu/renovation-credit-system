@@ -23,7 +23,7 @@
 
 import {
   MAX_JOG_LAG_RAD, ANCHOR_LEAD_RAD, ANCHOR_SLACK_RAD, JOG_SETTLE_EPS,
-  STALL_RELEASE_S, JOG_TICK_DT, MAX_JOG_SPEED, MAX_JOG_KP, MAX_JOG_KD,
+  STALL_RELEASE_S, JOG_TICK_DT, MAX_JOG_SPEED, MAX_JOG_KP, MAX_JOG_KD, KEEPALIVE_HZ,
 } from './jog-constants'
 import type { MotionGuard } from './motion-guard'
 
@@ -41,6 +41,7 @@ export interface JogStatus {
   command: Record<number, number>
   stalled: number[]
   halted: string[]
+  keepaliveBursts: number
 }
 
 const copysign = (mag: number, sign: number) => (sign >= 0 ? Math.abs(mag) : -Math.abs(mag))
@@ -57,7 +58,12 @@ export class JogRunner {
   private kp: number
   private kd: number
   private halted: string[] = []
-  private lastClock = 0
+  // Keep-alive clock: while the ramp is settled we still have to ask the bus,
+  // because on a polled bus the arm stops answering as soon as nothing asks it.
+  private clock = 0
+  private keepalivePeriod = 1.0 / KEEPALIVE_HZ
+  private keepaliveBursts = 0
+  private planCalls = 0
 
   constructor(
     private bus: JogBus,
@@ -156,6 +162,8 @@ export class JogRunner {
       command,
       stalled: Array.from(this.stalled),
       halted: [...this.halted],
+      keepaliveBursts: this.keepaliveBursts,
+      planCalls: this.planCalls,
     }
   }
 
@@ -180,6 +188,7 @@ export class JogRunner {
 
   /** Build this tick's packets and advance the ramp. No I/O happens here. */
   private plan(stepDt: number): Array<{ joint: number; qAbs: number; dqAbs: number }> {
+    this.planCalls++
     if (this.gate() !== null) {
       if (this.targets.size) {
         this.guard.logEvent('JOG HALTED - motion authority lost')
@@ -269,6 +278,42 @@ export class JogRunner {
     }
 
     this.moving = moving
+    if (moving) {
+      this.clock = 0
+      return writes
+    }
+
+    // Settled. On a polled bus the arm stops answering as soon as nothing asks
+    // it, so we keep asking at 20 Hz — and a joint with a target is held **at
+    // the target**, not at where it happened to settle. Feeding the measured
+    // angle back to a joint that is short of its target is what cements the
+    // droop, so a jog that lands short stays short.
+    this.clock += stepDt
+    if (this.clock < this.keepalivePeriod) return writes
+    this.clock = 0
+    this.keepaliveBursts++
+    return writes.concat(this.planKeepalive(snaps, zero))
+  }
+
+  /**
+   * Keep the bus answering, and keep jogged joints at their target.
+   * qAbs frame: value + zeroRef. Untargeted joints are asked their own measured
+   * angle (commanded == measured, net motion zero).
+   */
+  private planKeepalive(
+    snaps: Map<number, { joint: number; present: boolean; errorCode: number; q: number }>,
+    zero: number[]
+  ): Array<{ joint: number; qAbs: number; dqAbs: number }> {
+    const writes: Array<{ joint: number; qAbs: number; dqAbs: number }> = []
+    for (const s of [...snaps.values()].sort((a, b) => a.joint - b.joint)) {
+      if (!s.present || s.errorCode !== 0) continue
+      const target = this.targets.get(s.joint)
+      writes.push({
+        joint: s.joint,
+        qAbs: (target ?? s.q) + (zero[s.joint] ?? 0),
+        dqAbs: 0,
+      })
+    }
     return writes
   }
 }

@@ -287,6 +287,9 @@ export class SerialDriver implements HalDriver {
    */
   writeJog = async (joint: number, qAbs: number, dqAbs: number, kp: number, kd: number): Promise<boolean> => {
     if (!this.transport.isOpen || !this.calib.length) return false
+    // Jog and keepalive are motion-class writes: they carry a position the arm
+    // will travel to, so a closed gate has to stop them like any other motion.
+    this.guard.authorize(dqAbs === 0 ? 'keepalive' : 'jog', 'motion')
     const ratioQ = this.calib[joint].toMotor(qAbs)
     const ratioDq = this.calib[joint].vecToMotor(dqAbs)
     await this.write(buildControlPacket({

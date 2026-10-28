@@ -10,11 +10,17 @@
  *
  * Usage: bun scripts/virtual-zero-gate-test.ts <slavePath> <calibPath>
  */
+import { unlinkSync } from 'node:fs'
 import { SerialDriver } from '../mini-services/robot-control/serial-driver'
 import { UNLOCK_PHRASE, MASTER_UNLOCK_CODE } from '../mini-services/robot-control/motion-guard'
 
 const [slavePath, calibPath] = process.argv.slice(2)
-const MISSING_ZERO = '/home/orangepi/definitely-not-a-zero-file.json'
+// The zero path must be absent at connect AND removed again at the end:
+// captureZeroReference() writes this file, so a non-self-cleaning harness
+// leaves it behind and every later run starts with a declared zero, making the
+// gate look like it accepted motion when it legitimately had a zero.
+const MISSING_ZERO = `/home/orangepi/zero-gate-absent-${process.pid}.json`
+try { unlinkSync(MISSING_ZERO) } catch { /* absent, as intended */ }
 if (!slavePath || !calibPath) {
   console.error('usage: bun scripts/virtual-zero-gate-test.ts <slavePath> <calibPath>')
   process.exit(2)
@@ -80,5 +86,10 @@ out.gotoTxPackets = driver.guard.status().txPackets - txBeforeGoto   // expect 7
 out.events = events
 
 console.log(JSON.stringify(out, null, 1))
+driver.jogClear('test end')
 await driver.disconnect()
+// Self-clean: captureZeroReference() wrote this file. Leaving it behind makes
+// every later run start with a declared zero, and the gate then legitimately
+// accepts motion — which reads as a gate failure if the harness assumes absence.
+try { unlinkSync(MISSING_ZERO) } catch { /* nothing written */ }
 process.exit(0)
