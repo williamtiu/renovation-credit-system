@@ -349,6 +349,7 @@ function GuardPanel({ robot }: { robot: RobotContext }) {
   const [jogRate, setJogRate] = useState(String(state?.jogRate ?? 0.25))
   const [jogKp, setJogKp] = useState('30')
   const [jogKd, setJogKd] = useState('1.5')
+  const [jogTauFf, setJogTauFf] = useState('0')
   const [jogInfo, setJogInfo] = useState<{
     rate?: number; moving?: boolean; active?: boolean; keepaliveBursts?: number
   } | null>(null)
@@ -371,23 +372,32 @@ function GuardPanel({ robot }: { robot: RobotContext }) {
     const rate = parseFloat(jogRate)
     const kp = parseFloat(jogKp)
     const kd = parseFloat(jogKd)
+    const tauFf = parseFloat(jogTauFf)
     if (!Number.isFinite(rate) || rate < 0.01 || rate > 1.0) {
       toast({ title: '✗ ramp 速度非法', description: '要喺 0.01 至 1.0 rad/s 之間', variant: 'destructive' })
       return
     }
-    if (!Number.isFinite(kp) || kp < 0 || kp > 60 || !Number.isFinite(kd) || kd < 0 || kd > 5) {
-      toast({ title: '✗ ramp gains 非法', description: 'kp 0–60、kd 0–5（MAX_JOG_KP / MAX_JOG_KD）', variant: 'destructive' })
+    // Ceilings must match MAX_JOG_KP / MAX_JOG_KD / MAX_TAU_FF in the driver
+    // and the /api/robot/jog validation, otherwise a value the operator typed
+    // is rejected here after the ceiling was raised there.
+    if (!Number.isFinite(kp) || kp < 0 || kp > 120 || !Number.isFinite(kd) || kd < 0 || kd > 5) {
+      toast({ title: '✗ ramp gains 非法', description: 'kp 0–120、kd 0–5（MAX_JOG_KP / MAX_JOG_KD）', variant: 'destructive' })
+      return
+    }
+    if (!Number.isFinite(tauFf) || tauFf < -8 || tauFf > 8) {
+      toast({ title: '✗ torque feed-forward 非法', description: 'tauFf 要喺 -8 至 +8 Nm（MAX_TAU_FF）', variant: 'destructive' })
       return
     }
     setBusy('jog rate')
-    const res = await api('/api/robot/jog', { method: 'POST', body: JSON.stringify({ rate, kp, kd }) })
+    const res = await api('/api/robot/jog', { method: 'POST', body: JSON.stringify({ rate, kp, kd, tauFf }) })
     setBusy(null)
     if (res.ok) {
+      const g = res.gains ?? res.data?.gains
       toast({
         title: `✓ ramp 已套用`,
-        description: `rate ${rate} rad/s · kp ${res.data?.gains?.kp ?? kp} · kd ${res.data?.gains?.kd ?? kd}`,
+        description: `rate ${res.rate ?? rate} rad/s · kp ${g?.kp ?? kp} · kd ${g?.kd ?? kd} · tauFf ${res.tauFf ?? tauFf} Nm`,
       })
-      setJogInfo(res.data?.jog ?? jogInfo)
+      setJogInfo(res.jog ?? res.data?.jog ?? jogInfo)
     } else {
       toast({ title: '✗ 設定失敗', description: res.error ?? 'jog 只喺 serial 模式可用', variant: 'destructive' })
     }
@@ -605,6 +615,25 @@ function GuardPanel({ robot }: { robot: RobotContext }) {
                 className="bg-zinc-950 border-zinc-700 font-mono h-9"
               />
               <p className="text-[10px] text-zinc-600">上限 5（MAX_JOG_KD）</p>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="jog-tauf" className="text-xs text-zinc-300">
+                重力 torque feed-forward (Nm)
+              </Label>
+              <Input
+                id="jog-tauf"
+                value={jogTauFf}
+                onChange={(e) => setJogTauFf(e.target.value)}
+                type="number"
+                step="0.2"
+                min="-8"
+                max="8"
+                className="bg-zinc-950 border-zinc-700 font-mono h-9"
+              />
+              <p className="text-[10px] text-zinc-600">
+                ±8（MAX_TAU_FF）。常數 bias 卸掉重力，令 P term 有餘量收埋
+                steady-state offset；符號由 load 方向決定，唔跟 travel 方向。
+              </p>
             </div>
           </div>
           <div className="flex flex-wrap gap-2">
