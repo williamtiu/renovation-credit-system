@@ -83,8 +83,38 @@ export interface RobotState {
   moving: boolean
   /** 當前軌跡剩餘時間 (s) */
   moveRemaining: number
-  /** 串口設定 */
-  serial: { port: string; baudrate: number }
+  /** 串口設定（serial 模式含校準/零位/監控參數） */
+  serial: {
+    port: string
+    baudrate: number
+    calibPath?: string
+    zeroPath?: string
+    rateHz?: number
+    holdKp?: number
+    holdKd?: number
+  }
+  /** 傳輸安全閘狀態（serial 模式；locked 為預設，預設零位元組輸出） */
+  guard?: {
+    locked: boolean
+    monitorArmed: boolean
+    txPackets: number
+    txBlocked: number
+    lockReason: string
+    monitorReason: string
+    nonceHint: string
+  }
+  /** serial 模式匯流排計數（rx/crc/resync/零位參考） */
+  bus?: {
+    rxBytes: number
+    rxPackets: number
+    crcErrors: number
+    resyncs: number
+    lastRx: number | null
+    holdCycles: number
+    probeCycles: number
+    zeroDeclared: boolean
+    faults: Array<{ joint: number; errorCode: number }>
+  }
   /** 遙測頻率 (Hz) */
   telemetryHz: number
   /** 運行時間 (s) */

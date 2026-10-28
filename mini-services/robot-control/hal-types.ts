@@ -42,6 +42,15 @@ export interface HalDriver {
 export interface DriverConfig {
   port: string      // /dev/ttyUSB0
   baudrate: number  // 6000000
+  /** serial 模式必要：關節校準表（urdf = dir * scale * motor + offset） */
+  calibPath?: string
+  /** 操作者宣告零位嘅持久化路徑（joint_zero.json） */
+  zeroPath?: string
+  /** position-hold 監控循環頻率 (Hz)，5-100 */
+  rateHz?: number
+  /** hold 循環嘅 FOC 增益（kp=kd=0 唔會啟用 FOC） */
+  holdKp?: number
+  holdKd?: number
 }
 
 export interface DriverEvent {

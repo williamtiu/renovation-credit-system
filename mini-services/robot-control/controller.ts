@@ -22,6 +22,7 @@ import { HalError } from './hal-types'
 import { SimulationDriver } from './simulation-driver'
 import { SerialDriver } from './serial-driver'
 import { BridgeDriver } from './bridge-driver'
+import type { MotionGuard } from './motion-guard'
 
 export interface CommandRequest {
   type: 'foc' | 'home' | 'goto' | 'stop' | 'zero_torque' | 'clear' | 'reset'
@@ -29,7 +30,17 @@ export interface CommandRequest {
   duration?: number
 }
 
-export interface CommandResult {
+export interface SerialSettings {
+  port: string
+  baudrate: number
+  calibPath?: string
+  zeroPath?: string
+  rateHz?: number
+  holdKp?: number
+  holdKd?: number
+}
+
+export type CommandResult = {
   ok: boolean
   message: string
   latencyMs: number
@@ -53,7 +64,7 @@ export class RobotController {
   private stateTimer: ReturnType<typeof setInterval> | null = null
   private moveTimer: ReturnType<typeof setInterval> | null = null
   private startTs = Date.now()
-  private serialConfig = { port: '/dev/ttyUSB0', baudrate: 6000000 }
+  private serialConfig: SerialSettings = { port: '/dev/ttyUSB0', baudrate: 6000000 }
   private telemetryHz = 50
 
   constructor() {
@@ -62,10 +73,11 @@ export class RobotController {
 
   // ---------- 生命周期 ----------
 
-  async configure(mode: DriverMode, port?: string, baudrate?: number): Promise<void> {
+  async configure(mode: DriverMode, port?: string, baudrate?: number, extra?: Partial<SerialSettings>): Promise<void> {
     await this.shutdownDriver()
     if (port) this.serialConfig.port = port
     if (baudrate) this.serialConfig.baudrate = baudrate
+    if (extra) this.serialConfig = { ...this.serialConfig, ...extra }
     this.driverMode = mode
 
     this.driver =
@@ -76,10 +88,7 @@ export class RobotController {
     this.driver.onEvent(ev => this.handleDriverEvent(ev))
 
     try {
-      await this.driver.connect({
-        port: this.serialConfig.port,
-        baudrate: this.serialConfig.baudrate,
-      })
+      await this.driver.connect({ ...this.serialConfig })
       this.lifecycle = 'inactive'
       this.controlMode = 'stopped'
       this.estop = false
@@ -219,13 +228,64 @@ export class RobotController {
       moving: this.moving,
       moveRemaining: this.moveRemaining,
       serial: { ...this.serialConfig },
+      guard: this.guardSnapshot(),
+      bus: this.busSnapshot(),
       telemetryHz: this.telemetryHz,
       uptime: (Date.now() - this.startTs) / 1000,
     }
   }
 
+  /** serial 模式嘅安全閘（simulation/bridge 模式回 null） */
+  getGuard(): MotionGuard | null {
+    return this.driverMode === 'serial' && this.driver instanceof SerialDriver
+      ? this.driver.guard
+      : null
+  }
+
+  getSerialDriver(): SerialDriver | null {
+    return this.driverMode === 'serial' && this.driver instanceof SerialDriver ? this.driver : null
+  }
+
+  private guardSnapshot() {
+    const g = this.getGuard()
+    if (!g) return undefined
+    const s = g.status()
+    return {
+      locked: s.locked,
+      monitorArmed: s.monitorArmed,
+      txPackets: s.txPackets,
+      txBlocked: s.txBlocked,
+      lockReason: s.lockReason,
+      monitorReason: s.monitorReason,
+      nonceHint: s.nonceHint,
+    }
+  }
+
+  private busSnapshot() {
+    const d = this.getSerialDriver()
+    if (!d) return undefined
+    const s = d.status()
+    return {
+      rxBytes: s.rxBytes,
+      rxPackets: s.rxPackets,
+      crcErrors: s.crcErrors,
+      resyncs: s.resyncs,
+      lastRx: s.lastRx,
+      holdCycles: s.holdCycles,
+      probeCycles: s.probeCycles,
+      zeroDeclared: s.zeroReference !== null,
+      faults: s.faults,
+    }
+  }
+
   getEventLog() {
     return this.eventLog.slice(-100).reverse()
+  }
+
+  /** 生命周期/安全閘/零位等事件入同一個事件日誌，Logs 頁見到。 */
+  logLifecycle(message: string): void {
+    this.log('info', message)
+    this.emitState()
   }
 
   onState(cb: StateListener): () => void {

@@ -8,9 +8,24 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useToast } from '@/hooks/use-toast'
 import { cn } from '@/lib/utils'
+import { ShieldCheck, ShieldX, Eye, RadioTower, LockOpen, Lock, Crosshair, Trash2 } from 'lucide-react'
 import type { RobotContext } from '@/hooks/use-robot'
 
 type Mode = 'simulation' | 'serial' | 'bridge'
+
+interface SerialDraft {
+  mode: Mode
+  port: string
+  baudrate: string
+  calibPath: string
+  zeroPath: string
+  rateHz: string
+  holdKp: string
+  holdKd: string
+}
+
+const DEFAULT_CALIB_PATH = '/home/orangepi/r17a/r1-7a_sdk-main/r1-7a_sdk-main/config/joint_calib.txt'
+const DEFAULT_ZERO_PATH = '/home/orangepi/r17a/r1-7a_sdk-main/r1-7a_sdk-main/config/joint_zero.json'
 
 const MODES: Array<{
   id: Mode
@@ -30,8 +45,8 @@ const MODES: Array<{
     id: 'serial',
     icon: <Cable className="h-4 w-4" />,
     name: '串口直連 (Serial)',
-    desc: '透過 serialport 直接同 IM6014 匯流排通訊。需要按照 SDK 協議補全幀格式（進階）。',
-    badge: '進階',
+    desc: 'serialport 直接行 IM6014 幀（20-byte 控制 / 26-byte 遙測，byte-exact 對齊 SDK）。要俾校準表先可以配置；預設 LOCKED，零位元組輸出。',
+    badge: '真機',
   },
   {
     id: 'bridge',
@@ -48,15 +63,29 @@ export function SettingsPanel({ robot }: { robot: RobotContext }) {
   const [busy, setBusy] = useState(false)
 
   // 衍生預設值：未編輯時跟隨即時狀態；用戶修改後鎖定為 draft
-  const [draft, setDraft] = useState<{ mode: Mode; port: string; baudrate: string } | null>(null)
-  const live = {
+  const [draft, setDraft] = useState<SerialDraft | null>(null)
+  const live: SerialDraft = {
     mode: (state?.driverMode ?? 'simulation') as Mode,
     port: state?.serial.port ?? '/dev/ttyUSB0',
     baudrate: String(state?.serial.baudrate ?? 6000000),
+    calibPath: state?.serial.calibPath ?? DEFAULT_CALIB_PATH,
+    zeroPath: state?.serial.zeroPath ?? DEFAULT_ZERO_PATH,
+    rateHz: String(state?.serial.rateHz ?? 50),
+    holdKp: String(state?.serial.holdKp ?? 20),
+    holdKd: String(state?.serial.holdKd ?? 0.5),
   }
   const mode = draft?.mode ?? live.mode
   const port = draft?.port ?? live.port
   const baudrate = draft?.baudrate ?? live.baudrate
+  const calibPath = draft?.calibPath ?? live.calibPath
+  const zeroPath = draft?.zeroPath ?? live.zeroPath
+  const rateHz = draft?.rateHz ?? live.rateHz
+  const holdKp = draft?.holdKp ?? live.holdKp
+  const holdKd = draft?.holdKd ?? live.holdKd
+  // Any field edit must carry the current (draft-or-live) values of all the others.
+  const draftBase: SerialDraft = {
+    mode, port, baudrate, calibPath, zeroPath, rateHz, holdKp, holdKd,
+  }
 
   const apply = async (targetMode: Mode, p: string, b: string) => {
     setBusy(true)
@@ -67,6 +96,11 @@ export function SettingsPanel({ robot }: { robot: RobotContext }) {
         mode: targetMode,
         port: p,
         baudrate: parseInt(b, 10) || 6000000,
+        calibPath: calibPath.trim(),
+        zeroPath: zeroPath.trim(),
+        rateHz: parseFloat(rateHz) || 50,
+        holdKp: parseFloat(holdKp) || 0,
+        holdKd: parseFloat(holdKd) || 0,
       }),
     })
     setBusy(false)
@@ -161,6 +195,86 @@ export function SettingsPanel({ robot }: { robot: RobotContext }) {
                 r1-7a_sdk 預設 6000000（bridge 模式下由 bridge 自行管理）
               </p>
             </div>
+
+            {mode === 'serial' && (
+              <>
+                <div className="space-y-1.5 sm:col-span-2">
+                  <Label htmlFor="serial-calib" className="text-xs text-zinc-300">
+                    關節校準表（joint_calib.txt）
+                  </Label>
+                  <Input
+                    id="serial-calib"
+                    value={calibPath}
+                    onChange={(e) => setDraft({ ...draftBase, calibPath: e.target.value })}
+                    className="bg-zinc-950 border-zinc-700 font-mono h-9 text-[11px]"
+                  />
+                  <p className="text-[10px] text-zinc-600">
+                    格式「joint dir scale offset」，即 urdf = dir × scale × motor + offset。
+                    serial 模式冇校準表就 configuration 會拒絕 —— 報返出嚟嘅唔係 URDF frame。
+                  </p>
+                </div>
+                <div className="space-y-1.5 sm:col-span-2">
+                  <Label htmlFor="serial-zero" className="text-xs text-zinc-300">
+                    零位參考檔案（joint_zero.json）
+                  </Label>
+                  <Input
+                    id="serial-zero"
+                    value={zeroPath}
+                    onChange={(e) => setDraft({ ...draftBase, zeroPath: e.target.value })}
+                    className="bg-zinc-950 border-zinc-700 font-mono h-9 text-[11px]"
+                  />
+                  <p className="text-[10px] text-zinc-600">
+                    操作者宣告嘅零位會寫喺呢度並喺重啟後恢復 —— 重啟唔可以重新定義零位。
+                  </p>
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="serial-rate" className="text-xs text-zinc-300">
+                    監控循環頻率 (Hz)
+                  </Label>
+                  <Input
+                    id="serial-rate"
+                    value={rateHz}
+                    onChange={(e) => setDraft({ ...draftBase, rateHz: e.target.value })}
+                    type="number"
+                    min={5}
+                    max={100}
+                    className="bg-zinc-950 border-zinc-700 font-mono h-9"
+                  />
+                  <p className="text-[10px] text-zinc-600">
+                    position-hold 循環 5–100 Hz（IM6014 需要主機主動問，馬達先會答）
+                  </p>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="serial-kp" className="text-xs text-zinc-300">
+                      hold kp
+                    </Label>
+                    <Input
+                      id="serial-kp"
+                      value={holdKp}
+                      onChange={(e) => setDraft({ ...draftBase, holdKp: e.target.value })}
+                      type="number"
+                      className="bg-zinc-950 border-zinc-700 font-mono h-9"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="serial-kd" className="text-xs text-zinc-300">
+                      hold kd
+                    </Label>
+                    <Input
+                      id="serial-kd"
+                      value={holdKd}
+                      onChange={(e) => setDraft({ ...draftBase, holdKd: e.target.value })}
+                      type="number"
+                      className="bg-zinc-950 border-zinc-700 font-mono h-9"
+                    />
+                  </div>
+                  <p className="text-[10px] text-zinc-600 sm:col-span-2">
+                    kp = kd = 0 唔會啟用 FOC（實測 firmware 行為）；上限 kp 60 / kd 5。
+                  </p>
+                </div>
+              </>
+            )}
           </div>
 
           <div className="flex flex-wrap gap-2">
@@ -175,6 +289,9 @@ export function SettingsPanel({ robot }: { robot: RobotContext }) {
           </div>
         </CardContent>
       </Card>
+
+      {/* 傳輸安全閘（serial 模式） */}
+      {mode === 'serial' && <GuardPanel robot={robot} />}
 
       {/* 部署拓撲說明 */}
       <Card className="border-zinc-800 bg-zinc-900/60">
@@ -205,6 +322,184 @@ export function SettingsPanel({ robot }: { robot: RobotContext }) {
           </pre>
         </CardContent>
       </Card>
+    </div>
+  )
+}
+
+const MONITOR_PHRASE = 'ARM POSITION-HOLD MONITORING'
+const UNLOCK_PHRASE = 'I ACCEPT FULL MOTION CONTROL'
+
+/**
+ * 傳輸安全閘面板（serial 模式）
+ *
+ * LOCKED 係預設，預設零位元組輸出。解鎖要同時輸入正確嘅 phrase 同 console
+ * code — 少任何一樣都喺到達傳輸代碼之前被拒（403），永遠唔會寫出一個 byte。
+ */
+function GuardPanel({ robot }: { robot: RobotContext }) {
+  const { state, api } = robot
+  const { toast } = useToast()
+  const [busy, setBusy] = useState<string | null>(null)
+  const [phrase, setPhrase] = useState('')
+  const [code, setCode] = useState('')
+
+  const guard = state?.guard
+  const bus = state?.bus
+
+  const act = async (label: string, action: string, extra?: Record<string, string>) => {
+    setBusy(label)
+    const res = await api('/api/robot/guard', {
+      method: 'POST',
+      body: JSON.stringify({ action, phrase, code, ...extra }),
+    })
+    setBusy(null)
+    if (res.ok) {
+      toast({ title: `✓ ${label}`, description: res.message ?? '' })
+    } else {
+      toast({ title: `✗ ${label}`, description: res.error ?? res.message ?? '被拒絕', variant: 'destructive' })
+    }
+  }
+
+  const zero = async (label: string, action: 'capture' | 'clear') => {
+    setBusy(label)
+    const res = await api('/api/robot/zero', { method: 'POST', body: JSON.stringify({ action }) })
+    setBusy(null)
+    if (res.ok) toast({ title: `✓ ${label}`, description: res.message ?? '' })
+    else toast({ title: `✗ ${label}`, description: res.error ?? '被拒絕', variant: 'destructive' })
+  }
+
+  return (
+    <Card className="border-zinc-800 bg-zinc-900/60">
+      <CardHeader className="pb-3">
+        <CardTitle className="flex items-center gap-2 text-sm font-semibold text-zinc-200">
+          {guard?.locked ? (
+            <ShieldCheck className="h-4 w-4 text-emerald-400" aria-hidden />
+          ) : (
+            <ShieldX className="h-4 w-4 text-red-400" aria-hidden />
+          )}
+          傳輸安全閘（IM6014 transmit gate）
+        </CardTitle>
+        <CardDescription className="text-xs">
+          預設 LOCKED = 零位元組輸出。解鎖運動要 phrase + console code 兩樣齊；
+          監控（讀遙測）要 separately arm —— 呢條 bus 要主機問咗，馬達先會答。
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="grid gap-2 sm:grid-cols-4">
+          <Stat label="Motion" value={guard ? (guard.locked ? 'LOCKED' : 'UNLOCKED') : '—'}
+            tone={guard && !guard.locked ? 'danger' : 'safe'} />
+          <Stat label="Monitor" value={guard ? (guard.monitorArmed ? 'ARMED' : 'IDLE') : '—'}
+            tone={guard?.monitorArmed ? 'warn' : 'muted'} />
+          <Stat label="TX" value={guard ? `${guard.txPackets}` : '—'} tone="muted" />
+          <Stat label="被拒" value={guard ? `${guard.txBlocked}` : '—'} tone="muted" />
+        </div>
+
+        {guard?.lockReason && (
+          <p className="text-[11px] text-zinc-500">
+            <span className="font-mono text-zinc-400">{guard.lockReason}</span>
+            {' · '}
+            <span className="font-mono text-zinc-400">{guard.monitorReason}</span>
+            {' · '}code <span className="font-mono text-zinc-400">{guard.nonceHint}</span>
+          </p>
+        )}
+
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="space-y-1.5">
+            <Label htmlFor="guard-phrase" className="text-xs text-zinc-300">Phrase</Label>
+            <Input
+              id="guard-phrase"
+              value={phrase}
+              onChange={(e) => setPhrase(e.target.value)}
+              placeholder={UNLOCK_PHRASE}
+              className="bg-zinc-950 border-zinc-700 font-mono h-9 text-[11px]"
+            />
+            <p className="text-[10px] text-zinc-600">
+              監控：<span className="font-mono">{MONITOR_PHRASE}</span>
+              <br />
+              解鎖：<span className="font-mono">{UNLOCK_PHRASE}</span>
+            </p>
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="guard-code" className="text-xs text-zinc-300">Console code</Label>
+            <Input
+              id="guard-code"
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+              placeholder="控制台解鎖碼"
+              className="bg-zinc-950 border-zinc-700 font-mono h-9 text-[11px]"
+            />
+            <p className="text-[10px] text-zinc-600">唔啱就 403，永遠唔會到達傳輸代碼</p>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          <Button size="sm" disabled={busy !== null} onClick={() => act('Arm monitor', 'arm-monitor')}
+            className="gap-1.5 bg-zinc-800 text-zinc-100 hover:bg-zinc-700">
+            <Eye className="h-4 w-4" aria-hidden />
+            {busy === 'Arm monitor' ? '處理中…' : 'Arm 監控（讀遙測）'}
+          </Button>
+          <Button size="sm" disabled={busy !== null} onClick={() => act('Unlock motion', 'unlock')}
+            className="gap-1.5 bg-red-600 text-white hover:bg-red-500 font-semibold">
+            <LockOpen className="h-4 w-4" aria-hidden />
+            {busy === 'Unlock motion' ? '處理中…' : '解鎖運動授權'}
+          </Button>
+          <Button size="sm" disabled={busy !== null}
+            onClick={() => act('Lock', 'lock', { reason: 'operator lock from UI' })}
+            className="gap-1.5 bg-zinc-800 text-zinc-100 hover:bg-zinc-700">
+            <Lock className="h-4 w-4" aria-hidden />
+            {busy === 'Lock' ? '處理中…' : '重新鎖定'}
+          </Button>
+        </div>
+
+        <div className="rounded-xl border border-zinc-800 bg-zinc-950/50 p-4 space-y-3">
+          <div className="flex items-center gap-2 text-xs text-zinc-300">
+            <RadioTower className="h-4 w-4 text-cyan-400" aria-hidden />
+            匯流排計數
+          </div>
+          <div className="grid gap-2 sm:grid-cols-4">
+            <Stat label="RX bytes" value={bus ? `${bus.rxBytes}` : '—'} tone="muted" />
+            <Stat label="RX packets" value={bus ? `${bus.rxPackets}` : '—'} tone="muted" />
+            <Stat label="CRC 錯" value={bus ? `${bus.crcErrors}` : '—'}
+              tone={bus && bus.crcErrors ? 'danger' : 'safe'} />
+            <Stat label="Resync" value={bus ? `${bus.resyncs}` : '—'} tone="muted" />
+          </div>
+          <p className="text-[10px] text-zinc-600">
+            遙測要 monitor 類傳輸先會更新（commanded == measured，淨位移零）。
+            {bus?.zeroDeclared === false && ' · 未宣告零位 — 報嘅係 encoder 絕對角。'}
+            {bus && bus.faults.length > 0 && ` · 錯誤碼關節：${bus.faults.map((f) => f.joint).join(', ')}`}
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <Button size="sm" disabled={busy !== null} onClick={() => zero('宣告現時姿勢為零位', 'capture')}
+              className="gap-1.5 bg-zinc-800 text-zinc-100 hover:bg-zinc-700">
+              <Crosshair className="h-4 w-4" aria-hidden />
+              {busy === '宣告現時姿勢為零位' ? '處理中…' : '宣告現時姿勢為零位'}
+            </Button>
+            <Button size="sm" disabled={busy !== null} onClick={() => zero('清除零位參考', 'clear')}
+              className="gap-1.5 bg-zinc-800 text-zinc-100 hover:bg-zinc-700">
+              <Trash2 className="h-4 w-4" aria-hidden />
+              {busy === '清除零位參考' ? '處理中…' : '清除零位參考'}
+            </Button>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
+function Stat({ label, value, tone }: { label: string; value: string; tone: 'safe' | 'warn' | 'danger' | 'muted' }) {
+  return (
+    <div className="rounded-lg border border-zinc-800 bg-zinc-950/60 px-3 py-2">
+      <div className="text-[9px] uppercase tracking-wide text-zinc-600">{label}</div>
+      <div
+        className={cn(
+          'font-mono text-sm',
+          tone === 'safe' && 'text-emerald-400',
+          tone === 'warn' && 'text-amber-400',
+          tone === 'danger' && 'text-red-400',
+          tone === 'muted' && 'text-zinc-300'
+        )}
+      >
+        {value}
+      </div>
     </div>
   )
 }

@@ -6,7 +6,8 @@ export const dynamic = 'force-dynamic'
 
 /**
  * POST /api/system/configure — 配置驅動模式（生命周期管理）
- * Body: { action: 'configure'|'activate'|'deactivate'|'cleanup', mode?, port?, baudrate? }
+ * Body: { action: 'configure'|'activate'|'deactivate'|'cleanup', mode?, port?, baudrate?,
+ *         calibPath?, zeroPath?, rateHz?, holdKp?, holdKd? }
  */
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => ({}))
@@ -27,6 +28,12 @@ export async function POST(req: NextRequest) {
           mode,
           port: body.port ?? '/dev/ttyUSB0',
           baudrate: body.baudrate ?? 6000000,
+          // serial 模式嘅校準/零位/監控參數（bridge/simulation 會忽略）
+          calibPath: body.calibPath,
+          zeroPath: body.zeroPath,
+          rateHz: body.rateHz,
+          holdKp: body.holdKp,
+          holdKd: body.holdKd,
         })
         // configure 成功後自動 activate
         if (res.ok) {

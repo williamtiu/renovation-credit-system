@@ -17,6 +17,7 @@
 
 import { createServer, IncomingMessage, ServerResponse } from 'node:http'
 import { RobotController } from './controller'
+import type { SerialSettings } from './controller'
 import { JOINTS, DEMO_POSES, ARM_HOME } from './robot-model'
 
 const PORT = 3002
@@ -81,6 +82,11 @@ const server = createServer(async (req, res) => {
       if (path === '/joints') {
         return json(res, 200, { ok: true, data: JOINTS })
       }
+      if (path === '/guard') {
+        const g = controller.getGuard()
+        if (!g) return json(res, 200, { ok: true, data: null, note: 'guard 只喺 serial 模式存在' })
+        return json(res, 200, { ok: true, data: g.status() })
+      }
       if (path === '/events') {
         return json(res, 200, { ok: true, data: controller.getEventLog() })
       }
@@ -134,7 +140,15 @@ const server = createServer(async (req, res) => {
         if (!['simulation', 'serial', 'bridge'].includes(mode)) {
           return json(res, 400, { ok: false, error: 'mode 必須係 simulation | serial | bridge' })
         }
-        await controller.configure(mode, body.port, body.baudrate)
+        // serial 模式嘅校準/零位/監控參數要一路传到 driver —— 之前呢度漏咗，
+        // driver 收唔到 calibPath 就會拒絕配置。
+        const extra: Partial<SerialSettings> = {}
+        if (typeof body.calibPath === 'string') extra.calibPath = body.calibPath
+        if (typeof body.zeroPath === 'string') extra.zeroPath = body.zeroPath
+        if (typeof body.rateHz === 'number') extra.rateHz = body.rateHz
+        if (typeof body.holdKp === 'number') extra.holdKp = body.holdKp
+        if (typeof body.holdKd === 'number') extra.holdKd = body.holdKd
+        await controller.configure(mode, body.port, body.baudrate, extra)
         return json(res, 200, { ok: true, message: `已配置 (${mode})`, state: controller.getState() })
       }
       if (path === '/activate') {
@@ -148,6 +162,48 @@ const server = createServer(async (req, res) => {
       if (path === '/cleanup') {
         await controller.cleanup()
         return json(res, 200, { ok: true, state: controller.getState() })
+      }
+      // ---------- 傳輸安全閘（serial 模式） ----------
+      if (path === '/guard/arm-monitor' || path === '/guard/unlock') {
+        const body = await readBody(req)
+        const g = controller.getGuard()
+        if (!g) return json(res, 400, { ok: false, error: 'guard 只喺 serial 模式存在，請先 configure(serial)' })
+        const out = path.endsWith('/unlock')
+          ? g.unlock(body.phrase ?? '', body.code ?? '')
+          : g.armMonitor(body.phrase ?? '', body.code ?? '')
+        controller.logLifecycle(`${path}: ${out.ok ? '✓' : '✗ ' + out.message}`)
+        return json(res, out.ok ? 200 : 403, { ok: out.ok, message: out.message, state: controller.getState() })
+      }
+      if (path === '/guard/lock') {
+        const body = await readBody(req)
+        const g = controller.getGuard()
+        if (!g) return json(res, 400, { ok: false, error: 'guard 只喺 serial 模式存在' })
+        g.lock(body.reason ?? 'operator lock')
+        controller.logLifecycle('guard: LOCKED by operator')
+        return json(res, 200, { ok: true, message: '已重新鎖定', state: controller.getState() })
+      }
+      if (path === '/guard/beat') {
+        controller.getGuard()?.beat()
+        return json(res, 200, { ok: true })
+      }
+      // ---------- 零位參考（serial 模式） ----------
+      if (path === '/zero/capture' || path === '/zero/clear') {
+        const d = controller.getSerialDriver()
+        if (!d) return json(res, 400, { ok: false, error: '零位參考只喺 serial 模式可用' })
+        if (path.endsWith('/capture')) {
+          const out = d.captureZeroReference()
+          controller.logLifecycle(`zero: capture ${out.ok ? '✓ ' + out.message : '✗ ' + out.message}`)
+          return json(res, out.ok ? 200 : 409, { ok: out.ok, message: out.message, state: controller.getState() })
+        }
+        d.clearZeroReference()
+        controller.logLifecycle('zero: cleared')
+        return json(res, 200, { ok: true, message: '零位參考已清除', state: controller.getState() })
+      }
+      if (path === '/poller') {
+        const body = await readBody(req)
+        const d = controller.getSerialDriver()
+        if (!d) return json(res, 400, { ok: false, error: 'poller 只喺 serial 模式可用' })
+        return json(res, 200, { ok: true, data: d.configurePoller(body), state: controller.getState() })
       }
       return json(res, 404, { ok: false, error: 'not found' })
     }

@@ -21,6 +21,28 @@ export interface JointState {
   temp: number
 }
 
+export interface GuardStatus {
+  locked: boolean
+  monitorArmed: boolean
+  txPackets: number
+  txBlocked: number
+  lockReason: string
+  monitorReason: string
+  nonceHint: string
+}
+
+export interface BusStatus {
+  rxBytes: number
+  rxPackets: number
+  crcErrors: number
+  resyncs: number
+  lastRx: number | null
+  holdCycles: number
+  probeCycles: number
+  zeroDeclared: boolean
+  faults: Array<{ joint: number; errorCode: number }>
+}
+
 export interface RobotState {
   lifecycle: string
   connected: boolean
@@ -32,7 +54,17 @@ export interface RobotState {
   joints: JointState[]
   moving: boolean
   moveRemaining: number
-  serial: { port: string; baudrate: number }
+  serial: {
+    port: string
+    baudrate: number
+    calibPath?: string
+    zeroPath?: string
+    rateHz?: number
+    holdKp?: number
+    holdKd?: number
+  }
+  guard?: GuardStatus
+  bus?: BusStatus
   telemetryHz: number
   uptime: number
 }
